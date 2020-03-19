@@ -28,10 +28,21 @@ abstract class ImmutableModelValue<F extends ImmutableModelValue<F, V>, V> {
 
   F reset();
 
-  dynamic asSerializable();
-
   F setFrom(v);
+
+  dynamic asSerializable() => value;
 
   @override
   String toString() => "$value ($F)";
+}
+
+class ValueTypeException implements Exception{
+  final Type expected;
+  final Type received;
+  final dynamic value;
+
+  ValueTypeException(this.expected, this.received, this.value);
+  
+  @override
+  String toString() => 'Expected $expected but got $received: $value';
 }
