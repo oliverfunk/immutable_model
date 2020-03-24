@@ -1,6 +1,6 @@
 name: immutable_model
 description: Library for creating immutable, hierarchical and valid models quickly and easily
-version: 0.0.4
+version: 0.0.5
 author: Oliver Funk <oli.funk@gmail.com>
 homepage:
 
