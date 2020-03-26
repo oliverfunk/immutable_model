@@ -1,17 +1,14 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:immutable_model/src/v2/immutable_entities/immutable_entity.dart';
-import 'package:immutable_model/src/v2/immutable_entities/model_entity.dart';
 
 typedef void ListItemValidator<V>(V item);
 
-class ImmutableList<V> extends ModelEntity<List<V>> {
-  // private class members
+class ImmutableList<V> extends ImmutableEntity<List<V>> {
+  final ListItemValidator<V> listItemValidator;
+  final bool append;
+
   final BuiltList<V> _list;
   final BuiltList<V> _defaultList;
-
-  // public class members
-  final bool append;
-  final ListItemValidator<V> listItemValidator;
 
   // constructors
   ImmutableList._(ImmutableList instance, this._list)
@@ -32,16 +29,6 @@ class ImmutableList<V> extends ModelEntity<List<V>> {
       ? (listToValidate..forEach((item) => listItemValidator(item)))
       : listToValidate;
 
-  List<V> _toTypedList(List<dynamic> l) => l is List<V> ? l : l.map((li) => _safeDeserializeListItem(li));
-
-  V _safeDeserializeListItem(dynamic item) {
-    try {
-      return itemDeserializer(item);
-    } catch (e) {
-      throw Exception("couldn't deserialize $item into type $V");
-    }
-  }
-
   // immutable entity methods
   @override
   List<V> get value => _safeListInstance().toList();
@@ -56,10 +43,8 @@ class ImmutableList<V> extends ModelEntity<List<V>> {
           ? null
           : _safeListInstance().rebuild((lb) => append ? lb.addAll(nextList) : lb.replace(nextList)));
 
-  // model entity methods
-  @override
-  List<V> deserialize(update) => update is List<dynamic> ? update : throw Exception('not list');
-
   // class methods
-
+  void testPrint() {
+    print("PLEASE GZUZ LET THIS ABSTRACTION WORK!");
+  }
 }

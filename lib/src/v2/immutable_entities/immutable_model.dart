@@ -1,8 +1,8 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:immutable_model/src/v2/immutable_entities/immutable_entity.dart';
-import 'package:immutable_model/src/v2/immutable_entities/model_entity.dart';
+import 'package:immutable_model/src/v2/model_entities/model_entity.dart';
 
-class ImmutableModel extends ModelEntity<Map<String, dynamic>> {
+class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
   final BuiltMap<String, ModelEntity> _model;
   final BuiltMap<String, ModelEntity> _defaultModel;
 
@@ -34,10 +34,6 @@ class ImmutableModel extends ModelEntity<Map<String, dynamic>> {
             });
           }));
 
-  // model entity methods
-  @override
-  Map<String, dynamic> deserialize(entity) => entity is Map<String, dynamic> ? entity : throw Exception('not map');
-
   // class methods
   ImmutableModel updateFrom(Map<String, dynamic> updates) => ImmutableModel._(
       this,
@@ -54,4 +50,8 @@ class ImmutableModel extends ModelEntity<Map<String, dynamic>> {
           if (_safeMapInstance().containsKey(field)) mb.updateValue(field, (cv) => cv.reset());
         });
       }));
+
+  void testPrint() {
+    print("PLEASE GZUZ LET THIS ABSTRACTION WORK!");
+  }
 }
