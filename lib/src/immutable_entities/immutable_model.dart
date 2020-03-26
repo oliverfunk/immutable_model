@@ -3,7 +3,8 @@ import 'package:immutable_model/src/model_entity.dart';
 
 import '../immutable_entity.dart';
 
-class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
+typedef dynamic ValueUpdater(dynamic currentValue);
+class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic>> {
   final BuiltMap<String, ModelEntity> _model;
   final BuiltMap<String, ModelEntity> _defaultModel;
 
@@ -45,6 +46,14 @@ class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
 
   Map<String, dynamic> asSerializableMap() =>
       _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.asSerializable()));
+
+  ImmutableModel updateWithFunctions(Map<String, ValueUpdater> updateFuncs) => ImmutableModel._(
+      this,
+      _safeMapInstance().rebuild((mb) {
+        updateFuncs.forEach((field, func) {
+          mb.updateValue(field, (cv) => cv.updateWith(func(cv.value)));
+        });
+      }));
 
   ImmutableModel updateFrom(Map<String, dynamic> updates) => ImmutableModel._(
       this,

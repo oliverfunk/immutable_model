@@ -2,7 +2,7 @@ import '../immutable_entity.dart';
 
 typedef void Validator<V>(V value);
 
-class ImmutableValue<V> extends ImmutableEntity<V> {
+class ImmutableValue<V> extends ImmutableEntity<ImmutableValue<V>, V> {
   final V _value;
   final V _defaultValue;
   final Validator<V> validator;

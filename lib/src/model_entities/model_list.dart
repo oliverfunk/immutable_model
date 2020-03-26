@@ -6,7 +6,7 @@ import '../model_entity.dart';
 typedef V ListItemDeserializer<V>(dynamic item);
 typedef dynamic ListItemSerializer<V>(V item);
 
-class ModelList<V> extends ImmutableList<V> with ModelEntity<List<V>> {
+class ModelList<V> extends ImmutableList<V> with ModelEntity<ImmutableList<V>, List<V>> {
   final ListItemDeserializer<V> listItemDeserializer;
   final ListItemSerializer<V> listItemSerializer;
 

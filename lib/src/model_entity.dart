@@ -1,9 +1,12 @@
 import 'package:immutable_model/src/immutable_entity.dart';
 import 'package:meta/meta.dart';
 
-mixin ModelEntity<V> on ImmutableEntity<V> {
+mixin ModelEntity<F extends ImmutableEntity<F,V>, V> on ImmutableEntity<F, V> {
   @nonVirtual
-  ModelEntity<V> updateWith(dynamic update) => this.update(deserialize(update));
+  ModelEntity<F, V> updateWith(dynamic update) => create(this, this.update(deserialize(update)))
+
+  @protected
+  ModelEntity<F, V> create(ModelEntity<F, V> instance, ImmutableEntity<F,V> immutableEntity);
 
   @protected
   V deserialize(dynamic update);

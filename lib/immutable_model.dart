@@ -8,14 +8,9 @@ import 'src/model_entities/model_list.dart';
 import 'src/model_entities/model_value.dart';
 
 
-/// A Calculator.
-class Calculator {
+// TODO: make updates accept functions as fields in the Map and then apply the fucntion
 
-
-  // tood: do compound list
-
-
-  ImmutableModel createImmutableModel() {
+void main(){
 
     final immModel = ImmutableModel({
       "test int": ModelPrimitiveValue<int>(1),
@@ -30,11 +25,11 @@ class Calculator {
       }),
     });
 
-    print(immModel.asSerializableMap());
+    final m2 = immModel.update({
+      "test int": 2,
+    });
 
-    JsonEncoder encoder = new JsonEncoder.withIndent('  ');
-    String prettyprint = encoder.convert(immModel.asSerializableMap());
-    print(prettyprint);
+//    print(m2);
 
 //    final js = jsonEncode({
 //      "test intt": 2,
@@ -43,7 +38,6 @@ class Calculator {
 //    });
 //    final updatedFromJSON = immModel.updateFrom(jsonDecode(js));
   }
-}
 
 class ValueTypeException implements Exception {
   final Type expected;
