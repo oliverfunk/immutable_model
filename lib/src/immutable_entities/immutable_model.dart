@@ -1,6 +1,7 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/src/v2/immutable_entities/immutable_entity.dart';
-import 'package:immutable_model/src/v2/model_entities/model_entity.dart';
+import 'package:immutable_model/src/model_entity.dart';
+
+import '../immutable_entity.dart';
 
 class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
   final BuiltMap<String, ModelEntity> _model;
@@ -18,7 +19,8 @@ class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
 
   // immutable entity methods
   @override
-  Map<String, ModelEntity> get value => _safeMapInstance().toMap();
+  Map<String, dynamic> get value =>
+      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.value()));
 
   @override
   Map<String, dynamic> validate(Map<String, dynamic> updates) => updates;
@@ -35,6 +37,15 @@ class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
           }));
 
   // class methods
+  dynamic getValue(String field) => _model[field].value;
+
+  dynamic operator [](String field) => getValue(field);
+
+  Map<String, ModelEntity> asEntityMap() => _safeMapInstance().toMap();
+
+  Map<String, dynamic> asSerializableMap() =>
+      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.asSerializable()));
+
   ImmutableModel updateFrom(Map<String, dynamic> updates) => ImmutableModel._(
       this,
       _safeMapInstance().rebuild((mb) {
@@ -50,8 +61,4 @@ class ImmutableModel extends ImmutableEntity<Map<String, dynamic>> {
           if (_safeMapInstance().containsKey(field)) mb.updateValue(field, (cv) => cv.reset());
         });
       }));
-
-  void testPrint() {
-    print("PLEASE GZUZ LET THIS ABSTRACTION WORK!");
-  }
 }

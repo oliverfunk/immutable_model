@@ -1,4 +1,4 @@
-import 'package:immutable_model/src/v2/immutable_entities/immutable_entity.dart';
+import 'package:immutable_model/src/immutable_entity.dart';
 import 'package:meta/meta.dart';
 
 mixin ModelEntity<V> on ImmutableEntity<V> {
@@ -8,7 +8,7 @@ mixin ModelEntity<V> on ImmutableEntity<V> {
   @protected
   V deserialize(dynamic update);
 
-  dynamic asSerializable() => value;
+  dynamic asSerializable();
 }
 
 // ModelChild :: asSerializable : Map<String, ModelEntity> -> Map<String, dynamic>

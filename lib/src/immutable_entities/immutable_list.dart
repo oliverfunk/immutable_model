@@ -1,5 +1,6 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/src/v2/immutable_entities/immutable_entity.dart';
+
+import '../immutable_entity.dart';
 
 typedef void ListItemValidator<V>(V item);
 
@@ -44,7 +45,6 @@ class ImmutableList<V> extends ImmutableEntity<List<V>> {
           : _safeListInstance().rebuild((lb) => append ? lb.addAll(nextList) : lb.replace(nextList)));
 
   // class methods
-  void testPrint() {
-    print("PLEASE GZUZ LET THIS ABSTRACTION WORK!");
-  }
+  List<dynamic> asList(dynamic Function(V) itemSerializer) =>
+      _safeListInstance().map((item) => itemSerializer(item)).toList();
 }

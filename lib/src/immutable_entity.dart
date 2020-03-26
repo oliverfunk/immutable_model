@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-/// Defines an immutable entity that returns a value with type [V]
+/// Defines an immutable entity that accepts and returns a value with type [V]
 abstract class ImmutableEntity<V> {
   V get value;
 
