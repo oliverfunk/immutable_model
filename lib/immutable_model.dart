@@ -16,6 +16,9 @@ class Calculator {
 
 
   ImmutableModel createImmutableModel() {
+    
+    final l = ModelPrimitiveList<int>([1,2,3]);
+//    l.updateElementAt(1, value)
 
     final immModel = ImmutableModel({
       "test int": ModelPrimitiveValue<int>(1),
@@ -44,6 +47,7 @@ class Calculator {
 
     print("");
     print(immModel.getValue("test date"));
+    print(immModel.getValue("test date").runtimeType);
     print(immModel.getValue("test date").runtimeType);
 //    print(updated);
 //    print(updatedFromJSON);

@@ -52,8 +52,12 @@ class ModelList<V> extends ImmutableModelValue<ModelList<V>, BuiltList<V>> {
 
   @override
   ModelList<V> setFrom(v) => v is List<dynamic> // check it's a list
-                             ? set(_safeValidateList(_toTypedBuiltList(v)))
+                             ? set(_toTypedBuiltList(v))
                              : throw ValueTypeException(List, v.runtimeType, v);
+
+  ModelList<V> updateElementAt(int index, V value) {
+    return this;
+  }
 }
 
 class ModelPrimitiveList<V> extends ModelList<V> {

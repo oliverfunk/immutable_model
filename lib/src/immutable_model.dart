@@ -9,6 +9,10 @@ class ImmutableModel {
 
   ImmutableModel(Map<String, ImmutableModelValue> model) : _model = BuiltMap.of(model);
 
+  ImmutableModel updateField(String field, dynamic value) => ImmutableModel._(_model.rebuild((mb) {
+        mb.updateValue(field, (cv) => cv.setFrom(value));
+      }));
+
   ImmutableModel updateWith(Map<String, dynamic> updates) => ImmutableModel._(_model.rebuild((mb) {
         updates.forEach((field, value) {
           mb.updateValue(field, (cv) => cv.setFrom(value));
@@ -30,6 +34,7 @@ class ImmutableModel {
   ImmutableModel resetAll() => ImmutableModel._(_model.rebuild((mb) => mb.updateAllValues((k, v) => v.reset())));
 
   dynamic getValue(String field) => _model[field].value;
+
   dynamic operator [](String field) => getValue(field);
 
   Map<String, ImmutableModelValue> asMap() => _model.asMap();
