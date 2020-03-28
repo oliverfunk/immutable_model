@@ -1,18 +1,41 @@
-import 'package:immutable_model/src/immutable_entities/immutable_list.dart';
-import 'package:immutable_model/src/model_entities/model_child.dart';
+import 'package:built_collection/built_collection.dart';
+import 'package:immutable_model/src/model_entity.dart';
 
-import '../model_entity.dart';
+import 'model.dart';
 
 typedef V ListItemDeserializer<V>(dynamic item);
 typedef dynamic ListItemSerializer<V>(V item);
+typedef void ListItemValidator<V>(V item);
 
-class ModelList<V> extends ImmutableList<V> with ModelEntity<ImmutableList<V>, List<V>> {
-  final ListItemDeserializer<V> listItemDeserializer;
+class ModelList<V> extends ModelEntity<ModelList<V>, List<V>> {
+  final ListItemValidator<V> listItemValidator;
+  final bool append;
+
+  final BuiltList<V> _list;
+  final BuiltList<V> _defaultList;
+
   final ListItemSerializer<V> listItemSerializer;
+  final ListItemDeserializer<V> listItemDeserializer;
+
+  ModelList._(ModelList<V> instance, this._list)
+      : listItemValidator = instance.listItemValidator,
+        append = instance.append,
+        _defaultList = instance._defaultList,
+        listItemSerializer = instance.listItemSerializer,
+        listItemDeserializer = instance.listItemDeserializer;
 
   ModelList(this.listItemSerializer, this.listItemDeserializer,
-      [List<V> defaultList, ListItemValidator<V> listItemValidator, bool append = true])
-      : super(defaultList, listItemValidator, append);
+      [List<V> defaultList, this.listItemValidator, this.append = true])
+      : _list = null,
+        _defaultList = BuiltList.of(defaultList ?? <V>[]) {
+    validate(defaultList);
+  }
+
+  BuiltList<V> _safeListInstance() => (_list ?? _defaultList);
+
+  List<V> _safeValidateListItems(List<V> listToValidate) => (listItemValidator != null && listToValidate != null)
+      ? (listToValidate..forEach((item) => listItemValidator(item)))
+      : listToValidate;
 
   List<V> _toTypedList(List<dynamic> listToConvert) =>
       listToConvert is List<V> ? listToConvert : listToConvert.map((li) => _safeDeserializeListItem(li));
@@ -26,10 +49,23 @@ class ModelList<V> extends ImmutableList<V> with ModelEntity<ImmutableList<V>, L
   }
 
   @override
+  List<V> get value => _safeListInstance().toList();
+
+  @override
+  List<V> validate(List<V> listToValidate) => _safeValidateListItems(listToValidate);
+
+  @override
+  ModelList<V> build(List<V> nextList) => ModelList._(
+      this,
+      nextList == null
+          ? null
+          : _safeListInstance().rebuild((lb) => append ? lb.addAll(nextList) : lb.replace(nextList)));
+
+  @override
   List<V> deserialize(update) => update is List<dynamic> ? _toTypedList(update) : throw Exception('not list');
 
   @override
-  List<dynamic> asSerializable() => asList(listItemSerializer);
+  List<dynamic> asSerializable() => _safeListInstance().map((item) => listItemSerializer(item)).toList();
 }
 
 class ModelPrimitiveList<V> extends ModelList<V> {
@@ -38,7 +74,12 @@ class ModelPrimitiveList<V> extends ModelList<V> {
             append);
 }
 
-class ModelCompositeList extends ModelList<ModelChild> {
-  ModelCompositeList(ModelChild listItemModel, [bool append = true])
-      : super((mc) => mc.asSerializable(), (smc) => listItemModel.updateWith(smc), null, null, append);
+class ModelCompositeList extends ModelList<Map<String, dynamic>> {
+  ModelCompositeList(Model listItemModel, [bool append = true])
+      : super((mc) => mc, (smc) => smc is Map<String, dynamic> ? smc : throw ("Provided is not a map"), null,
+            (mapToValidate) {
+          listItemModel.updateWith(mapToValidate);
+          // if that doesn't throw any errors
+          return mapToValidate;
+        }, append);
 }

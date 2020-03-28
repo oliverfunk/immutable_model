@@ -1,17 +1,16 @@
 import 'package:built_collection/built_collection.dart';
 import 'package:immutable_model/src/model_entity.dart';
 
-import '../immutable_entity.dart';
-
 typedef dynamic ValueUpdater(dynamic currentValue);
-class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic>> {
+
+class Model extends ModelEntity<Model, Map<String, dynamic>> {
   final BuiltMap<String, ModelEntity> _model;
   final BuiltMap<String, ModelEntity> _defaultModel;
 
   // constructors
-  ImmutableModel._(ImmutableModel instance, this._model) : _defaultModel = instance._defaultModel;
+  Model._(Model instance, this._model) : _defaultModel = instance._defaultModel;
 
-  ImmutableModel(Map<String, ModelEntity> defaultModel)
+  Model(Map<String, ModelEntity> defaultModel)
       : _model = null,
         _defaultModel = BuiltMap.of(defaultModel);
 
@@ -21,15 +20,15 @@ class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic
   // immutable entity methods
   @override
   Map<String, dynamic> get value =>
-      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.value()));
+      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.value));
 
   @override
   Map<String, dynamic> validate(Map<String, dynamic> updates) => updates;
 
   @override
-  ImmutableModel build(Map<String, dynamic> updates) => updates == null
-      ? ImmutableModel._(this, null)
-      : ImmutableModel._(
+  Model build(Map<String, dynamic> updates) => updates == null
+      ? Model._(this, null)
+      : Model._(
           this,
           _safeMapInstance().rebuild((mb) {
             updates.forEach((field, value) {
@@ -37,17 +36,23 @@ class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic
             });
           }));
 
+  @override
+  Map<String, dynamic> deserialize(entity) => entity is Map<String, dynamic> ? entity : throw Exception('not map');
+
+  @override
+  Map<String, dynamic> asSerializable() =>
+      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.asSerializable()));
+
   // class methods
-  dynamic getValue(String field) => _model[field].value;
+  dynamic getValue(String field) => _safeMapInstance()[field].value;
 
   dynamic operator [](String field) => getValue(field);
 
-  Map<String, ModelEntity> asEntityMap() => _safeMapInstance().toMap();
+  ModelEntity getEntity(String field) => _safeMapInstance()[field];
 
-  Map<String, dynamic> asSerializableMap() =>
-      _safeMapInstance().toMap().map<String, dynamic>((key, value) => MapEntry(key, value.asSerializable()));
+  Map<String, ModelEntity> asEntityMap() => _safeMapInstance().asMap();
 
-  ImmutableModel updateWithFunctions(Map<String, ValueUpdater> updateFuncs) => ImmutableModel._(
+  Model updateWithFunctions(Map<String, ValueUpdater> updateFuncs) => Model._(
       this,
       _safeMapInstance().rebuild((mb) {
         updateFuncs.forEach((field, func) {
@@ -55,7 +60,7 @@ class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic
         });
       }));
 
-  ImmutableModel updateFrom(Map<String, dynamic> updates) => ImmutableModel._(
+  Model updateFrom(Map<String, dynamic> updates) => Model._(
       this,
       _safeMapInstance().rebuild((mb) {
         updates.forEach((field, value) {
@@ -63,11 +68,14 @@ class ImmutableModel extends ImmutableEntity<ImmutableModel, Map<String, dynamic
         });
       }));
 
-  ImmutableModel resetFields(List<String> fields) => ImmutableModel._(
+  Model resetFields(List<String> fields) => Model._(
       this,
       _safeMapInstance().rebuild((mb) {
         fields.forEach((field) {
           if (_safeMapInstance().containsKey(field)) mb.updateValue(field, (cv) => cv.reset());
         });
       }));
+
+  @override
+  String toString() => _safeMapInstance().toString();
 }
