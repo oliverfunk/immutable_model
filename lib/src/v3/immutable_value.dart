@@ -29,25 +29,26 @@ class ImmutableValuee<E> {
   String toString() => _safeInstance().toString();
 }
 
-abstract class ImmutableEntity<V> {
+abstract class ImmutableEntity<E extends ImmutableEntity<E,V>, V> {
   final V defaultValue;
-  V _value;
+  final V _value;
 
   V get value => copy(_safeInstance()); // could even maybe use call()
 
-  void set(V nextValue) => _value = validate(nextValue);
+  E set(V nextValue) =>  build(validate(nextValue));
 
-  void reset() => _value = null;
+  E reset() => build(null);
 
   V _safeInstance() => _value ?? defaultValue;
 
 
-  ImmutableEntity([this.defaultValue]) {
+  ImmutableEntity(this._value, [this.defaultValue]) {
     validate(defaultValue);
   }
   
   V copy(V current);
   V validate(V toValidate) => toValidate;
+  E build(V value);
 
   @override
   String toString() => _safeInstance().toString();  
