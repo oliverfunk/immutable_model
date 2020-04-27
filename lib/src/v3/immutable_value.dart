@@ -2,7 +2,7 @@ typedef E CopyConstructor<E>(E entity);
 typedef E Updater<E>(E entity);
 typedef void Validator<E>(E entity);
 
-class ImmutableValuee<E> {
+class ImmutableValuee<E> { // NOT NEEDED/ INOCRECT -> is not singular\
   final Validator<E> validator;
   final CopyConstructor<E> _copy;
   final E defaultValue;

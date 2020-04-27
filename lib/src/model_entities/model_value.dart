@@ -1,3 +1,4 @@
+import 'package:immutable_model/src/cloneable.dart';
 import 'package:immutable_model/src/model_entity.dart';
 
 typedef void ValueValidator<V>(V value);
@@ -26,8 +27,11 @@ class ModelValue<V> extends ModelEntity<ModelValue<V>, V> {
     return valueToValidate;
   }
 
+  V _safeInstance() => _value ?? _defaultValue;
+
+// todo: check if this works.
   @override
-  V get value => _value ?? _defaultValue;
+  V get value => V is Cloneable ? (_safeInstance() as Cloneable).clone() : _safeInstance();
 
   @override
   V validate(V valueToValidate) => _safeValidate(valueToValidate);
@@ -47,4 +51,5 @@ class ModelPrimitiveValue<V> extends ModelValue<V> {
       : super((v) => v, (i) => i is V ? i : throw Exception("$i is not $V"), defaultValue, validator) {
     assert(V == double || V == int || V == String || V == bool);
   }
+  // might override get value to clone string if V is String
 }

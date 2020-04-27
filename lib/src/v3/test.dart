@@ -1,3 +1,5 @@
+import 'package:built_collection/built_collection.dart';
+
 import './immutable_value.dart';
 
 class Heapy {
@@ -11,29 +13,23 @@ class Heapy {
   String toString() => "$f $s";
 }
 
-class ImmHeapy extends ImmutableEntity<ImmHeapy> {
-  final String f;
-  final String s;
-
-  ImmHeapy._copy(ImmHeapy ih) : f = ih.f, s = ih.s;
-  ImmHeapy(this.f, this.s);
+class ImmMod extends ImmutableEntity<ImmMod, Map<String, dynamic>> {
+  final BuiltMap<String, dynamic> _model;
+  
+  ImmMod._(ImmMod instance, Map<String, dynamic> value) : _model = instance._model.rebuild(() => null), super(value);
+  ImmMod(Map<String, dynamic> def) : _model = BuiltMap.from(def), super(def, def);
+  
+  @override
+  ImmMod build(Map<String, dynamic> value) 
 
   @override
-  ImmHeapy copy(ImmHeapy currentValue) => ImmHeapy._copy(currentValue);
-
-  @override
-  ImmHeapy build(ImmHeapy value) => ImmHeapy._copy(value);
+  Map<String, dynamic> copy(Map<String, dynamic> value) {
+    // TODO: implement copy
+    throw UnimplementedError();
+  }
+  
 }
 
 void main(){
-  final e = ImmutableValuee<Heapy>(Heapy.copy, Heapy("Oliver", "Funk"));
-  final ev1 = e.value;
-  e.set((entity) => entity..f = "new");
-  final ev2 = e.value;
-  print(ev1);
-  print(ev2);
 
-  final ih = ImmHeapy("Oliver", "Funk");
-
-  ih.set(nextValue)
 }
