@@ -1,5 +1,16 @@
 import 'package:meta/meta.dart';
 
+class ValueTypeException implements Exception {
+  final Type expected;
+  final Type received;
+  final dynamic value;
+
+  ValueTypeException(this.expected, this.received, this.value);
+
+  @override
+  String toString() => 'Expected $expected but got $received: $value';
+}
+
 abstract class ModelValue<E extends ModelValue<E, V>, V> {
   V get value;
 
