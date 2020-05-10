@@ -10,6 +10,10 @@ class CacheBuffer<T> {
   int numberOfItems() => _buffer.length;
 
   void cacheItem(T toCache){
+    if(toCache == null){
+      throw Error();
+    }
+
     if(_buffer.length == bufferSize){
       _buffer.removeFirst();
     }

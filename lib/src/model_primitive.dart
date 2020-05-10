@@ -9,8 +9,8 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   final ValueValidator<T> _validator;
 
   ModelPrimitive([T initialValue, ValueValidator<T> validator])
-      : _initialValue = initialValue,
-        _currentValue = initialValue,
+      : _currentValue = null,
+        _initialValue = initialValue,
         _validator = validator {
     validate(_initialValue);
   }
@@ -19,12 +19,14 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
       : _initialValue = last._initialValue,
         _validator = last._validator;
 
-  @override
-  ModelPrimitive<T> build(T nextValue) =>
-      nextValue == null ? ModelPrimitive(this._initialValue, this._validator) : ModelPrimitive._(this, nextValue);
+  T _safeInstance() => _initialValue ?? _currentValue;
 
   @override
-  T get value => _currentValue;
+  ModelPrimitive<T> build(T nextValue) =>
+      nextValue == null ? ModelPrimitive._(this, _initialValue) : ModelPrimitive._(this, nextValue);
+
+  @override
+  T get value => _safeInstance();
 
   @override
   T validate(T toValidate) => (toValidate == null || _validator == null) ? toValidate : _validator(toValidate);

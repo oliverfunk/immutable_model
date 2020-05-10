@@ -6,7 +6,7 @@ typedef void ListItemValidator<V>(V item);
 
 class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   final BuiltList<V> _currentList;
-  final List<V> _initialList;
+  final BuiltList<V> _initialList;
   final bool _append;
   final ListItemValidator<V> _listItemValidator;
 
@@ -16,27 +16,32 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
         _append = last._append;
 
   ModelList([List<V> initialList, ListItemValidator<V> listItemValidator, bool append = true])
-      : _initialList = initialList,
-        _currentList = BuiltList.of(initialList),
+      : _currentList = null,
+        _initialList = BuiltList.of(initialList),
         _listItemValidator = listItemValidator,
         _append = append {
     validate(initialList);
   }
 
-  @override
-  ModelList<V> build(List<V> updates) => updates == null
-      ? ModelList(this._initialList, this._listItemValidator, this._append)
-      : ModelList._(this, _currentList.rebuild((lb) => _append ? lb.addAll(updates) : lb.replace(updates)));
+  BuiltList<V> _safeInstance() => _initialList ?? _currentList;
 
   @override
-  List<V> get value => _currentList.toList();
+  ModelList<V> build(List<V> updates) => updates == null
+      ? ModelList._(this, _initialList)
+      : ModelList._(this, _safeInstance().rebuild((lb) => _append ? lb.addAll(updates) : lb.replace(updates)));
+
+  @override
+  List<V> get value => _safeInstance().toList();
 
   @override
   List<V> validate(List<V> listToValidate) =>
       (listToValidate == null || _listItemValidator == null) ? listToValidate : listToValidate
         ..forEach((item) => _listItemValidator(item));
 
-  // TODO: impl Remove(idx, or list of idx's) Replace(idx, data)
+  @override
+  List<Object> get props => [_safeInstance()];
+
+// TODO: impl Remove(idx, or list of idx's) Replace(idx, data)
 }
 
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {

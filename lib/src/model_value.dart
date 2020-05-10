@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 class ValueTypeException implements Exception {
@@ -11,7 +12,7 @@ class ValueTypeException implements Exception {
   String toString() => 'Expected $expected but got $received: $value';
 }
 
-abstract class ModelValue<E extends ModelValue<E, V>, V> {
+abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
   V get value;
 
   // should propagate null's
@@ -35,6 +36,9 @@ abstract class ModelValue<E extends ModelValue<E, V>, V> {
 
   @nonVirtual
   E updateFrom(dynamic nextValue) => build(validate(deserialize(nextValue)));
+
+  @override
+  List<Object> get props => [value];
 
   @override
   String toString() => "$value ($V)";
