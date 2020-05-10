@@ -14,20 +14,23 @@ class ValueTypeException implements Exception {
 abstract class ModelValue<E extends ModelValue<E, V>, V> {
   V get value;
 
+  // should propagate null's
   V validate(V toValidate) => toValidate;
 
-  V deserialize(dynamic serialized) => serialized is V ? serialized : throw Error();
+  // should propagate null's
+  V deserialize(dynamic serialized) =>
+      serialized == null ? serialized: serialized is V ? serialized : throw Error();
 
   dynamic asSerializable() => value;
 
   @protected
+  // if null, should set the value to the initial value
   E build(V nextValue);
 
   @nonVirtual
   E reset() => build(null);
 
   @nonVirtual
-  // should fail on null nextValue
   E update(V nextValue) => build(validate(nextValue));
 
   @nonVirtual

@@ -26,6 +26,6 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   @override
   T get value => _currentValue;
 
-  T validate(T toValidate) =>
-      _validator == null ? toValidate : toValidate == null ? throw Error() : _validator(toValidate);
+  @override
+  T validate(T toValidate) => (toValidate == null || _validator == null) ? toValidate : _validator(toValidate);
 }
