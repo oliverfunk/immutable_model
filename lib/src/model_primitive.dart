@@ -19,7 +19,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
       : _initialValue = last._initialValue,
         _validator = last._validator;
 
-  T _safeInstance() => _initialValue ?? _currentValue;
+  T _safeInstance() => _currentValue ?? _initialValue;
 
   @override
   ModelPrimitive<T> build(T nextValue) =>

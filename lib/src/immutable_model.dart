@@ -17,7 +17,7 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
         _initialModel = BuiltMap.of(model),
         _cache = CacheBuffer(cacheBufferSize);
 
-  BuiltMap<String, ModelValue> _safeInstance() => _initialModel ?? _currentModel;
+  BuiltMap<String, ModelValue> _safeInstance() => _currentModel ?? _initialModel;
 
   @override
   ImmutableModel build(Map<String, dynamic> updates) {
@@ -45,16 +45,18 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
         });
       }));
 
+  // not efficient
   @override
-  Map<String, dynamic> get value => _safeInstance().map((field, value) => MapEntry(field, value.value)).toMap();
+  Map<String, dynamic> get value => _safeInstance().toMap().map((field, value) => MapEntry(field, value.value));
 
   dynamic getFieldValue(String field) => _safeInstance()[field].value;
 
   dynamic operator [](String field) => getFieldValue(field);
 
+  // not efficient
   @override
   Map<String, dynamic> asSerializable() =>
-      _safeInstance().map((field, value) => MapEntry(field, value.asSerializable())).asMap();
+      Map.unmodifiable(_safeInstance().toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
   ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
 

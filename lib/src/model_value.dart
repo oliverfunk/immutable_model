@@ -18,11 +18,12 @@ abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
   // should propagate null's
   V validate(V toValidate) => toValidate;
 
+  dynamic asSerializable() => value;
+
+  @protected
   // should propagate null's
   V deserialize(dynamic serialized) =>
       serialized == null ? serialized: serialized is V ? serialized : throw Error();
-
-  dynamic asSerializable() => value;
 
   @protected
   // if null, should set the value to the initial value
