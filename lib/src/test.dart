@@ -3,8 +3,8 @@ import 'package:immutable_model/src/model_list.dart';
 import 'package:immutable_model/src/model_primitive.dart';
 
 // TODO: write tests for seriliaszation, value getting and updateing etc.
-// todo: write methods for list that let you update an elemnt at the idx
 // todo: maybe you want some lists that hold {} with no validation, or with complete validation (i.e the whole map must be there) also makes me think about model and it's update method.
+// todo: |-> updateComplete(Map) in ImmMod to ensure valid _structural_ update
 
 void main() {
   final model_init = ImmutableModel({
