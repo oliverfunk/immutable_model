@@ -12,6 +12,7 @@ class ValueTypeException implements Exception {
   String toString() => 'Expected $expected but got $received: $value';
 }
 
+typedef V Updater<V>(V currentValue);
 abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
   V get value;
 
@@ -37,6 +38,9 @@ abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
 
   @nonVirtual
   E updateFrom(dynamic nextValue) => build(validate(deserialize(nextValue)));
+
+  @nonVirtual
+  E updateWith(Updater<V> updater) => build(validate(updater(value)));
 
   @override
   List<Object> get props => [value];

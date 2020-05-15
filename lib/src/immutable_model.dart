@@ -3,6 +3,8 @@ import 'package:immutable_model/src/buffer.dart';
 
 import 'model_value.dart';
 
+typedef dynamic FieldUpdater(dynamic currentValue);
+
 class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
   final BuiltMap<String, ModelValue> _currentModel;
   final BuiltMap<String, ModelValue> _initialModel;
@@ -12,7 +14,7 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
       : _initialModel = last._initialModel,
         _cache = last._cache;
 
-  ImmutableModel(Map<String, ModelValue> model, [int cacheBufferSize = 5])
+  ImmutableModel(Map<String, ModelValue> model, [int cacheBufferSize = 0])
       : _currentModel = null,
         _initialModel = BuiltMap.of(model),
         _cache = CacheBuffer(cacheBufferSize);
@@ -25,6 +27,8 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
       // reset
       _cache.flush();
       return ImmutableModel._(this, _initialModel);
+    } else if (updates.isEmpty) {
+      return this;
     } else {
       _cache.cacheItem(this);
       return ImmutableModel._(
@@ -52,6 +56,21 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
   dynamic getFieldValue(String field) => _safeInstance()[field].value;
 
   dynamic operator [](String field) => getFieldValue(field);
+
+  ImmutableModel updateFieldsWith(Map<String, FieldUpdater> updaters) {
+    if (updaters == null || updaters.isEmpty) {
+      return this;
+    } else {
+      _cache.cacheItem(this);
+      return ImmutableModel._(
+          this,
+          _safeInstance().rebuild((mb) {
+            updaters.forEach((field, updater) {
+              mb.updateValue(field, (currVal) => currVal.updateFrom(updater(currVal.value)));
+            });
+          }));
+    }
+  }
 
   // not efficient
   @override
