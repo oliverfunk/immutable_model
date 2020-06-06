@@ -12,7 +12,9 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
 
   ImmutableModel._(ImmutableModel last, this._currentModel)
       : _initialModel = last._initialModel,
-        _cache = last._cache;
+        _cache = last._cache {
+    _cache.cacheItem(last);
+  }
 
   ImmutableModel(Map<String, ModelValue> model, [int cacheBufferSize = 0])
       : _currentModel = null,
@@ -24,13 +26,12 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
   @override
   ImmutableModel build(Map<String, dynamic> updates) {
     if (updates == null) {
-      // reset
+      // reset, clear cache
       _cache.flush();
       return ImmutableModel._(this, _initialModel);
     } else if (updates.isEmpty) {
       return this;
     } else {
-      _cache.cacheItem(this);
       return ImmutableModel._(
           this,
           _safeInstance().rebuild((mb) {
@@ -53,6 +54,8 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
   @override
   Map<String, dynamic> get value => _safeInstance().toMap().map((field, value) => MapEntry(field, value.value));
 
+  ModelValue getFieldModel(String field) => _safeInstance()[field];
+
   dynamic getFieldValue(String field) => _safeInstance()[field].value;
 
   dynamic operator [](String field) => getFieldValue(field);
@@ -61,7 +64,6 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
     if (updaters == null || updaters.isEmpty) {
       return this;
     } else {
-      _cache.cacheItem(this);
       return ImmutableModel._(
           this,
           _safeInstance().rebuild((mb) {
@@ -70,6 +72,22 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
             });
           }));
     }
+  }
+
+  /// ensure valid _structural_ update
+  ImmutableModel strictUpdate(Map<String, dynamic> updates) {
+    if (_safeInstance().length == updates.length) {
+      // not that efficient
+      updates.keys.forEach((field) {
+        if (!_safeInstance().containsKey(field)) {
+          throw Exception("Field $field not in model");
+        }
+      });
+    } else {
+      throw Exception("Fields in updates not the same as model");
+    }
+
+    return update(updates);
   }
 
   // not efficient

@@ -9,11 +9,12 @@ class ValueTypeException implements Exception {
   ValueTypeException(this.expected, this.received, this.value);
 
   @override
-  String toString() => 'Expected $expected but got $received: $value';
+  String toString() => 'Expected $expected but received $received: $value';
 }
 
 typedef V Updater<V>(V currentValue);
-abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
+
+abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable {
   V get value;
 
   // should propagate null's
@@ -23,21 +24,22 @@ abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable{
 
   @protected
   // should propagate null's
-  V deserialize(dynamic serialized) =>
-      serialized == null ? serialized: serialized is V ? serialized : throw Error();
+  V deserialize(dynamic serialized) => serialized == null
+      ? serialized
+      : serialized is V ? serialized : throw ValueTypeException(V, serialized.runtimeType, serialized);
 
   @protected
   // if null, should set the value to the initial value
-  E build(V nextValue);
+  E build(V update);
 
   @nonVirtual
   E reset() => build(null);
 
   @nonVirtual
-  E update(V nextValue) => build(validate(nextValue));
+  E update(V value) => build(validate(value));
 
   @nonVirtual
-  E updateFrom(dynamic nextValue) => build(validate(deserialize(nextValue)));
+  E updateFrom(dynamic value) => build(validate(deserialize(value)));
 
   @nonVirtual
   E updateWith(Updater<V> updater) => build(validate(updater(value)));
