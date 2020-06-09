@@ -1,20 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-class ValueTypeException implements Exception {
-  final Type expected;
-  final Type received;
-  final dynamic value;
-
-  ValueTypeException(this.expected, this.received, this.value);
-
-  @override
-  String toString() => 'Expected $expected but received $received: $value';
-}
+import 'exceptions.dart';
 
 typedef V Updater<V>(V currentValue);
 
-abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable {
+@immutable
+abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   V get value;
 
   // should propagate null's
@@ -26,27 +18,34 @@ abstract class ModelValue<E extends ModelValue<E, V>, V> extends Equatable {
   // should propagate null's
   V deserialize(dynamic serialized) => serialized == null
       ? serialized
-      : serialized is V ? serialized : throw ValueTypeException(V, serialized.runtimeType, serialized);
+      : serialized is V ? serialized : throw ModelTypeException<V>(serialized, modelFieldName);
+
+  // all of these behavuours can be put into imm mod
 
   @protected
   // if null, should set the value to the initial value
-  E build(V update);
+  M build(V update);
 
   @nonVirtual
-  E reset() => build(null);
+  M reset() => build(null);
 
   @nonVirtual
-  E update(V value) => build(validate(value));
+  M update(V value) => build(validate(value));
 
   @nonVirtual
-  E updateFrom(dynamic value) => build(validate(deserialize(value)));
+  M updateFrom(dynamic value) => build(validate(deserialize(value)));
 
   @nonVirtual
-  E updateWith(Updater<V> updater) => build(validate(updater(value)));
+  M updateWith(Updater<V> updater) => build(validate(updater(value)));
+
+  @nonVirtual
+  Type get type => V;
 
   @override
   List<Object> get props => [value];
 
+  String get modelFieldName => null;
+
   @override
-  String toString() => "$value ($V)";
+  String toString() => "${modelFieldName == null ? "" : modelFieldName + ": "}$value ($V)";
 }

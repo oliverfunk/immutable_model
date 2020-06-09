@@ -34,9 +34,13 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   List<V> get value => _safeInstance().toList();
 
   @override
-  List<V> validate(List<V> listToValidate) =>
-      (listToValidate == null || listToValidate.isEmpty || _listItemValidator == null) ? listToValidate : listToValidate
-        ..forEach((item) => _listItemValidator(item));
+  List<V> validate(List<V> listToValidate) {
+    if (listToValidate == null || listToValidate.isEmpty || _listItemValidator == null){
+      return listToValidate;
+    } else {
+      return listToValidate..forEach((item) => _listItemValidator(item));
+    }
+  }
 
   ModelList<V> remove(int index) => ModelList._(this, _safeInstance().rebuild((lb) => lb.removeAt(index)));
 

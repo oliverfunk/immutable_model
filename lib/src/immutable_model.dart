@@ -42,37 +42,9 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
     }
   }
 
-  ImmutableModel resetFields(List<String> fields) => ImmutableModel._(
-      this,
-      _safeInstance().rebuild((mb) {
-        fields.forEach((field) {
-          mb.updateValue(field, (cv) => cv.reset());
-        });
-      }));
-
   // not efficient
   @override
   Map<String, dynamic> get value => _safeInstance().toMap().map((field, value) => MapEntry(field, value.value));
-
-  ModelValue getFieldModel(String field) => _safeInstance()[field];
-
-  dynamic getFieldValue(String field) => _safeInstance()[field].value;
-
-  dynamic operator [](String field) => getFieldValue(field);
-
-  ImmutableModel updateFieldsWith(Map<String, FieldUpdater> updaters) {
-    if (updaters == null || updaters.isEmpty) {
-      return this;
-    } else {
-      return ImmutableModel._(
-          this,
-          _safeInstance().rebuild((mb) {
-            updaters.forEach((field, updater) {
-              mb.updateValue(field, (currVal) => currVal.updateFrom(updater(currVal.value)));
-            });
-          }));
-    }
-  }
 
   /// ensure valid _structural_ update
   ImmutableModel strictUpdate(Map<String, dynamic> updates) {
@@ -89,6 +61,38 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
 
     return update(updates);
   }
+
+  // use this method instead of updateWith
+  ImmutableModel updateFieldsWith(Map<String, FieldUpdater> updaters) {
+    if (updaters == null || updaters.isEmpty) {
+      return this;
+    } else {
+      return ImmutableModel._(
+          this,
+          _safeInstance().rebuild((mb) {
+            updaters.forEach((field, updater) {
+              mb.updateValue(field, (currVal) => currVal.updateFrom(updater(currVal.value)));
+            });
+          }));
+    }
+  }
+
+  ImmutableModel resetFields(List<String> fields) => ImmutableModel._(
+      this,
+      _safeInstance().rebuild((mb) {
+        fields.forEach((field) {
+          mb.updateValue(field, (cv) => cv.reset());
+        });
+      }));
+
+  ModelValue getFieldModel(String field) => _safeInstance()[field];
+
+  dynamic getFieldValue(String field) => _safeInstance()[field].value;
+
+  dynamic operator [](String field) => getFieldValue(field);
+
+  // returns interators for field, (field, field value) and (field, field models)
+  Iterable<String> get fields => _safeInstance().keys;
 
   // not efficient
   @override
