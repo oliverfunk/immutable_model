@@ -4,47 +4,47 @@ import 'package:meta/meta.dart';
 import 'exceptions.dart';
 
 typedef V Updater<V>(V currentValue);
+typedef bool Validator<V>(V value);
 
 @immutable
 abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   V get value;
 
-  // should propagate null's
+  M get initialModel;
+
+  /// Validates [toValidate] using the defined [validator] for this [ModelValue].
   V validate(V toValidate) => toValidate;
 
+  @protected
+  M build(V next);
+
+  /// Validate [value] and return a new instance of this [ModelValue].
+  /// If [value] is null, return the initial model
+  @nonVirtual
+  M next(V value) => value == null ? initialModel : build(validate(value));
+
+  @nonVirtual
+  M nextFromDynamic(dynamic value) =>
+      value == null ? next(null) : value is V ? next(value) : throw ModelTypeException<V>(value, modelFieldName);
+
+  @nonVirtual
+  M nextFromModel(M model) => initialModel == model.initialModel ? model : throw Exception('model badness');
+
+  /// Return this [ModelValue] as a serializable object for the JSON.encode() method.
   dynamic asSerializable() => value;
 
-  @protected
-  // should propagate null's
-  V deserialize(dynamic serialized) => serialized == null
-      ? serialized
-      : serialized is V ? serialized : throw ModelTypeException<V>(serialized, modelFieldName);
+  V deserializer(dynamic jsonValue) =>
+      jsonValue == null ? throw Error() : jsonValue is V ? jsonValue : throw ModelDeserializeException(jsonValue, modelFieldName);
 
-  // all of these behavuours can be put into imm mod
-
-  @protected
-  // if null, should set the value to the initial value
-  M build(V update);
-
-  @nonVirtual
-  M reset() => build(null);
-
-  @nonVirtual
-  M update(V value) => build(validate(value));
-
-  @nonVirtual
-  M updateFrom(dynamic value) => build(validate(deserialize(value)));
-
-  @nonVirtual
-  M updateWith(Updater<V> updater) => build(validate(updater(value)));
+  /// Returns the model field name string for this [ModelValue] in some.
+  /// Useful for reflection and exceptions.
+  String get modelFieldName => null;
 
   @nonVirtual
   Type get type => V;
 
   @override
   List<Object> get props => [value];
-
-  String get modelFieldName => null;
 
   @override
   String toString() => "${modelFieldName == null ? "" : modelFieldName + ": "}$value ($V)";

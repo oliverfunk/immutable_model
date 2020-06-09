@@ -17,3 +17,13 @@ class ModelValidationException implements Exception {
   @override
   String toString() => "ModelValidationException${fieldName == null ? "" : " [for field '$fieldName']"}: Validation failed on value '$receivedValue'";
 }
+
+class ModelDeserializeException implements Exception {
+  final dynamic receivedValue;
+  final String fieldName;
+
+  ModelDeserializeException(this.receivedValue, [this.fieldName]);
+
+  @override
+  String toString() => "ModelDeserializeException${fieldName == null ? "" : " [for field '$fieldName']"}: Expected $T but received ${receivedValue.runtimeType} with value '$receivedValue'";
+}

@@ -1,57 +1,32 @@
-import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/src/buffer.dart';
-
+import 'buffer.dart';
+import 'model_inner.dart';
 import 'model_value.dart';
 
-typedef dynamic FieldUpdater(dynamic currentValue);
+// todo: update from Models
 
-class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
-  final BuiltMap<String, ModelValue> _currentModel;
-  final BuiltMap<String, ModelValue> _initialModel;
+class ImmutableModel {
+  final ModelInner _model;
   final CacheBuffer<ImmutableModel> _cache;
 
-  ImmutableModel._(ImmutableModel last, this._currentModel)
-      : _initialModel = last._initialModel,
-        _cache = last._cache {
+  ImmutableModel._(ImmutableModel last, this._model) : _cache = last._cache {
     _cache.cacheItem(last);
   }
 
   ImmutableModel(Map<String, ModelValue> model, [int cacheBufferSize = 0])
-      : _currentModel = null,
-        _initialModel = BuiltMap.of(model),
+      : _model = ModelInner(model),
         _cache = CacheBuffer(cacheBufferSize);
 
-  BuiltMap<String, ModelValue> _safeInstance() => _currentModel ?? _initialModel;
+  ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
 
-  @override
-  ImmutableModel build(Map<String, dynamic> updates) {
-    if (updates == null) {
-      // reset, clear cache
-      _cache.flush();
-      return ImmutableModel._(this, _initialModel);
-    } else if (updates.isEmpty) {
-      return this;
-    } else {
-      return ImmutableModel._(
-          this,
-          _safeInstance().rebuild((mb) {
-            updates.forEach((field, value) {
-              mb.updateValue(field, (currVal) => currVal.updateFrom(value));
-            });
-          }));
-    }
-  }
-
-  // not efficient
-  @override
-  Map<String, dynamic> get value => _safeInstance().toMap().map((field, value) => MapEntry(field, value.value));
+  ImmutableModel update(Map<String, dynamic> updates) =>
+      (updates == null || updates.isEmpty) ? this : ImmutableModel._(this, _model.next(updates));
 
   /// ensure valid _structural_ update
   ImmutableModel strictUpdate(Map<String, dynamic> updates) {
-    if (_safeInstance().length == updates.length) {
+    if (_model.numberOfFields() == updates.length) {
       // not that efficient
       updates.keys.forEach((field) {
-        if (!_safeInstance().containsKey(field)) {
+        if (!_model.hasField(field)) {
           throw Exception("Field $field not in model");
         }
       });
@@ -62,48 +37,23 @@ class ImmutableModel extends ModelValue<ImmutableModel, Map<String, dynamic>> {
     return update(updates);
   }
 
-  // use this method instead of updateWith
-  ImmutableModel updateFieldsWith(Map<String, FieldUpdater> updaters) {
-    if (updaters == null || updaters.isEmpty) {
-      return this;
-    } else {
-      return ImmutableModel._(
-          this,
-          _safeInstance().rebuild((mb) {
-            updaters.forEach((field, updater) {
-              mb.updateValue(field, (currVal) => currVal.updateFrom(updater(currVal.value)));
-            });
-          }));
-    }
-  }
+  ImmutableModel updateWith(Map<String, FieldUpdater> updaters) =>
+      (updaters == null || updaters.isEmpty) ? this : ImmutableModel._(this, _model.next(updaters));
 
-  ImmutableModel resetFields(List<String> fields) => ImmutableModel._(
-      this,
-      _safeInstance().rebuild((mb) {
-        fields.forEach((field) {
-          mb.updateValue(field, (cv) => cv.reset());
-        });
-      }));
+  ImmutableModel resetFields(List<String> fields) => (fields == null || fields.isEmpty)
+      ? this
+      : ImmutableModel._(this, _model.next(Map.fromIterable(fields, key: (listItem) => listItem, value: null)));
 
-  ModelValue getFieldModel(String field) => _safeInstance()[field];
+  ModelValue getFieldModel(String field) => _model.getFieldModel(field);
 
-  dynamic getFieldValue(String field) => _safeInstance()[field].value;
+  dynamic getFieldValue(String field) => _model.getFieldValue(field);
 
   dynamic operator [](String field) => getFieldValue(field);
 
-  // returns interators for field, (field, field value) and (field, field models)
-  Iterable<String> get fields => _safeInstance().keys;
+  Iterable<String> get fields => _model.fields;
 
-  // not efficient
-  @override
-  Map<String, dynamic> asSerializable() =>
-      Map.unmodifiable(_safeInstance().toMap().map((field, value) => MapEntry(field, value.asSerializable())));
-
-  ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
+  ImmutableModel fromJSON(Map<String, dynamic> jsonMap) => (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel._(this, _model.fromJSON(jsonMap));
 
   @override
-  List<Object> get props => [_safeInstance()];
-
-  @override
-  String toString() => _safeInstance().toString();
+  String toString() => _model.toString();
 }

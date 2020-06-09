@@ -1,43 +1,40 @@
-import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/src/model_value.dart';
-
-typedef bool ValueValidator<V>(V value);
+import 'exceptions.dart';
+import 'model_value.dart';
 
 class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
-  final T _initialValue;
-  final T _currentValue;
+  final ModelPrimitive<T> _initial;
 
-  final ValueValidator<T> _validator;
-
+  final T _current;
+  final Validator<T> _validator;
   final String _fieldName;
 
-  @override
-  String get modelFieldName => _fieldName;
-
-  ModelPrimitive([T initialValue, ValueValidator<T> validator, String fieldName])
-      : _currentValue = null,
-        _initialValue = initialValue,
+  ModelPrimitive([T initialValue, Validator<T> validator, String fieldName])
+      : _initial = null,
+        _current = initialValue,
         _validator = validator,
         _fieldName = fieldName {
-    validate(_initialValue);
+    if (initialValue != null) validate(initialValue);
   }
 
-  ModelPrimitive._(ModelPrimitive<T> last, this._currentValue)
-      : _initialValue = last._initialValue,
+  ModelPrimitive._(ModelPrimitive<T> last, this._current)
+      : _initial = last.initialModel,
         _validator = last._validator,
         _fieldName = last._fieldName;
 
-  T _safeInstance() => _currentValue ?? _initialValue;
+  @override
+  T get value => _current;
 
   @override
-  ModelPrimitive<T> build(T nextValue) =>
-      nextValue == null ? ModelPrimitive._(this, _initialValue) : ModelPrimitive._(this, nextValue);
+  ModelPrimitive<T> get initialModel => _initial ?? this;
 
   @override
-  T get value => _safeInstance();
-
-  @override
-  T validate(T toValidate) => (toValidate == null || _validator == null)
+  T validate(T toValidate) => _validator == null
       ? toValidate
       : _validator(toValidate) ? toValidate : throw ModelValidationException(toValidate, modelFieldName);
+
+  @override
+  ModelPrimitive<T> build(T nextValue) => ModelPrimitive._(this, nextValue);
+
+  @override
+  String get modelFieldName => _fieldName;
 }

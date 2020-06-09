@@ -1,57 +1,57 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/src/immutable_model.dart';
-import 'package:immutable_model/src/model_value.dart';
 
-typedef void ListItemValidator<V>(V item);
+import 'exceptions.dart';
+import 'immutable_model.dart';
+import 'model_value.dart';
+
+typedef bool ListItemValidator<V>(V item);
 
 class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
-  final BuiltList<V> _currentList;
-  final BuiltList<V> _initialList;
+  final ModelList<V> _initial;
+
+  final BuiltList<V> _current;
   final bool _append;
   final ListItemValidator<V> _listItemValidator;
 
-  ModelList._(ModelList<V> last, this._currentList)
-      : _initialList = last._initialList,
+  ModelList._(ModelList<V> last, this._current)
+      : _initial = last.initialModel,
         _listItemValidator = last._listItemValidator,
         _append = last._append;
 
   ModelList([List<V> initialList, ListItemValidator<V> listItemValidator, bool append = true])
-      : _currentList = null,
-        _initialList = BuiltList.of(initialList),
+      : _initial = null,
+        _current = BuiltList.of(initialList),
         _listItemValidator = listItemValidator,
         _append = append {
-    validate(initialList);
+    if (initialList != null && !initialList.isEmpty) validate(initialList);
   }
 
-  BuiltList<V> _safeInstance() => _currentList ?? _initialList;
+  @override
+  List<V> get value => _current.toList();
 
   @override
-  ModelList<V> build(List<V> updates) => updates == null
-      ? ModelList._(this, _initialList)
-      : ModelList._(this, _safeInstance().rebuild((lb) => _append ? lb.addAll(updates) : lb.replace(updates)));
+  ModelList<V> get initialModel => _initial ?? this;
 
   @override
-  List<V> get value => _safeInstance().toList();
+  List<V> validate(List<V> toValidate) => toValidate.isEmpty || _listItemValidator == null ? toValidate : toValidate
+    ..forEach((item) => _listItemValidator(item) ? item : throw ModelValidationException(item, modelFieldName));
 
   @override
-  List<V> validate(List<V> listToValidate) {
-    if (listToValidate == null || listToValidate.isEmpty || _listItemValidator == null){
-      return listToValidate;
-    } else {
-      return listToValidate..forEach((item) => _listItemValidator(item));
-    }
-  }
+  ModelList<V> build(List<V> next) =>
+      ModelList._(this, _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
 
-  ModelList<V> remove(int index) => ModelList._(this, _safeInstance().rebuild((lb) => lb.removeAt(index)));
+  ModelList<V> remove(int index) => ModelList._(this, _current.rebuild((lb) => lb.removeAt(index)));
 
-  ModelList<V> replace(int index, V element) => ModelList._(this, _safeInstance().rebuild((lb) => lb[index] = element));
+  ModelList<V> replace(int index, V element) => ModelList._(this, _current.rebuild((lb) => lb[index] = element));
 
-  V getElementAt(int index) => _safeInstance().elementAt(index);
+  ModelList<V> clear() => ModelList._(this, _current.rebuild((lb) => lb.clear()));
+
+  V getElementAt(int index) => _current.elementAt(index);
 
   V operator [](int index) => getElementAt(index);
 
   @override
-  List<Object> get props => [_safeInstance()];
+  List<Object> get props => [_current];
 
 // []= must return void, so can't use it...
 //  ModelList<V> operator []=(int index, V element) => replace(index, element);
@@ -60,9 +60,19 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {
   ModelValidatedList(ImmutableModel model,
       [List<Map<String, dynamic>> initialList, bool append = true, bool withCompleteUpdates = true])
-      : super(initialList, (li) => withCompleteUpdates ? model.strictUpdate(li) : model.update(li), append);
+      : super(initialList, (li) => _validateItemAgainstModel(model, withCompleteUpdates, li), append);
+
+  static bool _validateItemAgainstModel(ImmutableModel model, bool withCompleteUpdates, Map<String, dynamic> item) {
+    if (withCompleteUpdates) {
+      model.strictUpdate(item);
+      return true;
+    } else {
+      model.update(item);
+      return true;
+    }
+  }
 
   @override
   ModelList<Map<String, dynamic>> replace(int index, Map<String, dynamic> element) =>
-      ModelList._(this, _safeInstance().rebuild((lb) => lb[index] = validate([element])[0]));
+      ModelList._(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
 }

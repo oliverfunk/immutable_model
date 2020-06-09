@@ -18,7 +18,7 @@ export 'src/model_primitive.dart';
 //  , set, DateTime (bigInt?)
 // todo: build generator
 // todo: could maybe implement something model_inner which is the same as imm model but doesn't have the buffer
-
+// todo: enums
 // todo: could do an update from a model_type if the validaor is the same (equalit of histoy)
 // updateFromModels
 // would imply that the type is the same and that the value has to be valid.class
