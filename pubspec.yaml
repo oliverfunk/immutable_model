@@ -1,7 +1,7 @@
 name: immutable_model
 description: A tool built upon Equtable and built_collection to help you create complex immutable data models quickly and easily, with validated updates.
 version: 0.1.0
-author: Oliver Funk <oli.funk@gmail.com>
+homepage: https://github.com/oliverfunk/immutable_model
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -9,6 +9,7 @@ environment:
 dependencies:
   built_collection: ^4.3.2
   equatable: ^1.2.0
+  meta: ^1.1.8
 
 dev_dependencies:
   test:
