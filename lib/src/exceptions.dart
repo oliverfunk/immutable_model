@@ -1,29 +1,49 @@
-class ModelTypeException<T> implements Exception {
-  final dynamic receivedValue;
-  final String fieldName;
+import 'package:immutable_model/src/model_value.dart';
 
-  ModelTypeException(this.receivedValue, [this.fieldName]);
+class ModelTypeException implements Exception {
+  final ModelValue model;
+  final dynamic receivedValue;
+
+  ModelTypeException(this.model, this.receivedValue);
 
   @override
-  String toString() => "ModelTypeException${fieldName == null ? "" : " [for field '$fieldName']"}: Expected $T but received ${receivedValue.runtimeType} with value '$receivedValue'";
+  String toString() => "ModelTypeException:\n"
+      " For: ${model.toLongString()}\n"
+      " Reason: Expected '${model.valueType}' but received '${receivedValue.runtimeType}' with value '$receivedValue'";
 }
 
 class ModelValidationException implements Exception {
+  final ModelValue model;
   final dynamic receivedValue;
-  final String fieldName;
 
-  ModelValidationException(this.receivedValue, [this.fieldName]);
+  ModelValidationException(this.model, this.receivedValue);
 
   @override
-  String toString() => "ModelValidationException${fieldName == null ? "" : " [for field '$fieldName']"}: Validation failed on value '$receivedValue'";
+  String toString() => "ModelValidationException:\n"
+      " For: ${model.toLongString()}\n"
+      " Reason: Validation failed on value '$receivedValue'";
 }
 
-class ModelDeserializeException implements Exception {
-  final dynamic receivedValue;
-  final String fieldName;
+class ModelEqualityException implements Exception {
+  final ModelValue model;
+  final ModelValue receivedModel;
 
-  ModelDeserializeException(this.receivedValue, [this.fieldName]);
+  ModelEqualityException(this.model, this.receivedModel);
 
   @override
-  String toString() => "ModelDeserializeException${fieldName == null ? "" : " [for field '$fieldName']"}: Expected $T but received ${receivedValue.runtimeType} with value '$receivedValue'";
+  String toString() => "ModelEqualityException:\n"
+      " For: ${model.toLongString()}\n"
+      " Reason: Not the same as ${receivedModel.toLongString()} because their histories are not equal";
+}
+
+class ModelFromJsonException implements Exception {
+  final ModelValue model;
+  final dynamic receivedValue;
+
+  ModelFromJsonException(this.model, this.receivedValue);
+
+  @override
+  String toString() => "ModelFromJsonException:\n"
+      " For: ${model.toLongString()}\n"
+      " Reason: Cannot convert '$receivedValue' to ${model.modelType}";
 }

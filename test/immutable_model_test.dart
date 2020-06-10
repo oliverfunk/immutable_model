@@ -2,6 +2,30 @@ import 'package:test/test.dart';
 
 import 'package:immutable_model/immutable_model.dart';
 
+//final i = ModelInner({
+//  "int" : ModelPrimitive<int>(2),
+//  "str" : ModelPrimitive<String>("Hello"),
+//  "dbl" : ModelPrimitive<double>(0.95),
+//  "email" : ModelEmail('oli.funk'),
+//});
+//
+//var dbl_m = i.getFieldModel("dbl");
+//dbl_m = dbl_m.next(0.85);
+//
+//final b = i.next({
+//  "int": 5,
+//  "str": (str) => str+" World",
+//  "dbl": dbl_m
+//});
+//
+//final incomming = ModelEmail('new.funk');
+//
+//final c = b.next({
+//  "email": incomming
+//});
+//
+//print(c);
+
 //final model_init = ImmutableModel({
 //  "test int": ModelPrimitive<int>(6, (i) => i > 0 ? i : throw Error()),
 //  "test string": ModelPrimitive<String>("Hello"),

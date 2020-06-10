@@ -34,7 +34,7 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
   @override
   List<V> validate(List<V> toValidate) => toValidate.isEmpty || _listItemValidator == null ? toValidate : toValidate
-    ..forEach((item) => _listItemValidator(item) ? item : throw ModelValidationException(item, modelFieldName));
+    ..forEach((item) => _listItemValidator(item) ? item : throw ModelValidationException(this, item));
 
   @override
   ModelList<V> build(List<V> next) =>

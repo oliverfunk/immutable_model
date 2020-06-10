@@ -1,10 +1,10 @@
+import 'package:equatable/equatable.dart';
+
 import 'buffer.dart';
 import 'model_inner.dart';
 import 'model_value.dart';
 
-// todo: update from Models
-
-class ImmutableModel {
+class ImmutableModel extends Equatable {
   final ModelInner _model;
   final CacheBuffer<ImmutableModel> _cache;
 
@@ -16,7 +16,11 @@ class ImmutableModel {
       : _model = ModelInner(model),
         _cache = CacheBuffer(cacheBufferSize);
 
+  // caching
+
   ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
+
+  // updating
 
   ImmutableModel update(Map<String, dynamic> updates) =>
       (updates == null || updates.isEmpty) ? this : ImmutableModel._(this, _model.next(updates));
@@ -37,12 +41,33 @@ class ImmutableModel {
     return update(updates);
   }
 
-  ImmutableModel updateWith(Map<String, FieldUpdater> updaters) =>
+  ImmutableModel updateWith(Map<String, ValueUpdater> updaters) =>
       (updaters == null || updaters.isEmpty) ? this : ImmutableModel._(this, _model.next(updaters));
+
+  ImmutableModel updateWithModels(Map<String, ModelValue> models) =>
+      (models == null || models.isEmpty) ? this : ImmutableModel._(this, _model.next(models));
+
+  ImmutableModel updateModel(ModelInner model) =>
+      model == null ? this : ImmutableModel._(this, _model.nextFromModel(model));
 
   ImmutableModel resetFields(List<String> fields) => (fields == null || fields.isEmpty)
       ? this
       : ImmutableModel._(this, _model.next(Map.fromIterable(fields, key: (listItem) => listItem, value: null)));
+
+  // JSON
+
+  Map<String, dynamic> toJson() => _model.asSerializable();
+
+  ImmutableModel fromJson(Map<String, dynamic> jsonMap) =>
+      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel._(this, _model.fromJSON(jsonMap));
+
+  // field ops
+
+  Iterable<String> get fields => _model.fields;
+
+  int numberOfFields() => _model.numberOfFields();
+
+  bool hasField(String field) => _model.hasField(field);
 
   ModelValue getFieldModel(String field) => _model.getFieldModel(field);
 
@@ -50,9 +75,10 @@ class ImmutableModel {
 
   dynamic operator [](String field) => getFieldValue(field);
 
-  Iterable<String> get fields => _model.fields;
+  // misc
 
-  ImmutableModel fromJSON(Map<String, dynamic> jsonMap) => (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel._(this, _model.fromJSON(jsonMap));
+  @override
+  List<Object> get props => [_model];
 
   @override
   String toString() => _model.toString();

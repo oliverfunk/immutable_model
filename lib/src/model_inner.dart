@@ -2,8 +2,6 @@ import 'package:built_collection/built_collection.dart';
 
 import 'model_value.dart';
 
-typedef dynamic FieldUpdater(dynamic currentValue);
-
 class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   final ModelInner _initial;
 
@@ -31,25 +29,32 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
         next.forEach((field, update) {
           mb.updateValue(
               field,
-              (currVal) => update is FieldUpdater
-                  ? currVal.nextFromDynamic(update(currVal.value))
-                  : currVal.nextFromDynamic(update));
+              (model) => update == null // implies a reset
+                  ? model.next(null)
+                  : update is ValueUpdater // func update
+                      ? model.nextFromFunc(update)
+                      : update is ModelValue // model update
+                          ? model.nextFromModel(update)
+                          : model.nextFromDynamic(update)); // normal value update
         });
       }));
     }
   }
 
-  // not efficient
+  // not efficient, use sparingly
   @override
   Map<String, dynamic> asSerializable() =>
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
   ModelInner fromJSON(Map<String, dynamic> jsonMap) => ModelInner._(this, _current.rebuild((mb) {
         jsonMap.forEach((field, jsonValue) {
-          mb.updateValue(field,
-              (currVal) => currVal is ModelInner
-                  ? currVal.fromJSON(currVal.deserializer(jsonValue))
-                  : currVal.next(currVal.deserializer(jsonValue)));
+          mb.updateValue(
+              field,
+              (model) => jsonValue == null // skip nulls
+                  ? model
+                  : model is ModelInner // recursive through the hierarchy
+                      ? model.fromJSON(model.deserializer(jsonValue))
+                      : model.next(model.deserializer(jsonValue)));
         });
       }));
 
