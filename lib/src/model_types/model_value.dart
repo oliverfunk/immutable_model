@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-import 'exceptions.dart';
+import '../exceptions.dart';
 
 typedef dynamic ValueUpdater(dynamic currentValue);
 

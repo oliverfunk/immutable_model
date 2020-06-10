@@ -1,5 +1,6 @@
 import 'package:built_collection/built_collection.dart';
 
+import '../immutable_model.dart';
 import 'model_value.dart';
 
 class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {

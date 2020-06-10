@@ -1,8 +1,8 @@
 import 'package:equatable/equatable.dart';
 
 import 'buffer.dart';
-import 'model_inner.dart';
-import 'model_value.dart';
+import 'model_types/model_inner.dart';
+import 'model_types/model_value.dart';
 
 class ImmutableModel extends Equatable {
   final ModelInner _model;
@@ -19,6 +19,10 @@ class ImmutableModel extends Equatable {
   // caching
 
   ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
+
+  // value
+
+  Map<String, dynamic> asMap() => _model.value;
 
   // updating
 

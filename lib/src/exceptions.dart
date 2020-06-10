@@ -1,4 +1,4 @@
-import 'package:immutable_model/src/model_value.dart';
+import 'model_types/model_value.dart';
 
 class ModelTypeException implements Exception {
   final ModelValue model;

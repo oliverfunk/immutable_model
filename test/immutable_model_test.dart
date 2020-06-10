@@ -105,38 +105,26 @@ void main() {
       final test_int_null_init = ModelPrimitive<int>();
       expect(test_int_null_init.value, null);
 
+      final test_int_null_1 = test_int_null_init.next(1);
+      expect(test_int_null_1.value, 1);
+
+      final test_int_null_2 = test_int_null_1.next(2);
+      expect(test_int_null_2.value, 2);
+
+      final test_int_null_reset = test_int_null_2.next(null);
+      expect(test_int_null_init.value, null);
+
       final test_int_default_init = ModelPrimitive<int>(5);
       expect(test_int_default_init.value, 5);
 
-      final test_int_default_valid_init = ModelPrimitive<int>(5, );
-      expect(test_int_default_init.value, 5);
-
-      final test_int_null_1 = test_int_null_init.update(1);
+      final test_int_default_1 = test_int_default_init.next(1);
       expect(test_int_null_1.value, 1);
 
-      final test_int_null_2 = test_int_null_1.update(2);
+      final test_int_default_2 = test_int_default_1.next(2);
       expect(test_int_null_2.value, 2);
 
-      final test_int_null_reset = test_int_null_2.reset();
-      expect(test_int_null_init.value, null);
-
-      final test_int_default_init = ModelPrimitive<int>(5);
-    });
-
-    test("Basic model primitive update tests", (){
-      final test_int_null_init = ModelPrimitive<int>();
-      expect(test_int_null_init.value, null);
-
-      final test_int_null_1 = test_int_null_init.update(1);
-      expect(test_int_null_1.value, 1);
-
-      final test_int_null_2 = test_int_null_1.update(2);
-      expect(test_int_null_2.value, 2);
-
-      final test_int_null_reset = test_int_null_2.reset();
-      expect(test_int_null_init.value, null);
-
-      final test_int_default_init = ModelPrimitive<int>(5);
+      final test_int_default_reset = test_int_default_2.next(null);
+      expect(test_int_null_init.value, 5);
     });
   });
 
@@ -150,7 +138,7 @@ void main() {
         "datetime": ModelPrimitive<DateTime>(),
       });
 
-      expect(model.value, {
+      expect(model.asMap(), {
         "bool": null,
         "int": null,
         "double": null,
@@ -168,7 +156,7 @@ void main() {
         "datetime": ModelPrimitive<DateTime>(DateTime(2020, 6, 1)),
       });
 
-      expect(model.value, {
+      expect(model.asMap(), {
         "bool": false,
         "int": 6,
         "double": 0.95,
@@ -180,13 +168,13 @@ void main() {
     test("Basic model with mixed defaults and validators", (){
       final model = ImmutableModel({
         "bool": ModelPrimitive<bool>(false),
-        "int": ModelPrimitive<int>(6, (i) => i > 0 ? i : throw Exception()),
+        "int": ModelPrimitive<int>(6, (i) => i > 0),
         "double": ModelPrimitive<double>(null),
         "string": ModelPrimitive<String>("Default"),
-        "datetime": ModelPrimitive<DateTime>(DateTime(2020, 6, 1), (dt) => dt.isAfter(DateTime(2020, 1, 1)) ? dt : throw Exception()),
+        "datetime": ModelPrimitive<DateTime>(DateTime(2020, 6, 1), (dt) => dt.isAfter(DateTime(2020, 1, 1))),
       });
 
-      expect(model.value, {
+      expect(model.asMap(), {
         "bool": false,
         "int": 6,
         "double": null,

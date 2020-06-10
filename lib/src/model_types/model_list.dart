@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 
-import 'exceptions.dart';
-import 'immutable_model.dart';
+import '../exceptions.dart';
+import '../immutable_model.dart';
 import 'model_value.dart';
 
 typedef bool ListItemValidator<V>(V item);
