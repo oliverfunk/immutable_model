@@ -27,7 +27,9 @@ class ImmutableModel extends Equatable {
   // updating
 
   ImmutableModel update(Map<String, dynamic> updates) =>
-      (updates == null || updates.isEmpty) ? this : ImmutableModel._(this, _model.next(updates));
+      (updates == null || updates.isEmpty)
+          ? this
+          : ImmutableModel._(this, _model.next(updates));
 
   /// ensure valid _structural_ update
   ImmutableModel strictUpdate(Map<String, dynamic> updates) {
@@ -46,24 +48,35 @@ class ImmutableModel extends Equatable {
   }
 
   ImmutableModel updateWith(Map<String, ValueUpdater> updaters) =>
-      (updaters == null || updaters.isEmpty) ? this : ImmutableModel._(this, _model.next(updaters));
+      (updaters == null || updaters.isEmpty)
+          ? this
+          : ImmutableModel._(this, _model.next(updaters));
 
   ImmutableModel updateWithModels(Map<String, ModelValue> models) =>
-      (models == null || models.isEmpty) ? this : ImmutableModel._(this, _model.next(models));
+      (models == null || models.isEmpty)
+          ? this
+          : ImmutableModel._(this, _model.next(models));
 
-  ImmutableModel updateModel(ModelInner model) =>
-      model == null ? this : ImmutableModel._(this, _model.nextFromModel(model));
-
-  ImmutableModel resetFields(List<String> fields) => (fields == null || fields.isEmpty)
+  ImmutableModel updateModel(ModelInner model) => model == null
       ? this
-      : ImmutableModel._(this, _model.next(Map.fromIterable(fields, key: (listItem) => listItem, value: null)));
+      : ImmutableModel._(this, _model.nextFromModel(model));
+
+  ImmutableModel resetFields(List<String> fields) =>
+      (fields == null || fields.isEmpty)
+          ? this
+          : ImmutableModel._(
+              this,
+              _model.next(Map.fromIterable(fields,
+                  key: (listItem) => listItem, value: null)));
 
   // JSON
 
   Map<String, dynamic> toJson() => _model.asSerializable();
 
   ImmutableModel fromJson(Map<String, dynamic> jsonMap) =>
-      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel._(this, _model.fromJSON(jsonMap));
+      (jsonMap == null || jsonMap.isEmpty)
+          ? this
+          : ImmutableModel._(this, _model.fromJSON(jsonMap));
 
   // field ops
 

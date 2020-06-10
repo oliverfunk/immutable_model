@@ -18,12 +18,15 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
         _listItemValidator = last._listItemValidator,
         _append = last._append;
 
-  ModelList([List<V> initialList, ListItemValidator<V> listItemValidator, bool append = true])
+  ModelList(
+      [List<V> initialList,
+      ListItemValidator<V> listItemValidator,
+      bool append = true])
       : _initial = null,
         _current = BuiltList.of(initialList),
         _listItemValidator = listItemValidator,
         _append = append {
-    if (initialList != null && !initialList.isEmpty) validate(initialList);
+    if (initialList != null && initialList.isNotEmpty) validate(initialList);
   }
 
   @override
@@ -33,18 +36,24 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   ModelList<V> get initialModel => _initial ?? this;
 
   @override
-  List<V> validate(List<V> toValidate) => toValidate.isEmpty || _listItemValidator == null ? toValidate : toValidate
-    ..forEach((item) => _listItemValidator(item) ? item : throw ModelValidationException(this, item));
+  List<V> validate(List<V> toValidate) =>
+      toValidate.isEmpty || _listItemValidator == null ? toValidate : toValidate
+        ..forEach((item) => _listItemValidator(item)
+            ? item
+            : throw ModelValidationException(this, item));
 
   @override
-  ModelList<V> build(List<V> next) =>
-      ModelList._(this, _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
+  ModelList<V> build(List<V> next) => ModelList._(this,
+      _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
 
-  ModelList<V> remove(int index) => ModelList._(this, _current.rebuild((lb) => lb.removeAt(index)));
+  ModelList<V> remove(int index) =>
+      ModelList._(this, _current.rebuild((lb) => lb.removeAt(index)));
 
-  ModelList<V> replace(int index, V element) => ModelList._(this, _current.rebuild((lb) => lb[index] = element));
+  ModelList<V> replace(int index, V element) =>
+      ModelList._(this, _current.rebuild((lb) => lb[index] = element));
 
-  ModelList<V> clear() => ModelList._(this, _current.rebuild((lb) => lb.clear()));
+  ModelList<V> clear() =>
+      ModelList._(this, _current.rebuild((lb) => lb.clear()));
 
   V getElementAt(int index) => _current.elementAt(index);
 
@@ -59,10 +68,16 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {
   ModelValidatedList(ImmutableModel model,
-      [List<Map<String, dynamic>> initialList, bool append = true, bool withCompleteUpdates = true])
-      : super(initialList, (li) => _validateItemAgainstModel(model, withCompleteUpdates, li), append);
+      [List<Map<String, dynamic>> initialList,
+      bool append = true,
+      bool withCompleteUpdates = true])
+      : super(
+            initialList,
+            (li) => _validateItemAgainstModel(model, withCompleteUpdates, li),
+            append);
 
-  static bool _validateItemAgainstModel(ImmutableModel model, bool withCompleteUpdates, Map<String, dynamic> item) {
+  static bool _validateItemAgainstModel(ImmutableModel model,
+      bool withCompleteUpdates, Map<String, dynamic> item) {
     if (withCompleteUpdates) {
       model.strictUpdate(item);
       return true;
@@ -73,6 +88,8 @@ class ModelValidatedList extends ModelList<Map<String, dynamic>> {
   }
 
   @override
-  ModelList<Map<String, dynamic>> replace(int index, Map<String, dynamic> element) =>
-      ModelList._(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
+  ModelList<Map<String, dynamic>> replace(
+          int index, Map<String, dynamic> element) =>
+      ModelList._(
+          this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
 }

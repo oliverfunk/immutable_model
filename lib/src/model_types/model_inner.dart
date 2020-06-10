@@ -16,7 +16,8 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   // not efficient
   @override
-  Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
+  Map<String, dynamic> get value =>
+      _current.toMap().map((field, value) => MapEntry(field, value.value));
 
   @override
   ModelInner get initialModel => _initial ?? this;
@@ -36,7 +37,8 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
                       ? model.nextFromFunc(update)
                       : update is ModelValue // model update
                           ? model.nextFromModel(update)
-                          : model.nextFromDynamic(update)); // normal value update
+                          : model
+                              .nextFromDynamic(update)); // normal value update
         });
       }));
     }
@@ -44,10 +46,12 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   // not efficient, use sparingly
   @override
-  Map<String, dynamic> asSerializable() =>
-      Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
+  Map<String, dynamic> asSerializable() => Map.unmodifiable(_current
+      .toMap()
+      .map((field, value) => MapEntry(field, value.asSerializable())));
 
-  ModelInner fromJSON(Map<String, dynamic> jsonMap) => ModelInner._(this, _current.rebuild((mb) {
+  ModelInner fromJSON(Map<String, dynamic> jsonMap) =>
+      ModelInner._(this, _current.rebuild((mb) {
         jsonMap.forEach((field, jsonValue) {
           mb.updateValue(
               field,

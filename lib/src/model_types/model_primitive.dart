@@ -10,7 +10,8 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   final ValueValidator<T> _validator;
   final String _fieldName;
 
-  ModelPrimitive([T initialValue, ValueValidator<T> validator, String fieldName])
+  ModelPrimitive(
+      [T initialValue, ValueValidator<T> validator, String fieldName])
       : _initial = null,
         _current = initialValue,
         _validator = validator,
@@ -32,7 +33,9 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   @override
   T validate(T toValidate) => _validator == null
       ? toValidate
-      : _validator(toValidate) ? toValidate : throw ModelValidationException(this, toValidate);
+      : _validator(toValidate)
+          ? toValidate
+          : throw ModelValidationException(this, toValidate);
 
   @override
   ModelPrimitive<T> build(T nextValue) => ModelPrimitive._(this, nextValue);

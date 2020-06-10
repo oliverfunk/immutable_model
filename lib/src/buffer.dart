@@ -30,7 +30,8 @@ class CacheBuffer<T> {
     } else if (bufferSize == 0) {
       throw Exception('Cannot restore, buffer is size 0');
     } else if (point > numberOfItems()) {
-      throw Exception('Cannot restore, point $point out of buffer range $numberOfItems()');
+      throw Exception(
+          'Cannot restore, point $point out of buffer range $numberOfItems()');
     }
 
     T val;
@@ -46,7 +47,8 @@ class CacheBuffer<T> {
     } else if (bufferSize == 0) {
       throw Exception('Cannot peek, buffer is size 0');
     } else if (point > numberOfItems()) {
-      throw Exception('Cannot peek, point $point out of buffer range $numberOfItems()');
+      throw Exception(
+          'Cannot peek, point $point out of buffer range $numberOfItems()');
     }
 
     return _buffer.elementAt(point - 1);

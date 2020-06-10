@@ -100,8 +100,8 @@ import 'package:immutable_model/immutable_model.dart';
 // todo: test an updateFrom with List<dyn> for a field of List<int>
 
 void main() {
-  group("Model object tests", (){
-    test("Basic model primitive initialisation tests", (){
+  group("Model object tests", () {
+    test("Basic model primitive initialisation tests", () {
       final test_int_null_init = ModelPrimitive<int>();
       expect(test_int_null_init.value, null);
 
@@ -128,8 +128,8 @@ void main() {
     });
   });
 
-  group("model definition", (){
-    test("Basic empty model", (){
+  group("model definition", () {
+    test("Basic empty model", () {
       final model = ImmutableModel({
         "bool": ModelPrimitive<bool>(),
         "int": ModelPrimitive<int>(),
@@ -147,7 +147,7 @@ void main() {
       });
     });
 
-    test("Basic model with default values", (){
+    test("Basic model with default values", () {
       final model = ImmutableModel({
         "bool": ModelPrimitive<bool>(false),
         "int": ModelPrimitive<int>(6),
@@ -165,13 +165,14 @@ void main() {
       });
     });
 
-    test("Basic model with mixed defaults and validators", (){
+    test("Basic model with mixed defaults and validators", () {
       final model = ImmutableModel({
         "bool": ModelPrimitive<bool>(false),
         "int": ModelPrimitive<int>(6, (i) => i > 0),
         "double": ModelPrimitive<double>(null),
         "string": ModelPrimitive<String>("Default"),
-        "datetime": ModelPrimitive<DateTime>(DateTime(2020, 6, 1), (dt) => dt.isAfter(DateTime(2020, 1, 1))),
+        "datetime": ModelPrimitive<DateTime>(
+            DateTime(2020, 6, 1), (dt) => dt.isAfter(DateTime(2020, 1, 1))),
       });
 
       expect(model.asMap(), {
@@ -184,28 +185,15 @@ void main() {
     });
   });
 
-  group("model updates and resets", (){
+  group("model updates and resets", () {});
 
-  });
+  group("model value retrieval", () {});
 
-  group("model value retrieval", (){
+  group("model creation", () {});
 
-  });
+  group("model JSON handling", () {});
 
-  group("model creation", (){
+  group("model state restore", () {});
 
-  });
-
-  group("model JSON handling", (){
-
-  });
-
-  group("model state restore", (){
-
-  });
-
-  group("model state restore", (){
-
-  });
-
+  group("model state restore", () {});
 }
