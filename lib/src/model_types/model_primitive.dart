@@ -55,6 +55,9 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
         _validator = last._validator,
         _fieldName = last._fieldName;
 
+  @override
+  ModelPrimitive<T> build(T nextValue) => ModelPrimitive._next(this, nextValue);
+
   // methods
 
   @override
@@ -67,10 +70,4 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   T validate(T toValidate) => _validator == null
       ? toValidate
       : _validator(toValidate) ? toValidate : throw ModelValidationException(this, toValidate);
-
-  @override
-  ModelPrimitive<T> build(T nextValue) => ModelPrimitive._next(this, nextValue);
-
-  @override
-  String get modelFieldName => _fieldName;
 }

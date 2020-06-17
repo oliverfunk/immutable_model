@@ -1,4 +1,5 @@
 import 'package:built_collection/built_collection.dart';
+import 'package:immutable_model/src/model_types/model_datetime.dart';
 
 import '../exceptions.dart';
 import 'model_value.dart';
@@ -63,13 +64,13 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
         _listItemValidator = last._listItemValidator,
         _append = last._append;
 
+  @override
+  ModelList<V> get initialModel => _initialModel ?? this;
+
   // methods
 
   @override
   List<V> get value => _current.toList();
-
-  @override
-  ModelList<V> get initialModel => _initialModel ?? this;
 
   @override
   List<V> validate(List<V> toValidate) {
@@ -106,6 +107,8 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 // []= must return void, so can't use it...
 //  ModelList<V> operator []=(int index, V element) => replace(index, element);
 }
+
+// todo: add ModelDateTimeList
 
 //class ModelValidatedList extends ModelList<Map<String, dynamic>> {
 //  ModelValidatedList(ImmutableModel model,

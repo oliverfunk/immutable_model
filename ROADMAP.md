@@ -6,3 +6,4 @@
 * migrations
 * extesions to m
 * better enum support
+* enusreValid method for inn mod for every updatek operatres on the whole model ensuring values are good (like start date end date)

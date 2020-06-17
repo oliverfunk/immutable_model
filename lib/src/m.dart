@@ -1,3 +1,5 @@
+import 'package:immutable_model/src/model_types/model_datetime.dart';
+
 import 'model_types/model_value.dart';
 import 'model_types/model_inner.dart';
 import 'model_types/model_enum.dart';
@@ -12,19 +14,19 @@ class M {
   static ModelEnum<E> enm<E>(List<String> enums, String initial, [String fieldName]) =>
       ModelEnum.fromStringList(enums, initial, fieldName);
 
+  static ModelDateTime dt([DateTime initial, DateTimeChecker checker, String fieldName]) =>
+      ModelDateTime(initial, checker, fieldName);
+
   static ModelPrimitive<bool> bl(bool initial, [String fieldName]) => ModelPrimitive.bool(initial, fieldName);
 
   static ModelPrimitive<int> nt([int initial, ValueValidator<int> validator, String fieldName]) =>
-      ModelPrimitive.int(initial, validator, fieldName);
+      ModelPrimitive<int>.int(initial, validator, fieldName);
 
   static ModelPrimitive<double> dbl([double initial, ValueValidator<double> validator, String fieldName]) =>
       ModelPrimitive.double(initial, validator, fieldName);
 
   static ModelPrimitive<String> str([String initial, ValueValidator<String> validator, String fieldName]) =>
       ModelPrimitive.string(initial, validator, fieldName);
-
-  static ModelPrimitive<DateTime> dt([DateTime initial, ValueValidator<DateTime> validator, String fieldName]) =>
-      ModelPrimitive.datetime(initial, validator, fieldName);
 
   static ModelList<bool> blList(
           [List<bool> initialList, ListItemValidator<bool> listItemValidator, bool append = true, String fieldName]) =>

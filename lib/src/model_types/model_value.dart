@@ -52,7 +52,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   // reflective methods
 
   /// Returns the model field name string for this [ModelValue] in some.
-  /// Useful for reflection and exceptions.
+  /// Useful for reflection in exceptions.
   String get modelFieldName => null;
 
   @nonVirtual

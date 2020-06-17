@@ -46,5 +46,5 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   String get modelFieldName => _fieldName;
 
   @override
-  String toString() => "<$E:String>($value)";
+  String toString() => "<$E as String>($value)";
 }
