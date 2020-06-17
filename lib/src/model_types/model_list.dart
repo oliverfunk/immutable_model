@@ -10,8 +10,8 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   final ModelList<V> _initialModel;
 
   final BuiltList<V> _current;
-  final bool _append;
   final ListItemValidator<V> _listItemValidator;
+  final bool _append;
 
   // constructors
 

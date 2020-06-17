@@ -119,32 +119,37 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final tst = M.nt(5);
-    final nxt = tst.next(10);
+    final mod = ImmutableModel(
+        {
+          'enum': M.enm<TestAnotherEnum>(
+              ModelEnum.fromEnumList(TestAnotherEnum.values),
+              ModelEnum.fromEnum(TestAnotherEnum.AnFirst)),
+          'bool': M.bl(true),
+          'int': M.nt(6, (i) => i > 0),
+          'dt beg': M.dt(DateTime.now()),
+          'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
+          'bool list': M.blList([true, false, true]),
+          'str': M.str("Oliver"),
+          'mvList': M.mvList(
+              ImmutableModel({
+                'int': M.nt(),
+                'fn': M.str(),
+                'sn': M.str(),
+              }),
+              [
+                {
+                  'int': 10,
+                  'fn': 'Oliver',
+                  'sn': 'Funk',
+                }
+              ],
+              false)
+        },
+        (stateMap) => (stateMap['dt beg'].value as DateTime)
+            .isBefore(stateMap['dt end'].value as DateTime));
 
-    final mod = ImmutableModel({
-      'enum': M.enm<TestAnotherEnum>(
-          ModelEnum.fromEnumList(TestAnotherEnum.values),
-          ModelEnum.fromEnum(TestAnotherEnum.AnFirst)),
-      'bool': M.bl(true),
-      'int': M.nt(6, (i) => i > 0),
-      'dt': M.dt(DateTime.now()),
-      'bool list': M.blList([true, false, true]),
-      'str': M.str("Oliver"),
-      'mvList': M.mvList(
-          ImmutableModel({
-            'int': M.nt(),
-            'fn': M.str(),
-            'sn': M.str(),
-          }),
-          [
-            {
-              'int': 10,
-              'fn': 'Oliver',
-              'sn': 'Funk',
-            }
-          ],
-          false)
+    final mmod = mod.update({
+      'dt end': DateTime.now().add(Duration(seconds: 100)),
     });
 
     final jenc = jsonEncode(mod.toJson());

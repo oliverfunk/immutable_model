@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 import 'buffer.dart';
+import 'exceptions.dart';
 import 'model_types/model_inner.dart';
 import 'model_types/model_value.dart';
 
@@ -12,8 +13,9 @@ class ImmutableModel extends Equatable {
     _cache.cacheItem(last);
   }
 
-  ImmutableModel(Map<String, ModelValue> model, [int cacheBufferSize = 0])
-      : _model = ModelInner(model),
+  ImmutableModel(Map<String, ModelValue> model,
+      [UpdateValidator updateValidator, int cacheBufferSize = 0])
+      : _model = ModelInner(model, updateValidator),
         _cache = CacheBuffer(cacheBufferSize);
 
   // caching
@@ -37,11 +39,12 @@ class ImmutableModel extends Equatable {
       // not that efficient
       updates.keys.forEach((field) {
         if (!_model.hasField(field)) {
-          throw Exception("Field $field not in model");
+          throw ModelStrictUpdateException("Field $field not in model");
         }
       });
     } else {
-      throw Exception("Fields in updates not the same as model");
+      throw ModelStrictUpdateException(
+          "Fields in updates not the same as model");
     }
 
     return update(updates);

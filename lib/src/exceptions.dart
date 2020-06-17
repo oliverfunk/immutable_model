@@ -53,12 +53,13 @@ class ModelFromJsonException implements Exception {
       reason: "Cannot convert '$receivedValue' to <${model.modelType}>");
 }
 
-class ModelInitialisationError extends Error {
+class ModelStrictUpdateException implements Exception {
   final String reason;
 
-  ModelInitialisationError(this.reason);
+  ModelStrictUpdateException(this.reason);
 
   @override
-  String toString() => "ModelInitialisationError\n"
-      "  $reason";
+  String toString() => "ModelStrictUpdateException\n"
+      "  StrictUpdate() called on Immutable Model"
+      "  where $reason";
 }

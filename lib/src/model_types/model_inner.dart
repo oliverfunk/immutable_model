@@ -1,18 +1,24 @@
 import 'package:built_collection/built_collection.dart';
 
+import '../exceptions.dart';
 import 'model_value.dart';
+
+typedef bool UpdateValidator(Map<String, dynamic> update);
 
 class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   final ModelInner _initialModel;
 
   final BuiltMap<String, ModelValue> _current;
+  final UpdateValidator _updateValidator;
 
-  ModelInner(Map<String, ModelValue> model)
+  ModelInner(Map<String, ModelValue> model, [UpdateValidator updateValidator])
       : _initialModel = null,
+        _updateValidator = updateValidator,
         _current = BuiltMap.of(model);
 
   ModelInner._next(ModelInner last, this._current)
-      : _initialModel = last.initialModel;
+      : _initialModel = last.initialModel,
+        _updateValidator = last._updateValidator;
 
   // not efficient
   @override
@@ -30,7 +36,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
     if (next.isEmpty) {
       return this;
     } else {
-      return ModelInner._next(this, _current.rebuild((mb) {
+      final updated = _current.rebuild((mb) {
         next.forEach((field, update) {
           mb.updateValue(
               field,
@@ -43,7 +49,14 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
                           : model
                               .nextFromDynamic(update)); // normal value update
         });
-      }));
+      });
+
+      // post-processing validation
+      if (_updateValidator == null || _updateValidator(updated.toMap())) {
+        return ModelInner._next(this, updated);
+      } else {
+        throw ModelValidationException(this, updated.toMap());
+      }
     }
   }
 
