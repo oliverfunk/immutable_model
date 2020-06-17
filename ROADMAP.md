@@ -1,6 +1,8 @@
 * TODO: documentation
 * TODO: write tests
 * todo: add combine methods for Imm models and lists/sets (est. espose those metthods)
-* todo: supprt iterations
-* todo: support bool (from Json) set, DateTime, (bigInt?), enums
+* todo: support set, DateTime, (bigInt?)
 * todo: build fromjson file generator
+* migrations
+* extesions to m
+* better enum support

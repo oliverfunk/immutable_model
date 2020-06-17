@@ -12,7 +12,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   M get initialModel;
 
   /// Validates [toValidate] using the defined [validator] for this [ModelValue].
-  V validate(V toValidate) => toValidate;
+  V validate(V toValidate);
 
   @protected
   M build(V next);
@@ -70,5 +70,5 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
       "${modelFieldName == null ? "" : "'$modelFieldName':"}$modelType($value)";
 
   @override
-  String toString() => "$value ($valueType)";
+  String toString() => "<$valueType>($value)";
 }
