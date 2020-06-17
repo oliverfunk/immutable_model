@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/src/model_types/model_primitive.dart';
 import 'package:test/test.dart';
 
 //final i = ModelInner({
@@ -125,12 +124,27 @@ void main() {
 
     final mod = ImmutableModel({
       'enum': M.enm<TestAnotherEnum>(
-          ModelEnum.fromEnumList(TestAnotherEnum.values), ModelEnum.fromEnum(TestAnotherEnum.AnFirst)),
+          ModelEnum.fromEnumList(TestAnotherEnum.values),
+          ModelEnum.fromEnum(TestAnotherEnum.AnFirst)),
       'bool': M.bl(true),
       'int': M.nt(6, (i) => i > 0),
-      'dt' : M.dt(DateTime.now()),
+      'dt': M.dt(DateTime.now()),
       'bool list': M.blList([true, false, true]),
       'str': M.str("Oliver"),
+      'mvList': M.mvList(
+          ImmutableModel({
+            'int': M.nt(),
+            'fn': M.str(),
+            'sn': M.str(),
+          }),
+          [
+            {
+              'int': 10,
+              'fn': 'Oliver',
+              'sn': 'Funk',
+            }
+          ],
+          false)
     });
 
     final jenc = jsonEncode(mod.toJson());

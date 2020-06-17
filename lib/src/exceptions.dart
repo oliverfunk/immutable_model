@@ -24,8 +24,8 @@ class ModelValidationException implements Exception {
   ModelValidationException(this.model, this.receivedValue);
 
   @override
-  String toString() =>
-      _eStr<ModelValidationException>(modelFor: model, reason: "Validation failed on value '$receivedValue'");
+  String toString() => _eStr<ModelValidationException>(
+      modelFor: model, reason: "Validation failed on value '$receivedValue'");
 }
 
 class ModelEqualityException implements Exception {
@@ -37,7 +37,8 @@ class ModelEqualityException implements Exception {
   @override
   String toString() => _eStr<ModelEqualityException>(
       modelFor: model,
-      reason: "Not the same as ${receivedModel.toLongString()} because their histories are not equal");
+      reason:
+          "Not the same as ${receivedModel.toLongString()} because their histories are not equal");
 }
 
 class ModelFromJsonException implements Exception {
@@ -48,7 +49,8 @@ class ModelFromJsonException implements Exception {
 
   @override
   String toString() => _eStr<ModelFromJsonException>(
-      modelFor: model, reason: "Cannot convert '$receivedValue' to <${model.modelType}>");
+      modelFor: model,
+      reason: "Cannot convert '$receivedValue' to <${model.modelType}>");
 }
 
 class ModelInitialisationError extends Error {

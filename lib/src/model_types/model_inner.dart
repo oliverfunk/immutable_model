@@ -11,11 +11,13 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       : _initialModel = null,
         _current = BuiltMap.of(model);
 
-  ModelInner._next(ModelInner last, this._current) : _initialModel = last.initialModel;
+  ModelInner._next(ModelInner last, this._current)
+      : _initialModel = last.initialModel;
 
   // not efficient
   @override
-  Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
+  Map<String, dynamic> get value =>
+      _current.toMap().map((field, value) => MapEntry(field, value.value));
 
   @override
   ModelInner get initialModel => _initialModel ?? this;
@@ -38,7 +40,8 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
                       ? model.nextFromFunc(update)
                       : update is ModelValue // model update
                           ? model.nextFromModel(update)
-                          : model.nextFromDynamic(update)); // normal value update
+                          : model
+                              .nextFromDynamic(update)); // normal value update
         });
       }));
     }
@@ -46,14 +49,17 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   // not efficient, use sparingly
   @override
-  Map<String, dynamic> asSerializable() =>
-      Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
+  Map<String, dynamic> asSerializable() => Map.unmodifiable(_current
+      .toMap()
+      .map((field, value) => MapEntry(field, value.asSerializable())));
 
-  ModelInner fromJSON(Map<String, dynamic> jsonMap) => ModelInner._next(this, _current.rebuild((mb) {
+  ModelInner fromJSON(Map<String, dynamic> jsonMap) =>
+      ModelInner._next(this, _current.rebuild((mb) {
         jsonMap.forEach((field, jsonValue) {
           mb.updateValue(
               field,
-              (model) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
+              (model) => jsonValue == null ||
+                      jsonValue == '' // skip nulls and empty strings
                   ? model
                   : model is ModelInner // recursive through the hierarchy
                       ? model.fromJSON(model.deserializer(jsonValue))

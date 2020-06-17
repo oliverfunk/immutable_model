@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/src/model_types/model_datetime.dart';
 
 import '../exceptions.dart';
+import '../immutable_model.dart';
 import 'model_value.dart';
 
 typedef bool ListItemValidator<V>(V item);
@@ -15,7 +15,8 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
   // constructors
 
-  ModelList.boolList([List<bool> initialList, bool append = true, String fieldName])
+  ModelList.boolList(
+      [List<bool> initialList, bool append = true, String fieldName])
       : _initialModel = null,
         _current = BuiltList<bool>.of(initialList) as BuiltList<V>,
         _listItemValidator = null,
@@ -24,7 +25,10 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   }
 
   ModelList.intList(
-      [List<int> initialList, ListItemValidator<int> listItemValidator, bool append = true, String fieldName])
+      [List<int> initialList,
+      ListItemValidator<int> listItemValidator,
+      bool append = true,
+      String fieldName])
       : _initialModel = null,
         _current = BuiltList<int>.of(initialList) as BuiltList<V>,
         _listItemValidator = listItemValidator as ListItemValidator<V>,
@@ -33,7 +37,10 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   }
 
   ModelList.doubleList(
-      [List<double> initialList, ListItemValidator<double> listItemValidator, bool append = true, String fieldName])
+      [List<double> initialList,
+      ListItemValidator<double> listItemValidator,
+      bool append = true,
+      String fieldName])
       : _initialModel = null,
         _current = BuiltList<double>.of(initialList) as BuiltList<V>,
         _listItemValidator = listItemValidator as ListItemValidator<V>,
@@ -42,7 +49,10 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   }
 
   ModelList.stringList(
-      [List<String> initialList, ListItemValidator<String> listItemValidator, bool append = true, String fieldName])
+      [List<String> initialList,
+      ListItemValidator<String> listItemValidator,
+      bool append = true,
+      String fieldName])
       : _initialModel = null,
         _current = BuiltList<String>.of(initialList) as BuiltList<V>,
         _listItemValidator = listItemValidator as ListItemValidator<V>,
@@ -51,9 +61,25 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   }
 
   ModelList.dateTimeList(
-      [List<DateTime> initialList, ListItemValidator<DateTime> listItemValidator, bool append = true, String fieldName])
+      [List<DateTime> initialList,
+      ListItemValidator<DateTime> listItemValidator,
+      bool append = true,
+      String fieldName])
       : _initialModel = null,
         _current = BuiltList<DateTime>.of(initialList) as BuiltList<V>,
+        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _append = append {
+    if (_current != null && _current.isNotEmpty) validate(_current.asList());
+  }
+
+  ModelList._mapList(
+      [List<Map<String, dynamic>> initialList,
+      ListItemValidator<Map<String, dynamic>> listItemValidator,
+      bool append = true,
+      String fieldName])
+      : _initialModel = null,
+        _current =
+            BuiltList<Map<String, dynamic>>.of(initialList) as BuiltList<V>,
         _listItemValidator = listItemValidator as ListItemValidator<V>,
         _append = append {
     if (_current != null && _current.isNotEmpty) validate(_current.asList());
@@ -78,24 +104,43 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
       return toValidate;
     } else {
       return toValidate
-        ..forEach((item) => _listItemValidator(item) ? item : throw ModelValidationException(this, item));
+        ..forEach((item) => _listItemValidator(item)
+            ? item
+            : throw ModelValidationException(this, item));
     }
   }
 
   @override
-  ModelList<V> build(List<V> next) =>
-      ModelList._next(this, _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
+  ModelList<V> build(List<V> next) => ModelList._next(this,
+      _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
 
   @override
-  List<V> deserializer(dynamic jsonValue) => jsonValue is List
-      ? jsonValue.cast<V>()
-      : throw ModelFromJsonException(this, jsonValue);
+  dynamic asSerializable() => V == DateTime
+      ? (value.map((dt) => (dt as DateTime).toIso8601String()))
+      : value;
 
-  ModelList<V> remove(int index) => ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
+  @override
+  List<V> deserializer(dynamic jsonValue) {
+    if (jsonValue is List) {
+      if (V == DateTime) {
+        return jsonValue.cast<String>().map((dtStr) => DateTime.parse(dtStr))
+            as List<V>;
+      } else {
+        return jsonValue.cast<V>();
+      }
+    } else {
+      throw ModelFromJsonException(this, jsonValue);
+    }
+  }
 
-  ModelList<V> replace(int index, V element) => ModelList._next(this, _current.rebuild((lb) => lb[index] = element));
+  ModelList<V> remove(int index) =>
+      ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
 
-  ModelList<V> clear() => ModelList._next(this, _current.rebuild((lb) => lb.clear()));
+  ModelList<V> replace(int index, V element) =>
+      ModelList._next(this, _current.rebuild((lb) => lb[index] = element));
+
+  ModelList<V> clear() =>
+      ModelList._next(this, _current.rebuild((lb) => lb.clear()));
 
   V getElementAt(int index) => _current.elementAt(index);
 
@@ -108,24 +153,22 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 //  ModelList<V> operator []=(int index, V element) => replace(index, element);
 }
 
-// todo: add ModelDateTimeList
+class ModelValidatedList extends ModelList<Map<String, dynamic>> {
+  ModelValidatedList(ImmutableModel model,
+      [List<Map<String, dynamic>> initialList, bool append = true])
+      : super._mapList(
+            initialList, (li) => _validateItemAgainstModel(model, li), append);
 
-//class ModelValidatedList extends ModelList<Map<String, dynamic>> {
-//  ModelValidatedList(ImmutableModel model,
-//      [List<Map<String, dynamic>> initialList, bool append = true, bool withCompleteUpdates = true])
-//      : super(initialList, (li) => _validateItemAgainstModel(model, withCompleteUpdates, li), append);
-//
-//  static bool _validateItemAgainstModel(ImmutableModel model, bool withCompleteUpdates, Map<String, dynamic> item) {
-//    if (withCompleteUpdates) {
-//      model.strictUpdate(item);
-//    } else {
-//      model.update(item);
-//    }
-//    // success
-//    return true;
-//  }
-//
-//  @override
-//  ModelList<Map<String, dynamic>> replace(int index, Map<String, dynamic> element) =>
-//      ModelList._next(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
-//}
+  static bool _validateItemAgainstModel(
+      ImmutableModel model, Map<String, dynamic> item) {
+    model.strictUpdate(item);
+    // success
+    return true;
+  }
+
+  @override
+  ModelList<Map<String, dynamic>> replace(
+          int index, Map<String, dynamic> element) =>
+      ModelList._next(
+          this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
+}

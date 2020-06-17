@@ -10,7 +10,8 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
 
   // constructors
 
-  ModelEnum.fromStringList(List<String> enums, String initial, [String fieldName])
+  ModelEnum.fromStringList(List<String> enums, String initial,
+      [String fieldName])
       : _initialModel = null,
         _current = initial,
         _enums = enums,
@@ -23,7 +24,8 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
 
   // static methods
 
-  static List<String> fromEnumList<E>(List<E> enumValues) => enumValues.map((en) => fromEnum(en)).toList();
+  static List<String> fromEnumList<E>(List<E> enumValues) =>
+      enumValues.map((en) => fromEnum(en)).toList();
 
   static String fromEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
 
@@ -36,8 +38,9 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   ModelEnum<E> get initialModel => _initialModel ?? this;
 
   @override
-  String validate(String toValidate) =>
-      _enums.contains(toValidate) ? toValidate : throw ModelValidationException(this, toValidate);
+  String validate(String toValidate) => _enums.contains(toValidate)
+      ? toValidate
+      : throw ModelValidationException(this, toValidate);
 
   @override
   ModelEnum<E> build(String nextEnum) => ModelEnum._next(this, nextEnum);

@@ -1,6 +1,4 @@
-import '../m.dart';
-import '../model_types/model_primitive.dart';
-import '../model_types/model_value.dart';
+import 'package:immutable_model/immutable_model.dart';
 
 class ModelEmail extends ModelPrimitive<String> {
   ModelEmail([String defaultEmail, String fieldName = 'email'])
