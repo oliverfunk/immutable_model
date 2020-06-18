@@ -72,6 +72,9 @@ class ImmutableModel extends Equatable {
               _model.next(Map.fromIterable(fields,
                   key: (listItem) => listItem, value: null)));
 
+  ImmutableModel mergeModel(ImmutableModel other) =>
+      ImmutableModel._(this, _model.merge(other._model));
+
   // JSON
 
   Map<String, dynamic> toJson() => _model.asSerializable();

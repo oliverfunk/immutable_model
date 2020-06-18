@@ -148,14 +148,18 @@ void main() {
         (stateMap) => (stateMap['dt beg'].value as DateTime)
             .isBefore(stateMap['dt end'].value as DateTime));
 
-    final mmod = mod.update({
+    final tomerge = ImmutableModel({
+      'dt end': M.dt(DateTime.now().subtract(Duration(seconds: 100))),
+    });
+
+    final mmod = mod.mergeModel(tomerge).update({
       'dt end': DateTime.now().add(Duration(seconds: 100)),
     });
 
-    final jenc = jsonEncode(mod.toJson());
+    final jenc = jsonEncode(mmod.toJson());
     print(jenc);
     print(jsonDecode(jenc));
-    print(mod.fromJson(jsonDecode(jenc)));
+    print(mmod.fromJson(jsonDecode(jenc)));
   });
 
 //  group("Model object tests", () {

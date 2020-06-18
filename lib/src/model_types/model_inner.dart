@@ -14,7 +14,9 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   ModelInner(Map<String, ModelValue> model, [UpdateValidator updateValidator])
       : _initialModel = null,
         _updateValidator = updateValidator,
-        _current = BuiltMap.of(model);
+        _current = BuiltMap.of(model) {
+    _postProcess(_current);
+  }
 
   ModelInner._next(ModelInner last, this._current)
       : _initialModel = last.initialModel,
@@ -30,6 +32,14 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   @override
   Map<String, dynamic> validate(Map<String, dynamic> toValidate) => toValidate;
+
+  ModelInner _postProcess(BuiltMap<String, ModelValue> next) {
+    if (_updateValidator == null || _updateValidator(next.toMap())) {
+      return ModelInner._next(this, next);
+    } else {
+      throw ModelValidationException(this, next.toMap());
+    }
+  }
 
   @override
   ModelInner build(Map<String, dynamic> next) {
@@ -52,15 +62,38 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       });
 
       // post-processing validation
-      if (_updateValidator == null || _updateValidator(updated.toMap())) {
-        return ModelInner._next(this, updated);
-      } else {
-        throw ModelValidationException(this, updated.toMap());
-      }
+      return _postProcess(updated);
     }
   }
 
-  // not efficient, use sparingly
+  ModelInner merge(ModelInner other) {
+    final thisMap = _current.toMap();
+    final otherMap = other._current.toMap();
+
+    UpdateValidator mergedValidator;
+    if (_updateValidator == null) {
+      if (other._updateValidator == null) {
+        // both null
+        mergedValidator = null;
+      } else {
+        // only other not null
+        mergedValidator = other._updateValidator;
+      }
+    } else {
+      if (other._updateValidator == null) {
+        // only this not null
+        mergedValidator = _updateValidator;
+      } else {
+        // both not null
+        mergedValidator =
+            (map) => _updateValidator(map) && other._updateValidator(map);
+      }
+    }
+
+    return ModelInner(thisMap..addAll(otherMap), mergedValidator);
+  }
+
+// not efficient, use sparingly
   @override
   Map<String, dynamic> asSerializable() => Map.unmodifiable(_current
       .toMap()
@@ -80,7 +113,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
         });
       }));
 
-  // field ops
+// field ops
   Iterable<String> get fields => _current.keys;
 
   int numberOfFields() => _current.length;
