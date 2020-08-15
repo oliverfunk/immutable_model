@@ -1,4 +1,4 @@
-import 'model_types/model_value.dart';
+import 'model_value.dart';
 
 String _eStr<E>({ModelValue modelFor, String reason}) => "$E\n"
     "  For:    ${modelFor.toLongString()}\n"
@@ -24,8 +24,8 @@ class ModelValidationException implements Exception {
   ModelValidationException(this.model, this.receivedValue);
 
   @override
-  String toString() => _eStr<ModelValidationException>(
-      modelFor: model, reason: "Validation failed on value '$receivedValue'");
+  String toString() =>
+      _eStr<ModelValidationException>(modelFor: model, reason: "Validation failed on value '$receivedValue'");
 }
 
 class ModelEqualityException implements Exception {
@@ -36,9 +36,7 @@ class ModelEqualityException implements Exception {
 
   @override
   String toString() => _eStr<ModelEqualityException>(
-      modelFor: model,
-      reason:
-          "Not the same as ${receivedModel.toLongString()} because their histories are not equal");
+      modelFor: model, reason: "Not the same as ${receivedModel.toLongString()} because their histories are not equal");
 }
 
 class ModelFromJsonException implements Exception {
@@ -48,9 +46,8 @@ class ModelFromJsonException implements Exception {
   ModelFromJsonException(this.model, this.receivedValue);
 
   @override
-  String toString() => _eStr<ModelFromJsonException>(
-      modelFor: model,
-      reason: "Cannot convert '$receivedValue' to <${model.modelType}>");
+  String toString() =>
+      _eStr<ModelFromJsonException>(modelFor: model, reason: "Cannot convert '$receivedValue' to <${model.modelType}>");
 }
 
 class ModelStrictUpdateException implements Exception {

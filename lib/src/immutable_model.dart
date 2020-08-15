@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'buffer.dart';
 import 'exceptions.dart';
 import 'model_types/model_inner.dart';
-import 'model_types/model_value.dart';
+import 'model_value.dart';
 
 class ImmutableModel extends Equatable {
   final ModelInner _model;
@@ -14,7 +14,7 @@ class ImmutableModel extends Equatable {
   }
 
   ImmutableModel(Map<String, ModelValue> model,
-      [UpdateValidator updateValidator, int cacheBufferSize = 0])
+      [ModelValidator updateValidator, int cacheBufferSize = 0])
       : _model = ModelInner(model, updateValidator),
         _cache = CacheBuffer(cacheBufferSize);
 

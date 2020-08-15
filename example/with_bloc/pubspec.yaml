@@ -1,0 +1,23 @@
+name: with_bloc
+description: Example using immutable_model with the Bloc state management framework.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  immutable_model:
+    path: ../../
+  bloc: ^6.0.1
+  flutter_bloc: ^6.0.1
+  random_words: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

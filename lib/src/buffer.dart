@@ -31,7 +31,7 @@ class CacheBuffer<T> {
       throw Exception('Cannot restore, buffer is size 0');
     } else if (point > numberOfItems()) {
       throw Exception(
-          'Cannot restore, point $point out of buffer range $numberOfItems()');
+          'Cannot restore, point $point out of buffer range ${numberOfItems()}');
     }
 
     T val;
@@ -59,5 +59,5 @@ class CacheBuffer<T> {
   }
 
   @override
-  String toString() => 'Cache Buffer [$numberOfItems()/$bufferSize]: $_buffer';
+  String toString() => 'Cache Buffer [$numberOfItems()/$bufferSize]:\n$_buffer';
 }

@@ -1,17 +1,21 @@
 import '../exceptions.dart';
-import 'model_value.dart';
+import '../model_value.dart';
 
-class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
+// make sure using the enum object works, esp with equ adn equofHist
+// serialsie and derislase using enum <-> string methods
+// ensure structure
+
+class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
   final ModelEnum _initialModel;
 
-  final String _current;
-  final List<String> _enums;
+  final E _current;
+  final List<E> _enums;
+
   final String _fieldName;
 
   // constructors
 
-  ModelEnum.fromStringList(List<String> enums, String initial,
-      [String fieldName])
+  ModelEnum.fromEnumList(List<E> enums, E initial, [String fieldName])
       : _initialModel = null,
         _current = initial,
         _enums = enums,
@@ -22,32 +26,35 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
         _enums = last._enums,
         _fieldName = last._fieldName;
 
+  @override
+  ModelEnum<E> build(E nextEnum) => ModelEnum._next(this, nextEnum);
+
   // static methods
 
-  static List<String> fromEnumList<E>(List<E> enumValues) =>
-      enumValues.map((en) => fromEnum(en)).toList();
+  static String convertEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
 
-  static String fromEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
-
-  // methods
+  // public methods
 
   @override
-  String get value => _current;
+  E get value => _current;
 
   @override
   ModelEnum<E> get initialModel => _initialModel ?? this;
 
   @override
-  String validate(String toValidate) => _enums.contains(toValidate)
-      ? toValidate
-      : throw ModelValidationException(this, toValidate);
+  bool isValid(E toValidate) => true; // by defintion, if it's of [E], is valid
 
   @override
-  ModelEnum<E> build(String nextEnum) => ModelEnum._next(this, nextEnum);
+  dynamic asSerializable() => convertEnum(value);
+
+  @override
+  E deserialize(dynamic jsonValue) => jsonValue is String
+      ? _enums.firstWhere((en) => convertEnum(en) == jsonValue)
+      : throw ModelFromJsonException(this, jsonValue);
 
   @override
   String get modelFieldName => _fieldName;
 
   @override
-  String toString() => "<$E as String>($value)";
+  String toString() => "<$E>($value)";
 }

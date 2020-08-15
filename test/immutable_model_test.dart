@@ -1,8 +1,8 @@
 import 'dart:convert';
-
-import 'package:immutable_model/immutable_model.dart';
 import 'package:test/test.dart';
 
+import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/value_types.dart';
 //final i = ModelInner({
 //  "int" : ModelPrimitive<int>(2),
 //  "str" : ModelPrimitive<String>("Hello"),
@@ -119,37 +119,33 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final mod = ImmutableModel(
-        {
-          'enum': M.enm<TestAnotherEnum>(
-              ModelEnum.fromEnumList(TestAnotherEnum.values),
-              ModelEnum.fromEnum(TestAnotherEnum.AnFirst)),
-          'bool': M.bl(true),
-          'int': M.nt(6, (i) => i > 0),
-          'dt beg': M.dt(DateTime.now()),
-          'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
-          'bool list': M.blList([true, false, true]),
-          'str': M.str("Oliver"),
-          'mvList': M.mvList(
-              ImmutableModel({
-                'int': M.nt(),
-                'fn': M.str(),
-                'sn': M.str(),
-              }),
-              [
-                {
-                  'int': 10,
-                  'fn': 'Oliver',
-                  'sn': 'Funk',
-                }
-              ],
-              false)
-        },
-        (stateMap) => (stateMap['dt beg'].value as DateTime)
-            .isBefore(stateMap['dt end'].value as DateTime));
+    final mod = ImmutableModel({
+      'enum': M.enm<TestAnotherEnum>(TestAnotherEnum.values, TestAnotherEnum.AnFirst),
+      'bool': M.bl(true),
+      'int': M.nt(6, (i) => i > 0),
+      'dt beg': M.dt(DateTime.now()),
+      'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
+      'bool list': M.blList([true, false, true]),
+      'str': M.str("Oliver"),
+      'eml': M.email(),
+      'mvList': M.mvList(
+          ImmutableModel({
+            'int': M.nt(),
+            'fn': M.str(),
+            'sn': M.str(),
+          }),
+          [
+            {
+              'int': 10,
+              'fn': 'Oliver',
+              'sn': 'Funk',
+            }
+          ],
+          false)
+    }, (stateMap) => (stateMap['dt beg'].value as DateTime).isBefore(stateMap['dt end'].value as DateTime));
 
     final tomerge = ImmutableModel({
-      'dt end': M.dt(DateTime.now().subtract(Duration(seconds: 100))),
+      'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
     });
 
     final mmod = mod.mergeModel(tomerge).update({

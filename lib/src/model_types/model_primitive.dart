@@ -1,5 +1,5 @@
 import '../exceptions.dart';
-import 'model_value.dart';
+import '../model_value.dart';
 
 typedef bool ValueValidator<V>(V value);
 
@@ -8,6 +8,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
 
   final T _current;
   final ValueValidator<T> _validator;
+
   final String _fieldName;
 
   // constructors
@@ -18,8 +19,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
         _validator = null,
         _fieldName = fieldName;
 
-  ModelPrimitive.int(
-      [int initial, ValueValidator<int> validator, String fieldName])
+  ModelPrimitive.int([int initial, ValueValidator<int> validator, String fieldName])
       : _initialModel = null,
         _current = initial as T,
         _validator = validator as ValueValidator<T>,
@@ -27,8 +27,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
     if (_current != null) validate(_current);
   }
 
-  ModelPrimitive.double(
-      [double initial, ValueValidator<double> validator, String fieldName])
+  ModelPrimitive.double([double initial, ValueValidator<double> validator, String fieldName])
       : _initialModel = null,
         _current = initial as T,
         _validator = validator as ValueValidator<T>,
@@ -36,8 +35,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
     if (_current != null) validate(_current);
   }
 
-  ModelPrimitive.string(
-      [String initial, ValueValidator<String> validator, String fieldName])
+  ModelPrimitive.string([String initial, ValueValidator<String> validator, String fieldName])
       : _initialModel = null,
         _current = initial as T,
         _validator = validator as ValueValidator<T>,
@@ -45,8 +43,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
     if (_current != null) validate(_current);
   }
 
-  ModelPrimitive.datetime(
-      [DateTime initial, ValueValidator<DateTime> validator, String fieldName])
+  ModelPrimitive.datetime([DateTime initial, ValueValidator<DateTime> validator, String fieldName])
       : _initialModel = null,
         _current = initial as T,
         _validator = validator as ValueValidator<T>,
@@ -71,23 +68,18 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   ModelPrimitive<T> get initialModel => _initialModel ?? this;
 
   @override
-  T validate(T toValidate) => _validator == null
-      ? toValidate
-      : _validator(toValidate)
-          ? toValidate
-          : throw ModelValidationException(this, toValidate);
+  bool isValid(T toValidate) => _validator == null || _validator(toValidate);
 
   @override
-  dynamic asSerializable() =>
-      T == DateTime ? (value as DateTime).toIso8601String() : value;
+  dynamic asSerializable() => T == DateTime ? (value as DateTime).toIso8601String() : value;
 
   @override
-  T deserializer(dynamic jsonValue) {
+  T deserialize(dynamic jsonValue) {
     if (T == DateTime) {
       if (jsonValue is String) {
         return DateTime.parse(jsonValue) as T;
       } else {
-        return throw ModelFromJsonException(this, jsonValue);
+        throw ModelFromJsonException(this, jsonValue);
       }
     } else {
       if (jsonValue is T) {
@@ -97,4 +89,7 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
       }
     }
   }
+
+  @override
+  String get modelFieldName => _fieldName;
 }
