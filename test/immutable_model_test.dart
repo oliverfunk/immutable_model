@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'package:test/test.dart';
 
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/value_types.dart';
 //final i = ModelInner({
 //  "int" : ModelPrimitive<int>(2),
 //  "str" : ModelPrimitive<String>("Hello"),
@@ -119,43 +117,94 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final mod = ImmutableModel({
-      'enum': M.enm<TestAnotherEnum>(TestAnotherEnum.values, TestAnotherEnum.AnFirst),
-      'bool': M.bl(true),
-      'int': M.nt(6, (i) => i > 0),
-      'dt beg': M.dt(DateTime.now()),
-      'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
-      'bool list': M.blList([true, false, true]),
-      'str': M.str("Oliver"),
-      'eml': M.email(),
-      'mvList': M.mvList(
-          ImmutableModel({
-            'int': M.nt(),
-            'fn': M.str(),
-            'sn': M.str(),
-          }),
-          [
-            {
-              'int': 10,
-              'fn': 'Oliver',
-              'sn': 'Funk',
-            }
-          ],
-          false)
-    }, (stateMap) => (stateMap['dt beg'].value as DateTime).isBefore(stateMap['dt end'].value as DateTime));
+    final model = ImmutableModel(
+      {
+        "email": M.email(
+          defaultEmail: "oli.funk@gmail.com",
+        ),
+        "password": M.password(),
+        "some_values": M.inner({
+          "a_str": M.str(
+            initialValue: "Hello M!",
+          ),
+          "validated_number": M.nt(
+            initialValue: 0,
+            validator: (n) => n >= 0,
+          ),
+          "a_double": M.dbl(
+            initialValue: 13 / 7,
+          ),
+          "this_is_great": M.bl(
+            initialValue: true,
+          ),
+          "date_begin": M.dt(
+            initialValue: DateTime.now(),
+          ),
+          "date_end": M.dt(
+            initialValue: DateTime.now().add(Duration(seconds: 100)),
+          ),
+          'list_of_evens': M.ntList(
+            initialValue: [2, 4, 6, 8],
+            validator: (n) => n.isEven,
+          ),
+        }),
+      },
+      modelValidator: (modelMap) =>
+          (modelMap['some_values']['date_begin'] as DateTime).isBefore(modelMap['some_values']['date_end'] as DateTime),
+    );
 
-    final tomerge = ImmutableModel({
-      'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
+    final mod2 = model.update({
+      'some_values': {'a_double': 0.2, 'inital_word': 'Next'}
     });
 
-    final mmod = mod.mergeModel(tomerge).update({
-      'dt end': DateTime.now().add(Duration(seconds: 100)),
+    final mod3 = model.update({
+      'some_values': {'a_double': 0.4}
     });
 
-    final jenc = jsonEncode(mmod.toJson());
-    print(jenc);
-    print(jsonDecode(jenc));
-    print(mmod.fromJson(jsonDecode(jenc)));
+    print(mod2);
+    print(mod3);
+    print(mod2.mergeFrom(mod3));
+
+    // final mod = ImmutableModel({
+    //   'enum': M.enm<TestAnotherEnum>(TestAnotherEnum.values, TestAnotherEnum.AnFirst),
+    //   'bool': M.bl(true),
+    //   'int': M.nt(6, (i) => i > 0),
+    //   'dt beg': M.dt(DateTime.now()),
+    //   'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
+    //   'bool list': M.blList([true, false, true]),
+    //   'str': M.str("Oliver"),
+    //   'eml': M.email(),
+    //   'mvList': M.mvList(
+    //       ImmutableModel({
+    //         'int': M.nt(),
+    //         'fn': M.str(),
+    //         'sn': M.str(),
+    //       }),
+    //       [
+    //         {
+    //           'int': 10,
+    //           'fn': 'Oliver',
+    //           'sn': 'Funk',
+    //         }
+    //       ],
+    //       false)
+    // },
+    //     modelValidator: (modelMap) =>
+    //         (modelMap['dt beg'].value as DateTime).isBefore(modelMap['dt end'].value as DateTime));
+
+    // final tomerge = ImmutableModel({
+    //   'dt end': M.dt(DateTime.now().add(Duration(seconds: 100))),
+    // });
+
+    // final mmod = mod.mergeFrom(tomerge).update({
+    //   'dt end': DateTime.now().add(Duration(seconds: 100)),
+    // });
+
+    // final jenc = jsonEncode(mmod.toJson());
+    // print(jenc);
+    // print(jsonDecode(jenc));
+    // print(mmod.fromJson(jsonDecode(jenc)));
+    // print(mod.currentState == ModelState.Default);
   });
 
 //  group("Model object tests", () {

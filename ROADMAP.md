@@ -6,3 +6,4 @@
 * migrations
 * better enum support
 * change approach for runtime expects. Shouldn't just throw and die.
+* graphQL query

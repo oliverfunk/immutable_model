@@ -9,52 +9,58 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   final T _current;
   final ValueValidator<T> _validator;
 
-  final String _fieldName;
+  final String _fieldLabel;
 
   // constructors
 
-  ModelPrimitive.bool(bool initial, [String fieldName])
-      : _initialModel = null,
-        _current = initial as T,
+  ModelPrimitive.bool([
+    bool initialValue,
+    String fieldLabel,
+  ])  : _initialModel = null,
+        _current = initialValue as T,
         _validator = null,
-        _fieldName = fieldName;
+        _fieldLabel = fieldLabel;
 
-  ModelPrimitive.int([int initial, ValueValidator<int> validator, String fieldName])
-      : _initialModel = null,
-        _current = initial as T,
+  ModelPrimitive.int([
+    int initialValue,
+    ValueValidator<int> validator,
+    String fieldLabel,
+  ])  : _initialModel = null,
+        _current = initialValue as T,
         _validator = validator as ValueValidator<T>,
-        _fieldName = fieldName {
-    if (_current != null) validate(_current);
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelPrimitive.double([double initial, ValueValidator<double> validator, String fieldName])
-      : _initialModel = null,
-        _current = initial as T,
+  ModelPrimitive.double([
+    double initialValue,
+    ValueValidator<double> validator,
+    String fieldLabel,
+  ])  : _initialModel = null,
+        _current = initialValue as T,
         _validator = validator as ValueValidator<T>,
-        _fieldName = fieldName {
-    if (_current != null) validate(_current);
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelPrimitive.string([String initial, ValueValidator<String> validator, String fieldName])
-      : _initialModel = null,
-        _current = initial as T,
+  ModelPrimitive.string([
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  ])  : _initialModel = null,
+        _current = initialValue as T,
         _validator = validator as ValueValidator<T>,
-        _fieldName = fieldName {
-    if (_current != null) validate(_current);
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelPrimitive.datetime([DateTime initial, ValueValidator<DateTime> validator, String fieldName])
-      : _initialModel = null,
-        _current = initial as T,
+  ModelPrimitive.datetime([
+    DateTime initialValue,
+    ValueValidator<DateTime> validator,
+    String fieldLabel,
+  ])  : _initialModel = null,
+        _current = initialValue as T,
         _validator = validator as ValueValidator<T>,
-        _fieldName = fieldName {
-    if (_current != null) validate(_current);
-  }
+        _fieldLabel = fieldLabel;
 
   ModelPrimitive._next(ModelPrimitive<T> last, this._current)
       : _initialModel = last.initialModel,
         _validator = last._validator,
-        _fieldName = last._fieldName;
+        _fieldLabel = last._fieldLabel;
 
   @override
   ModelPrimitive<T> build(T nextValue) => ModelPrimitive._next(this, nextValue);
@@ -68,28 +74,32 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   ModelPrimitive<T> get initialModel => _initialModel ?? this;
 
   @override
-  bool isValid(T toValidate) => _validator == null || _validator(toValidate);
+  bool checkValid(T toValidate) => _validator == null || _validator(toValidate);
 
   @override
   dynamic asSerializable() => T == DateTime ? (value as DateTime).toIso8601String() : value;
 
   @override
-  T deserialize(dynamic jsonValue) {
-    if (T == DateTime) {
-      if (jsonValue is String) {
-        return DateTime.parse(jsonValue) as T;
-      } else {
-        throw ModelFromJsonException(this, jsonValue);
-      }
-    } else {
-      if (jsonValue is T) {
-        return jsonValue;
-      } else {
-        throw ModelFromJsonException(this, jsonValue);
-      }
-    }
-  }
+  ModelPrimitive<T> deserialize(dynamic serialized) => (T == DateTime && serialized is String)
+      ? next(DateTime.parse(serialized) as T)
+      : serialized is T ? next(serialized) : throw ImmutableModelDeserialisationException(this, serialized);
+
+  // {
+  //   if (T == DateTime) {
+  //     if (jsonValue is String) {
+  //       return DateTime.parse(jsonValue) as T;
+  //     } else {
+  //       throw ImmutableModelDeserialisationException(this, jsonValue);
+  //     }
+  //   } else {
+  //     if (jsonValue is T) {
+  //       return jsonValue;
+  //     } else {
+  //       throw ImmutableModelDeserialisationException(this, jsonValue);
+  //     }
+  //   }
+  // }
 
   @override
-  String get modelFieldName => _fieldName;
+  String get fieldLabel => _fieldLabel;
 }

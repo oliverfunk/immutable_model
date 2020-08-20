@@ -1,37 +1,34 @@
 import '../exceptions.dart';
 import '../model_value.dart';
 
-// make sure using the enum object works, esp with equ adn equofHist
-// serialsie and derislase using enum <-> string methods
-// ensure structure
-
 class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
   final ModelEnum _initialModel;
 
   final E _current;
   final List<E> _enums;
 
-  final String _fieldName;
+  final String _fieldLabel;
+
+  static String convertEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
 
   // constructors
 
-  ModelEnum.fromEnumList(List<E> enums, E initial, [String fieldName])
-      : _initialModel = null,
+  ModelEnum.fromEnumList(
+    List<E> enums,
+    E initial, [
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = initial,
         _enums = enums,
-        _fieldName = fieldName;
+        _fieldLabel = fieldLabel;
 
   ModelEnum._next(ModelEnum last, this._current)
       : _initialModel = last.initialModel,
         _enums = last._enums,
-        _fieldName = last._fieldName;
+        _fieldLabel = last._fieldLabel;
 
   @override
   ModelEnum<E> build(E nextEnum) => ModelEnum._next(this, nextEnum);
-
-  // static methods
-
-  static String convertEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
 
   // public methods
 
@@ -42,19 +39,19 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
   ModelEnum<E> get initialModel => _initialModel ?? this;
 
   @override
-  bool isValid(E toValidate) => true; // by defintion, if it's of [E], is valid
+  bool checkValid(E toValidate) => true; // by defintion, if it's of [E], is valid
 
   @override
   dynamic asSerializable() => convertEnum(value);
 
   @override
-  E deserialize(dynamic jsonValue) => jsonValue is String
-      ? _enums.firstWhere((en) => convertEnum(en) == jsonValue)
-      : throw ModelFromJsonException(this, jsonValue);
+  ModelEnum<E> deserialize(dynamic jsonValue) => jsonValue is String
+      ? next(_enums.firstWhere(
+          (en) => convertEnum(en) == jsonValue,
+          orElse: () => throw ImmutableModelDeserialisationException(this, jsonValue),
+        ))
+      : throw ImmutableModelDeserialisationException(this, jsonValue);
 
   @override
-  String get modelFieldName => _fieldName;
-
-  @override
-  String toString() => "<$E>($value)";
+  String get fieldLabel => _fieldLabel;
 }

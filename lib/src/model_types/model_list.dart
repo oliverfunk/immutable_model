@@ -4,89 +4,89 @@ import '../exceptions.dart';
 import '../immutable_model.dart';
 import '../model_value.dart';
 
-//TODO: all the type casts, necc?
-// validate method
-
 typedef bool ListItemValidator<V>(V item);
 
 class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   final ModelList<V> _initialModel;
 
   final BuiltList<V> _current;
-  final ListItemValidator<V> _listItemValidator;
+  final ListItemValidator<V> _itemValidator;
   final bool _append;
 
-  final String _fieldName;
+  final String _fieldLabel;
 
   // constructors
 
-  ModelList.boolList([List<bool> initialList, bool append = true, String fieldName])
-      : _initialModel = null,
+  ModelList.boolList([
+    List<bool> initialList,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<bool>.of(initialList) as BuiltList<V>,
-        _listItemValidator = null,
+        _itemValidator = null,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelList.intList(
-      [List<int> initialList, ListItemValidator<int> listItemValidator, bool append = true, String fieldName])
-      : _initialModel = null,
+  ModelList.intList([
+    List<int> initialList,
+    ListItemValidator<int> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<int>.of(initialList) as BuiltList<V>,
-        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _itemValidator = itemValidator as ListItemValidator<V>,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelList.doubleList(
-      [List<double> initialList, ListItemValidator<double> listItemValidator, bool append = true, String fieldName])
-      : _initialModel = null,
+  ModelList.doubleList([
+    List<double> initialList,
+    ListItemValidator<double> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<double>.of(initialList) as BuiltList<V>,
-        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _itemValidator = itemValidator as ListItemValidator<V>,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelList.stringList(
-      [List<String> initialList, ListItemValidator<String> listItemValidator, bool append = true, String fieldName])
-      : _initialModel = null,
+  ModelList.stringList([
+    List<String> initialList,
+    ListItemValidator<String> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<String>.of(initialList) as BuiltList<V>,
-        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _itemValidator = itemValidator as ListItemValidator<V>,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelList.dateTimeList(
-      [List<DateTime> initialList, ListItemValidator<DateTime> listItemValidator, bool append = true, String fieldName])
-      : _initialModel = null,
+  ModelList.dateTimeList([
+    List<DateTime> initialList,
+    ListItemValidator<DateTime> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<DateTime>.of(initialList) as BuiltList<V>,
-        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _itemValidator = itemValidator as ListItemValidator<V>,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
-  ModelList._mapList(
-      [List<Map<String, dynamic>> initialList,
-      ListItemValidator<Map<String, dynamic>> listItemValidator,
-      bool append = true,
-      String fieldName])
-      : _initialModel = null,
+  ModelList._mapList([
+    List<Map<String, dynamic>> initialList,
+    ListItemValidator<Map<String, dynamic>> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _initialModel = null,
         _current = BuiltList<Map<String, dynamic>>.of(initialList) as BuiltList<V>,
-        _listItemValidator = listItemValidator as ListItemValidator<V>,
+        _itemValidator = listItemValidator as ListItemValidator<V>,
         _append = append,
-        _fieldName = fieldName {
-    if (_current != null && _current.isNotEmpty) validate(_current.asList());
-  }
+        _fieldLabel = fieldLabel;
 
   ModelList._next(ModelList<V> last, this._current)
       : _initialModel = last.initialModel,
-        _listItemValidator = last._listItemValidator,
+        _itemValidator = last._itemValidator,
         _append = last._append,
-        _fieldName = last._fieldName;
+        _fieldLabel = last._fieldLabel;
 
   @override
   ModelList<V> build(List<V> next) =>
@@ -101,26 +101,24 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   ModelList<V> get initialModel => _initialModel ?? this;
 
   @override
-  bool isValid(List<V> toValidate) => (toValidate.isEmpty ||
-      _listItemValidator == null ||
-      toValidate.every((element) => _listItemValidator(element))); // check every item in the list against the validator
+  bool checkValid(List<V> toValidate) => (toValidate.isEmpty ||
+      _itemValidator == null ||
+      toValidate.every((element) => _itemValidator(element))); // check every item in the list against the validator
 
   @override
-  V whichInvalid(List<V> invalid) => invalid.firstWhere((li) => !_listItemValidator(li));
+  V whichInvalid(List<V> invalid) => invalid.firstWhere((li) => !_itemValidator(li));
 
   @override
   dynamic asSerializable() => V == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
 
   @override
-  List<V> deserialize(dynamic jsonValue) {
-    if (jsonValue is List) {
-      if (V == DateTime) {
-        return jsonValue.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>;
-      } else {
-        return jsonValue.cast<V>();
-      }
+  ModelList<V> deserialize(dynamic serialized) {
+    if (serialized is List) {
+      return V == DateTime
+          ? next(serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>)
+          : next(serialized.cast<V>());
     } else {
-      throw ModelFromJsonException(this, jsonValue);
+      throw ImmutableModelDeserialisationException(this, serialized);
     }
   }
 
@@ -141,15 +139,18 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   List<Object> get props => [_current];
 
   @override
-  String get modelFieldName => _fieldName;
+  String get fieldLabel => _fieldLabel;
 }
 
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {
-  ModelValidatedList(ImmutableModel model, [List<Map<String, dynamic>> initialList, bool append = true])
-      : super._mapList(initialList, (li) => _validateItemAgainstModel(model, li), append);
+  ModelValidatedList(
+    ImmutableModel model, [
+    List<Map<String, dynamic>> initialList,
+    bool append = true,
+  ]) : super._mapList(initialList, (li) => _validateItemAgainstModel(model, li), append);
 
   static bool _validateItemAgainstModel(ImmutableModel model, Map<String, dynamic> item) {
-    model.strictUpdate(item);
+    model.update(item);
     // if strict update completes, it's valid
     return true;
   }

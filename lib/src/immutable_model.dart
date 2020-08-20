@@ -1,94 +1,92 @@
 import 'package:equatable/equatable.dart';
 
 import 'buffer.dart';
-import 'exceptions.dart';
 import 'model_types/model_inner.dart';
 import 'model_value.dart';
 
-class ImmutableModel extends Equatable {
-  final ModelInner _model;
-  final CacheBuffer<ImmutableModel> _cache;
+enum ModelState { Default }
 
-  ImmutableModel._(ImmutableModel last, this._model) : _cache = last._cache {
+class ImmutableModel<S> extends Equatable {
+  final ModelInner _model;
+  final S _state;
+  final CacheBuffer<ImmutableModel<S>> _cache;
+
+  ImmutableModel(
+    Map<String, ModelValue> model, {
+    ModelValidator modelValidator,
+    S initalState,
+    bool strictUpdates = false,
+    int cacheBufferSize = 0,
+  })  : _model = ModelInner(model, modelValidator, strictUpdates),
+        _state = initalState ?? ModelState.Default as S,
+        _cache = CacheBuffer(cacheBufferSize);
+
+  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model) : _cache = last._cache {
     _cache.cacheItem(last);
   }
 
-  ImmutableModel(Map<String, ModelValue> model,
-      [ModelValidator updateValidator, int cacheBufferSize = 0])
-      : _model = ModelInner(model, updateValidator),
-        _cache = CacheBuffer(cacheBufferSize);
+  ImmutableModel._nextModel(ImmutableModel<S> last, this._model)
+      : _state = last._state,
+        _cache = last._cache {
+    _cache.cacheItem(last);
+  }
 
-  // caching
+  // doens't cache
+  ImmutableModel._nextState(ImmutableModel<S> last, this._state)
+      : _model = last._model,
+        _cache = last._cache;
 
-  ImmutableModel restoreTo(int point) => _cache.restoreTo(point);
+  ImmutableModel<S> restoreTo(int point) => _cache.restoreTo(point);
 
   // value
 
+  S get currentState => _state;
+
+  /// CoW map
   Map<String, dynamic> asMap() => _model.value;
 
   // updating
 
-  ImmutableModel update(Map<String, dynamic> updates) =>
-      (updates == null || updates.isEmpty)
-          ? this
-          : ImmutableModel._(this, _model.next(updates));
+  ImmutableModel<S> update(Map<String, dynamic> updates) =>
+      (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
 
-  /// ensure valid _structural_ update
-  ImmutableModel strictUpdate(Map<String, dynamic> updates) {
-    if (_model.numberOfFields() == updates.length) {
-      // not that efficient
-      updates.keys.forEach((field) {
-        if (!_model.hasField(field)) {
-          throw ModelStrictUpdateException("Field $field not in model");
-        }
-      });
-    } else {
-      throw ModelStrictUpdateException(
-          "Fields in updates not the same as model");
-    }
+  ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
+      (updaters == null || updaters.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updaters));
 
-    return update(updates);
-  }
+  ImmutableModel<S> updateWithModels(Map<String, ModelValue> models) =>
+      (models == null || models.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(models));
 
-  ImmutableModel updateWith(Map<String, ValueUpdater> updaters) =>
-      (updaters == null || updaters.isEmpty)
-          ? this
-          : ImmutableModel._(this, _model.next(updaters));
+  ImmutableModel<S> updateFrom(ImmutableModel<S> other) =>
+      other == null ? this : ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
 
-  ImmutableModel updateWithModels(Map<String, ModelValue> models) =>
-      (models == null || models.isEmpty)
-          ? this
-          : ImmutableModel._(this, _model.next(models));
+  ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
+      other == null ? this : ImmutableModel<S>._nextModel(this, _model.merge(other._model));
 
-  ImmutableModel updateModel(ModelInner model) => model == null
+  ImmutableModel<S> resetFields(List<String> fields) => (fields == null || fields.isEmpty)
       ? this
-      : ImmutableModel._(this, _model.nextFromModel(model));
+      : ImmutableModel<S>._nextModel(
+          this, _model.next(Map.fromIterable(fields, key: (listItem) => listItem, value: null)));
 
-  ImmutableModel resetFields(List<String> fields) =>
-      (fields == null || fields.isEmpty)
+  ImmutableModel<S> transitionTo(S nextState) =>
+      nextState == null ? this : ImmutableModel<S>._nextState(this, nextState);
+
+  ImmutableModel<S> transitionToWithUpdate(S nextState, Map<String, dynamic> updates) =>
+      (nextState == null) && (updates == null || updates.isEmpty)
           ? this
-          : ImmutableModel._(
-              this,
-              _model.next(Map.fromIterable(fields,
-                  key: (listItem) => listItem, value: null)));
-
-  ImmutableModel mergeModel(ImmutableModel other) =>
-      ImmutableModel._(this, _model.merge(other._model));
+          : ImmutableModel<S>._nextBoth(this, nextState, _model.next(updates));
 
   // JSON
 
   Map<String, dynamic> toJson() => _model.asSerializable();
 
-  ImmutableModel fromJson(Map<String, dynamic> jsonMap) =>
-      (jsonMap == null || jsonMap.isEmpty)
-          ? this
-          : ImmutableModel._(this, _model.fromJSON(jsonMap));
+  ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
+      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.deserialize(jsonMap));
 
   // field ops
 
   Iterable<String> get fields => _model.fields;
 
-  int numberOfFields() => _model.numberOfFields();
+  int get numberOfFields => _model.numberOfFields;
 
   bool hasField(String field) => _model.hasField(field);
 
@@ -101,8 +99,8 @@ class ImmutableModel extends Equatable {
   // misc
 
   @override
-  List<Object> get props => [_model];
+  List<Object> get props => [_state, _model];
 
   @override
-  String toString() => _model.toString();
+  String toString() => "<${currentState.runtimeType}>${_model.toString()}";
 }

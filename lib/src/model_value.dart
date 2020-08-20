@@ -13,17 +13,20 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
 
   M get initialModel;
 
+  @nonVirtual
+  bool get isInitial => identical(this, initialModel);
+
   /// Determines whether [toValidate] is valid or not.
-  bool isValid(V toValidate);
+  bool checkValid(V toValidate);
 
   @protected
   dynamic whichInvalid(V invalid) => invalid;
 
-  /// Validates [toValidate]. If it is valid, [toValidate] is returned and if not a [ModelValidationException] is thorwn.
+  /// Validates [toValidate]. If it is valid, [toValidate] is returned and if not a [ImmutableModelValidationException] is thorwn.
   @protected
   @nonVirtual
   V validate(V toValidate) =>
-      isValid(toValidate) ? toValidate : throw ModelValidationException(this, whichInvalid(toValidate));
+      checkValid(toValidate) ? toValidate : throw ImmutableModelValidationException(this, whichInvalid(toValidate));
 
   /// Returns a new [M] given the [next] value of [V].
   @protected
@@ -37,13 +40,13 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   M next(V value) => value == null ? initialModel : build(validate(value));
 
   @nonVirtual
-  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelTypeException(this, value);
+  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ImmutableModelTypeException(this, value);
 
   @nonVirtual
   M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));
 
   @nonVirtual
-  M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ModelEqualityException(this, other);
+  M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ImmutableModelEqualityException(this, other);
 
   bool hasEqualityOfHistory(M other) => identical(this.initialModel, other.initialModel);
 
@@ -52,8 +55,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   /// Return this [ModelValue] as a serializable object for the JSON.encode() method.
   dynamic asSerializable() => value;
 
-  /// Return [jsonValue] as the value of this [ModelValue].
-  V deserialize(dynamic jsonValue) => jsonValue is V ? jsonValue : throw ModelFromJsonException(this, jsonValue);
+  /// Return [serialized] as the value of this [ModelValue].
+  M deserialize(dynamic serialized) =>
+      serialized is V ? next(serialized) : throw ImmutableModelDeserialisationException(this, serialized);
 
   @override
   List<Object> get props => [value];
@@ -61,8 +65,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   // reflective methods
 
   /// Returns the model field name string for this [ModelValue] in some.
-  /// Useful for reflection in exceptions.
-  String get modelFieldName => null;
+  /// Useful for reflection
+  String get fieldLabel => null;
 
   @nonVirtual
   Type get modelType => M;
@@ -72,7 +76,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
 
   // misc
 
-  String toLongString() => "${modelFieldName == null ? "" : "'$modelFieldName':"}$modelType($value)";
+  String toLongString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}${runtimeType}($value)";
 
   @override
   String toString() => "<$valueType>($value)";
