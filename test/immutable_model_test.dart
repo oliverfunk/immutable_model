@@ -154,11 +154,11 @@ void main() {
     );
 
     final mod2 = model.update({
-      'some_values': {'a_double': 0.2, 'inital_word': 'Next'}
+      'some_values': {'a_double': 0.2, 'a_str': 'Next'}
     });
 
     final mod3 = model.update({
-      'some_values': {'a_double': 0.4}
+      'some_values': {'a_double': null}
     });
 
     print(mod2);

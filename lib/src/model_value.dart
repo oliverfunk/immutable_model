@@ -5,8 +5,6 @@ import 'exceptions.dart';
 
 typedef dynamic ValueUpdater(dynamic currentValue);
 
-// *todo: check what null does on the next methods
-
 @immutable
 abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   V get value;
@@ -35,15 +33,18 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   // value update methods
 
   /// Validate [value] and return a new instance of this [ModelValue].
-  /// If [value] is null, return the initial model
+  /// If [value] is null, simply return [this]
   @nonVirtual
-  M next(V value) => value == null ? initialModel : build(validate(value));
+  M next(V value) => value == null ? this : build(validate(value));
 
   @nonVirtual
   M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ImmutableModelTypeException(this, value);
 
   @nonVirtual
   M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));
+
+  @nonVirtual
+  M nextFromSerialized(dynamic value) => next(fromSerialized(value));
 
   @nonVirtual
   M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ImmutableModelEqualityException(this, other);
@@ -56,8 +57,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   dynamic asSerializable() => value;
 
   /// Return [serialized] as the value of this [ModelValue].
-  M deserialize(dynamic serialized) =>
-      serialized is V ? next(serialized) : throw ImmutableModelDeserialisationException(this, serialized);
+  V fromSerialized(dynamic serialized) =>
+      serialized is V ? serialized : throw ImmutableModelDeserialisationException(this, serialized);
 
   @override
   List<Object> get props => [value];

@@ -45,11 +45,11 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
   dynamic asSerializable() => convertEnum(value);
 
   @override
-  ModelEnum<E> deserialize(dynamic jsonValue) => jsonValue is String
-      ? next(_enums.firstWhere(
+  E fromSerialized(dynamic jsonValue) => jsonValue is String
+      ? _enums.firstWhere(
           (en) => convertEnum(en) == jsonValue,
           orElse: () => throw ImmutableModelDeserialisationException(this, jsonValue),
-        ))
+        )
       : throw ImmutableModelDeserialisationException(this, jsonValue);
 
   @override

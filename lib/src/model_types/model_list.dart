@@ -112,11 +112,11 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   dynamic asSerializable() => V == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
 
   @override
-  ModelList<V> deserialize(dynamic serialized) {
+  List<V> fromSerialized(dynamic serialized) {
     if (serialized is List) {
       return V == DateTime
-          ? next(serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>)
-          : next(serialized.cast<V>());
+          ? serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>
+          : serialized.cast<V>();
     } else {
       throw ImmutableModelDeserialisationException(this, serialized);
     }

@@ -53,8 +53,8 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
       (updaters == null || updaters.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updaters));
 
-  ImmutableModel<S> updateWithModels(Map<String, ModelValue> models) =>
-      (models == null || models.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(models));
+  ImmutableModel<S> updateWithModels(Map<String, ModelValue> updates) =>
+      (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
 
   ImmutableModel<S> updateFrom(ImmutableModel<S> other) =>
       other == null ? this : ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
@@ -62,10 +62,10 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
       other == null ? this : ImmutableModel<S>._nextModel(this, _model.merge(other._model));
 
-  ImmutableModel<S> resetFields(List<String> fields) => (fields == null || fields.isEmpty)
-      ? this
-      : ImmutableModel<S>._nextModel(
-          this, _model.next(Map.fromIterable(fields, key: (listItem) => listItem, value: null)));
+  ImmutableModel<S> resetFields(List<String> fields) =>
+      (fields == null || fields.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.resetFields(fields));
+
+  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.resetAll());
 
   ImmutableModel<S> transitionTo(S nextState) =>
       nextState == null ? this : ImmutableModel<S>._nextState(this, nextState);
@@ -80,7 +80,7 @@ class ImmutableModel<S> extends Equatable {
   Map<String, dynamic> toJson() => _model.asSerializable();
 
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
-      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.deserialize(jsonMap));
+      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.fromJson(jsonMap));
 
   // field ops
 

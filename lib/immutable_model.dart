@@ -11,7 +11,6 @@ import 'value_types.dart';
 
 // TODO: ***have better excpetion when access a field that doesn't exsits or updating one
 // TODO: when no state is chosen, doesnt print Default in toString
-// TODO: maybe when an excp is thrown, go into an error state instead of throwing
 // TODO: esive how the values are reset
 // TODO: are all the type casts in MOdelList, necc? redo ModelValidatedList using just a Map not a IM
 // TODO: make sure model can't be null for IM class,

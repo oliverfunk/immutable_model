@@ -80,9 +80,9 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   dynamic asSerializable() => T == DateTime ? (value as DateTime).toIso8601String() : value;
 
   @override
-  ModelPrimitive<T> deserialize(dynamic serialized) => (T == DateTime && serialized is String)
-      ? next(DateTime.parse(serialized) as T)
-      : serialized is T ? next(serialized) : throw ImmutableModelDeserialisationException(this, serialized);
+  T fromSerialized(dynamic serialized) => (T == DateTime && serialized is String)
+      ? DateTime.parse(serialized) as T
+      : serialized is T ? serialized : throw ImmutableModelDeserialisationException(this, serialized);
 
   // {
   //   if (T == DateTime) {

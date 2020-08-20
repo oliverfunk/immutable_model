@@ -40,13 +40,13 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
         next.forEach((field, update) {
           mb.updateValue(
               field,
-              (model) => update == null
-                  ? model.next(null)
+              (currentModel) => update == null
+                  ? currentModel.next(null)
                   : update is ModelValue // model update
-                      ? model.nextFromModel(update)
+                      ? currentModel.nextFromModel(update)
                       : update is ValueUpdater // function update
-                          ? model.nextFromFunc(update)
-                          : model.nextFromDynamic(update)); // normal value update
+                          ? currentModel.nextFromFunc(update)
+                          : currentModel.nextFromDynamic(update)); // normal value update
         });
       });
 
@@ -79,11 +79,11 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
-              (thisModel) => thisModel is ModelInner
-                  ? thisModel.merge(otherModel)
+              (currentModel) => currentModel is ModelInner
+                  ? currentModel.merge(otherModel)
                   : otherModel.isInitial // checks if deafult value
-                      ? thisModel
-                      : thisModel.nextFromModel(otherModel)); // could possible replace with with just otherModel
+                      ? currentModel
+                      : currentModel.nextFromModel(otherModel)); // could possible replace with with just otherModel
         });
       });
 
@@ -124,23 +124,21 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   Map<String, dynamic> asSerializable() =>
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
-  @override
-  ModelInner deserialize(dynamic serialized) => strictUpdates
-      ? ModelInner._next(this, _validateModel(_buildFromSerialized(_validateUpdate(_castFromSerialized(serialized)))))
-      : ModelInner._next(this, _validateModel(_buildFromSerialized(_castFromSerialized(serialized))));
+  ModelInner fromJson(dynamic jsonMap) => strictUpdates
+      ? ModelInner._next(this, _validateModel(_buildFromJson(_validateUpdate(fromSerialized(jsonMap)))))
+      : ModelInner._next(this, _validateModel(_buildFromJson(fromSerialized(jsonMap))));
 
-  BuiltMap<String, ModelValue> _buildFromSerialized(Map<String, dynamic> serialized) => _current.rebuild((mb) {
-        serialized.forEach((field, jsonValue) {
+  BuiltMap<String, ModelValue> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
+        jsonMap.forEach((field, jsonValue) {
           mb.updateValue(
               field,
-              (model) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
-                  ? model
-                  : model.deserialize(jsonValue));
+              (currentModel) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
+                  ? currentModel
+                  : currentModel is ModelInner
+                      ? currentModel.fromJson(jsonValue)
+                      : currentModel.nextFromSerialized(jsonValue));
         });
       });
-
-  Map<String, dynamic> _castFromSerialized(dynamic serialized) =>
-      serialized is Map<String, dynamic> ? serialized : throw ImmutableModelDeserialisationException(this, serialized);
 
   // field ops
   Iterable<String> get fields => _current.keys;
@@ -154,6 +152,17 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   dynamic getFieldValue(String field) => _current[field].value;
 
   dynamic operator [](String field) => getFieldValue(field);
+
+  ModelInner resetFields(List<String> fields) => isInitial
+      ? this
+      : ModelInner._next(this, _current.rebuild((mb) {
+          fields.forEach((field) {
+            mb.updateValue(
+                field, (currentModel) => currentModel is ModelInner ? currentModel.resetAll() : initialModel[field]);
+          });
+        }));
+
+  ModelInner resetAll() => initialModel;
 
   @override
   List<Object> get props => [_current];
