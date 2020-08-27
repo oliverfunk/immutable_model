@@ -4,11 +4,10 @@ import 'package:immutable_model/value_types.dart';
 
 import '../models/user_state.dart';
 
-class UserCubit extends Cubit<ImmutableModel> {
+class UserCubit extends Cubit<ImmutableModel<UserState>> {
   UserCubit() : super(UserState.model);
 
-  void updateEmailPassword(ModelEmail email, ModelPassword password) =>
-      emit(state.transitionToWithUpdate(UserInitial(), {
+  void userAuthed(ModelEmail email, ModelPassword password) => emit(state.transitionToWithUpdate(UserAuthed(), {
         'email': email,
         'password': password,
       }));

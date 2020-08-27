@@ -6,15 +6,15 @@ import 'value_types.dart';
 
 // make your domain layer proovably safe with immutable_model
 // no exception should need to be delt with in the domain layer only in the UI or Data
-
+// help you write sound, authorative domain layer
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
+// the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
-// TODO: ***have better excpetion when access a field that doesn't exsits or updating one
-// TODO: when no state is chosen, doesnt print Default in toString
-// TODO: esive how the values are reset
-// TODO: are all the type casts in MOdelList, necc? redo ModelValidatedList using just a Map not a IM
-// TODO: make sure model can't be null for IM class,
-// TODO: make sure enums work, rewrtie ModelInner Join (maybe), test ModelPrimitve deserialse
+// TODO: redo ModelValidatedList using just a Map not a IM
+// TODO: imporve excpetions
+// todo: gen GraphQL query
+// todo: try use lists for models
+// TODO: make sure enums work, test ModelPrimitve deserialse
 // TODO: big problems. Think of a way to make it easy to access model values when defiing a model
 // possibly using static Strings but then what if you want to set ur own fieldLabel for ex. in email
 // maybe you want user_email

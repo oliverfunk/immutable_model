@@ -94,9 +94,9 @@ import 'package:immutable_model/immutable_model.dart';
 //      ], true, false)
 //});
 
-//enum TestEnum {
-//  First, Second, Third
-//}
+enum TestEnum {
+ First, Second, Third
+}
 
 //test("test misc", (){
 //print(TestEnum.values);
@@ -117,6 +117,8 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
+    final mt = TestEnum.values
+
     final model = ImmutableModel(
       {
         "email": M.email(

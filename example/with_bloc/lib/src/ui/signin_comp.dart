@@ -4,7 +4,7 @@ import 'package:immutable_model/value_types.dart';
 
 import '../domain/cubit/auth_cubit.dart';
 
-class LoginComponent extends StatelessWidget {
+class SignInComponent extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
   final _emailKey = GlobalKey<FormFieldState>();
   final _passwordKey = GlobalKey<FormFieldState>();
@@ -22,42 +22,40 @@ class LoginComponent extends StatelessWidget {
         key: _passwordKey,
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.lock_outline, color: Colors.grey),
-          hintText: 'Enter a password',
+          hintText: 'Enter an example password',
         ),
         validator: (value) => ModelPassword.validator(value)
             ? null
             : 'Enter a password that is at least 8 characters long, has one upper case and one lower case letter and one number',
       );
 
-  // BlocBuilder<UserCubit, ImmutableModel>(
-  //       buildWhen: (previous, current) => previous['email'] != current['email'],
-  //       builder: (_, model) =>
-  //     );
-
-  @override
-  Widget build(BuildContext context) => Form(
+  Widget _signInForm(BuildContext context) => Form(
         key: _formKey,
         autovalidate: true,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             _emailInput(context),
             _passwordInput(context),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: RaisedButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    context.bloc<AuthCubit>().signIn(
-                          ModelEmail(_emailKey.currentState.value),
-                          ModelPassword(_passwordKey.currentState.value),
-                        );
-                  }
-                },
-                child: Text('Submit'),
-              ),
+            RaisedButton(
+              padding: const EdgeInsets.only(top: 10),
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  context.bloc<AuthCubit>().signIn(
+                        ModelEmail(_emailKey.currentState.value),
+                        ModelPassword(_passwordKey.currentState.value),
+                      );
+                }
+              },
+              child: Text('Sign In'),
             ),
           ],
         ),
+      );
+
+  @override
+  Widget build(BuildContext context) => Container(
+        margin: const EdgeInsets.all(5),
+        decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+        child: _signInForm(context),
       );
 }

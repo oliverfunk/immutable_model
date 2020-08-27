@@ -20,12 +20,16 @@ abstract class UserState {
     },
     modelValidator: (modelMap) =>
         (modelMap['some_values']['date_begin'] as DateTime).isBefore(modelMap['some_values']['date_end'] as DateTime),
-    initalState: UserInitial(),
+    initalState: UserUnauthed(),
   );
 
   const UserState();
 }
 
-class UserInitial extends UserState {
-  const UserInitial();
+class UserUnauthed extends UserState {
+  const UserUnauthed();
+}
+
+class UserAuthed extends UserState {
+  const UserAuthed();
 }

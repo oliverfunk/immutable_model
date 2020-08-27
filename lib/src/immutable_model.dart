@@ -17,7 +17,8 @@ class ImmutableModel<S> extends Equatable {
     S initalState,
     bool strictUpdates = false,
     int cacheBufferSize = 0,
-  })  : _model = ModelInner(model, modelValidator, strictUpdates),
+  })  : assert(initalState is S, "The model's initalState must be set"),
+        _model = ModelInner(model, modelValidator, strictUpdates),
         _state = initalState ?? ModelState.Default as S,
         _cache = CacheBuffer(cacheBufferSize);
 
@@ -43,7 +44,7 @@ class ImmutableModel<S> extends Equatable {
   S get currentState => _state;
 
   /// CoW map
-  Map<String, dynamic> asMap() => _model.value;
+  Map<String, dynamic> toMap() => _model.value;
 
   // updating
 
@@ -56,7 +57,7 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> updateWithModels(Map<String, ModelValue> updates) =>
       (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
 
-  ImmutableModel<S> updateFrom(ImmutableModel<S> other) =>
+  ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
       other == null ? this : ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
 
   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
@@ -90,13 +91,21 @@ class ImmutableModel<S> extends Equatable {
 
   bool hasField(String field) => _model.hasField(field);
 
-  ModelValue getFieldModel(String field) => _model.getFieldModel(field);
+  ModelValue fieldModel(String field) => _model.fieldModel(field);
 
-  dynamic getFieldValue(String field) => _model.getFieldValue(field);
+  dynamic fieldValue(String field) => _model.fieldValue(field);
 
-  dynamic operator [](String field) => getFieldValue(field);
+  dynamic operator [](String field) => fieldValue(field);
 
   // misc
+
+  /// Resets the initalModel to the newly joined one
+  ImmutableModel<S> join(
+    ImmutableModel otherModel, [
+    bool strictUpdates = false,
+    String fieldLabel,
+  ]) =>
+      ImmutableModel<S>._nextModel(this, _model.join(otherModel._model, strictUpdates));
 
   @override
   List<Object> get props => [_state, _model];

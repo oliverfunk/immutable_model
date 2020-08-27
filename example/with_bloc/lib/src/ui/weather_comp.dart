@@ -64,20 +64,22 @@ class WeatherComponent extends StatelessWidget {
         alignment: Alignment.center,
         child: BlocConsumer<WeatherCubit, ImmutableModel<WeatherState>>(
           listener: (context, state) {
-            if (state.currentState is WeatherError) {
+            final currentState = state.currentState;
+            if (currentState is WeatherError) {
               Scaffold.of(context).showSnackBar(
                 SnackBar(
-                  content: Text((state.currentState as WeatherError).message),
+                  content: Text(currentState.message),
                 ),
               );
             }
           },
           builder: (context, state) {
-            if (state.currentState is WeatherInitial) {
+            final currentState = state.currentState;
+            if (currentState is WeatherInitial) {
               return _buildInitialInput();
-            } else if (state.currentState is WeatherLoading) {
+            } else if (currentState is WeatherLoading) {
               return _buildLoading();
-            } else if (state.currentState is WeatherLoaded) {
+            } else if (currentState is WeatherLoaded) {
               return _buildShowWeather(state[CityName.label], state['weather_data']['temperature']);
             } else {
               return _buildInitialInput();

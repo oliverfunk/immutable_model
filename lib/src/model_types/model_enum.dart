@@ -17,7 +17,9 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
     List<E> enums,
     E initial, [
     String fieldLabel,
-  ])  : _initialModel = null,
+  ])  : assert(enums.isNotEmpty, "Provide an enum list using the EnumClass.values method"),
+        assert(initial != null, "An inital enum value must be provided"),
+        _initialModel = null,
         _current = initial,
         _enums = enums,
         _fieldLabel = fieldLabel;

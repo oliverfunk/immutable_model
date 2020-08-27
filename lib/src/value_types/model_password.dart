@@ -9,8 +9,10 @@ class ModelPassword extends ModelPrimitive<String> {
   static final validator =
       (pwdStr) => RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$", caseSensitive: false).hasMatch(pwdStr);
 
-  ModelPassword([String defaultPassword, String fieldLabel = 'password'])
-      : super.string(defaultPassword, validator, fieldLabel);
+  ModelPassword([String value, String fieldLabel = 'password']) : super.string(value, validator, fieldLabel);
+
+  @override
+  ModelPassword build(String value) => ModelPassword(value);
 
   @override
   String asSerializable() => sha256.convert(utf8.encode(value)).toString();

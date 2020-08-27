@@ -17,9 +17,6 @@ class CityName extends ModelPrimitive<String> {
   bool hasEqualityOfHistory(ModelValue other) => other is CityName;
 }
 
-// todo: change the initalise paramters for the models.
-// todo: acutally don't do the strucitUpdates here od it for a date range, but sitll could be useful to show here for a merge
-
 abstract class WeatherState {
   static final model = ImmutableModel<WeatherState>(
     {

@@ -1,10 +1,15 @@
-import 'package:equatable/equatable.dart';
+import 'package:immutable_model/immutable_model.dart';
 
-abstract class AuthState extends Equatable {
+abstract class AuthState {
+  static final model = ImmutableModel<AuthState>(
+    {
+      "email": M.email(),
+      "password": M.password(),
+    },
+    initalState: AuthInitial(),
+  );
+
   const AuthState();
-
-  @override
-  List<Object> get props => [];
 }
 
 class AuthInitial extends AuthState {
@@ -15,14 +20,10 @@ class AuthLoading extends AuthState {
   const AuthLoading();
 }
 
+class AuthSuccess extends AuthState {
+  const AuthSuccess();
+}
+
 class AuthError extends AuthState {
   const AuthError();
-}
-
-class AuthRegistered extends AuthState {
-  const AuthRegistered();
-}
-
-class AuthSignedIn extends AuthState {
-  const AuthSignedIn();
 }

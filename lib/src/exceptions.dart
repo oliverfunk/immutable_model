@@ -1,3 +1,5 @@
+import 'package:immutable_model/model_types.dart';
+
 import 'model_value.dart';
 
 String _eStr<E>({ModelValue modelFor, String reason}) => "$E\n"
@@ -39,6 +41,29 @@ class ImmutableModelEqualityException implements Exception {
       modelFor: model, reason: "No equality of history with ${receivedModel.toLongString()}");
 }
 
+class ImmutableModelUpdateException implements Exception {
+  final ModelValue model;
+  final dynamic received;
+  final String reason;
+
+  ImmutableModelUpdateException(this.model, this.received, this.reason);
+
+  @override
+  String toString() => _eStr<ImmutableModelEqualityException>(
+      modelFor: model, reason: "Could not update this model with: ${received}.\n$reason");
+}
+
+class ImmutableModelAccessException implements Exception {
+  final ModelInner model;
+  final String field;
+
+  ImmutableModelAccessException(this.model, this.field);
+
+  @override
+  String toString() => _eStr<ImmutableModelAccessException>(
+      modelFor: model, reason: "Requested field '$field' not in model. Available fields are: ${model.fields}");
+}
+
 class ImmutableModelDeserialisationException implements Exception {
   final ModelValue model;
   final dynamic receivedValue;
@@ -48,17 +73,4 @@ class ImmutableModelDeserialisationException implements Exception {
   @override
   String toString() =>
       _eStr<ImmutableModelDeserialisationException>(modelFor: model, reason: "Cannot desearilse '$receivedValue'}>");
-}
-
-class ImmutableModelStructureException implements Exception {
-  final Iterable modelKeys;
-  final Iterable receivedKeys;
-
-  ImmutableModelStructureException(this.modelKeys, this.receivedKeys);
-
-  @override
-  String toString() => "ModelStructuralException\n"
-      "  Reason: Some fields not in model\n"
-      "   Model fields:     $modelKeys\n"
-      "   Recievied fields: $receivedKeys";
 }

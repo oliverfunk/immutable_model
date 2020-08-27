@@ -3,6 +3,8 @@ import 'package:built_collection/built_collection.dart';
 import '../exceptions.dart';
 import '../model_value.dart';
 
+//todo: abstact out _buildUpdate
+
 /// note [modelMap] is unmodifable
 typedef bool ModelValidator(Map<String, dynamic> modelMap);
 
@@ -20,7 +22,8 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
     ModelValidator modelValidator,
     this.strictUpdates = false,
     String fieldLabel,
-  ])  : _initialModel = null,
+  ])  : assert(model != null && model.isNotEmpty, "The model cannot be null and must have fields"),
+        _initialModel = null,
         _current = BuiltMap.of(model),
         _modelValidator = modelValidator,
         _fieldLabel = fieldLabel;
@@ -33,20 +36,22 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   @override
   ModelInner build(Map<String, dynamic> next) => strictUpdates
-      ? ModelInner._next(this, _validateModel(_buildFromNext(_validateUpdate(next))))
+      ? ModelInner._next(this, _validateModel(_buildFromNext(_validateStrict(next))))
       : next.isEmpty ? this : ModelInner._next(this, _validateModel(_buildFromNext(next)));
 
   BuiltMap<String, dynamic> _buildFromNext(Map<String, dynamic> next) => _current.rebuild((mb) {
-        next.forEach((field, update) {
-          mb.updateValue(
-              field,
-              (currentModel) => update == null
-                  ? currentModel.next(null)
-                  : update is ModelValue // model update
-                      ? currentModel.nextFromModel(update)
-                      : update is ValueUpdater // function update
-                          ? currentModel.nextFromFunc(update)
-                          : currentModel.nextFromDynamic(update)); // normal value update
+        next.forEach((updateField, updateValue) {
+          hasField(updateField)
+              ? mb.updateValue(
+                  updateField,
+                  (currentModel) => updateValue == null
+                      ? currentModel.next(null)
+                      : updateValue is ModelValue // model update
+                          ? currentModel.nextFromModel(updateValue)
+                          : updateValue is ValueUpdater // function update
+                              ? currentModel.nextFromFunc(updateValue)
+                              : currentModel.nextFromDynamic(updateValue)) // normal value update
+              : throw ImmutableModelUpdateException(this, next, "Field '$updateField' not in this model.");
         });
       });
 
@@ -55,15 +60,22 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   bool _checkModel(Map<String, ModelValue> next) => _modelValidator == null || _modelValidator(next);
 
-  Map<String, dynamic> _validateUpdate(Map<String, dynamic> update) =>
-      _checkUpdate(update) ? update : throw ImmutableModelStructureException(fields, update.keys);
+  Map<String, dynamic> _validateStrict(Map<String, dynamic> update) => _checkStrict(update)
+      ? update
+      : throw ImmutableModelUpdateException(
+          this, update, "Some model fields were not present in the update or the value was null.");
 
-  bool _checkUpdate(Map<String, dynamic> update) =>
-      update.length == numberOfFields && update.entries.every((entry) => hasField(entry.key) && entry.value != null);
+  /*
+  * Checks if every field in the model is in the update and has a value.
+  */
+  bool _checkStrict(Map<String, dynamic> update) =>
+      fields.every((field) => update.containsKey(field) && update[field] != null);
 
   // not efficient
   @override
   Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
+
+  Map<String, ModelValue> get asModelMap => _current.asMap();
 
   @override
   ModelInner get initialModel => _initialModel ?? this;
@@ -72,27 +84,30 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   bool checkValid(Map<String, dynamic> toValidate) => true;
 
   ModelInner merge(ModelInner other) => hasEqualityOfHistory(other)
-      ? ModelInner._next(this, _validateModel(_buildMergeOther(other._current.asMap())))
+      ? ModelInner._next(this, _validateModel(_buildMergeOther(other.asModelMap)))
       : throw ImmutableModelEqualityException(this, other);
 
   BuiltMap<String, dynamic> _buildMergeOther(Map<String, ModelValue> other) => _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
-          mb.updateValue(
-              otherField,
-              (currentModel) => currentModel is ModelInner
-                  ? currentModel.merge(otherModel)
-                  : otherModel.isInitial // checks if deafult value
-                      ? currentModel
-                      : currentModel.nextFromModel(otherModel)); // could possible replace with with just otherModel
+          hasField(otherField)
+              ? mb.updateValue(
+                  otherField,
+                  (currentModel) => currentModel is ModelInner
+                      ? currentModel.merge(otherModel)
+                      : otherModel.isInitial // checks if deafult value
+                          ? currentModel
+                          : currentModel.nextFromModel(otherModel)) // could possible replace with with just otherModel
+              : throw ImmutableModelUpdateException(
+                  this, other, "Merge failed. Field '$otherField' not in this model.");
         });
       });
 
   /// Join two models together. Values from other will over-wrtie values in this
-  /// ! remeber to do the state in IM
-  ModelInner join(ModelInner other) {
-    final thisMap = _current.toMap();
-    final otherMap = other._current.toMap();
-
+  ModelInner join(
+    ModelInner other, [
+    bool strictUpdates = false,
+    String fieldLabel,
+  ]) {
     ModelValidator mergedValidator;
     if (_modelValidator == null) {
       if (other._modelValidator == null) {
@@ -112,11 +127,9 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       }
     }
 
-    final mergedModel = thisMap..addAll(otherMap);
+    final mergedModelMaps = _current.toMap()..addAll(other._current.toMap());
 
-    return _checkModel(mergedModel)
-        ? ModelInner(mergedModel, mergedValidator)
-        : throw ImmutableModelValidationException(this, mergedModel);
+    return ModelInner(mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
   }
 
   // not efficient, use sparingly retured map is unmodifable, if you want moidifabl euse value
@@ -125,18 +138,21 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
   ModelInner fromJson(dynamic jsonMap) => strictUpdates
-      ? ModelInner._next(this, _validateModel(_buildFromJson(_validateUpdate(fromSerialized(jsonMap)))))
+      ? ModelInner._next(this, _validateModel(_buildFromJson(_validateStrict(fromSerialized(jsonMap)))))
       : ModelInner._next(this, _validateModel(_buildFromJson(fromSerialized(jsonMap))));
 
   BuiltMap<String, ModelValue> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
-        jsonMap.forEach((field, jsonValue) {
-          mb.updateValue(
-              field,
-              (currentModel) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
-                  ? currentModel
-                  : currentModel is ModelInner
-                      ? currentModel.fromJson(jsonValue)
-                      : currentModel.nextFromSerialized(jsonValue));
+        jsonMap.forEach((jsonField, jsonValue) {
+          if (hasField(jsonField)) {
+            // skip fields not in model
+            mb.updateValue(
+                jsonField,
+                (currentModel) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
+                    ? currentModel
+                    : currentModel is ModelInner
+                        ? currentModel.fromJson(jsonValue)
+                        : currentModel.nextFromSerialized(jsonValue));
+          }
         });
       });
 
@@ -147,18 +163,26 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   int get numberOfFields => _current.length;
 
-  ModelValue getFieldModel(String field) => _current[field];
+  ModelValue fieldModel(String field) => hasField(field) ? _current[field] : null;
 
-  dynamic getFieldValue(String field) => _current[field].value;
+  dynamic fieldValue(String field) {
+    final fm = fieldModel(field);
+    if (fm == null) {
+      throw ImmutableModelAccessException(this, field);
+    }
+    return fm is ModelInner ? fm : fm.value;
+  }
 
-  dynamic operator [](String field) => getFieldValue(field);
+  dynamic operator [](String field) => fieldValue(field);
 
   ModelInner resetFields(List<String> fields) => isInitial
       ? this
       : ModelInner._next(this, _current.rebuild((mb) {
           fields.forEach((field) {
-            mb.updateValue(
-                field, (currentModel) => currentModel is ModelInner ? currentModel.resetAll() : initialModel[field]);
+            hasField(field)
+                ? mb.updateValue(
+                    field, (currentModel) => currentModel is ModelInner ? currentModel.resetAll() : initialModel[field])
+                : throw ImmutableModelUpdateException(this, fields, "Field '$field' not in model.");
           });
         }));
 

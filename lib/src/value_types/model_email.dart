@@ -9,7 +9,7 @@ class ModelEmail extends ModelPrimitive<String> {
           caseSensitive: false)
       .hasMatch(emailStr);
 
-  ModelEmail([String defaultEmail, String fieldLabel = 'email']) : super.string(defaultEmail, validator, fieldLabel);
+  ModelEmail([String value, String fieldLabel = 'email']) : super.string(value, validator, fieldLabel);
 
   @override
   bool hasEqualityOfHistory(ModelValue other) => other is ModelEmail;

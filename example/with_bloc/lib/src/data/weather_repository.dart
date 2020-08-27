@@ -20,10 +20,9 @@ class FakeWeatherRepository implements WeatherRepository {
 
         // faux returned json
         final returnedJson = {
-          CityName.label: cityName,
           "weather_data": {
             "temperature": 20 + random.nextInt(15) + random.nextDouble(),
-            "weatherNot": null,
+            "weather": "Sunny",
           }
         };
 
