@@ -101,9 +101,10 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   ModelList<V> get initialModel => _initialModel ?? this;
 
   @override
-  bool checkValid(List<V> toValidate) => (toValidate.isEmpty ||
+  bool checkValid(List<V> toValidate) =>
       _itemValidator == null ||
-      toValidate.every((element) => _itemValidator(element))); // check every item in the list against the validator
+      toValidate.isEmpty ||
+      toValidate.every((element) => _itemValidator(element)); // check every item in the list against the validator
 
   @override
   V whichInvalid(List<V> invalid) => invalid.firstWhere((li) => !_itemValidator(li));
@@ -124,7 +125,8 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
   ModelList<V> removeAt(int index) => ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
 
-  ModelList<V> replaceAt(int index, V element) => ModelList._next(this, _current.rebuild((lb) => lb[index] = element));
+  ModelList<V> replaceAt(int index, V element) =>
+      ModelList._next(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
 
   ModelList<V> clear() => ModelList._next(this, _current.rebuild((lb) => lb.clear()));
 

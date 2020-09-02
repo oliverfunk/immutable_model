@@ -1,7 +1,7 @@
 import '../exceptions.dart';
 import '../model_value.dart';
 
-class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
+class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   final ModelEnum _initialModel;
 
   final E _current;
@@ -24,32 +24,37 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, E> {
         _enums = enums,
         _fieldLabel = fieldLabel;
 
-  ModelEnum._next(ModelEnum last, this._current)
+  ModelEnum._next(ModelEnum<E> last, this._current)
       : _initialModel = last.initialModel,
         _enums = last._enums,
         _fieldLabel = last._fieldLabel;
 
   @override
-  ModelEnum<E> build(E nextEnum) => ModelEnum._next(this, nextEnum);
+  ModelEnum<E> build(String nextEnumString) =>
+      ModelEnum._next(this, _enums.firstWhere((en) => nextEnumString == convertEnum(en)));
 
   // public methods
 
   @override
-  E get value => _current;
+  String get value => convertEnum(_current);
+
+  List<E> get enums => _enums;
+
+  List<String> get enumStrings => _enums.map((en) => convertEnum(en)).toList(growable: false);
 
   @override
   ModelEnum<E> get initialModel => _initialModel ?? this;
 
   @override
-  bool checkValid(E toValidate) => true; // by defintion, if it's of [E], is valid
+  bool checkValid(String toValidate) => enumStrings.any((enStr) => enStr == toValidate);
 
   @override
   dynamic asSerializable() => convertEnum(value);
 
   @override
-  E fromSerialized(dynamic jsonValue) => jsonValue is String
-      ? _enums.firstWhere(
-          (en) => convertEnum(en) == jsonValue,
+  String fromSerialized(dynamic jsonValue) => jsonValue is String
+      ? enumStrings.firstWhere(
+          (enStr) => enStr == jsonValue,
           orElse: () => throw ImmutableModelDeserialisationException(this, jsonValue),
         )
       : throw ImmutableModelDeserialisationException(this, jsonValue);

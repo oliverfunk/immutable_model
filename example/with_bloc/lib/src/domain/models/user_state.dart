@@ -5,10 +5,10 @@ enum _Seasons { Summer, Winter, Autum, Spring }
 abstract class UserState {
   static final model = ImmutableModel<UserState>(
     {
-      "email": M.email(defaultEmail: "oli.funk@gmail.com"),
+      "email": M.email(),
       "password": M.password(),
       "some_values": M.inner({
-        "a_str": M.str(initialValue: "Hello M!"),
+        "words": M.str(initialValue: "Hello M!"),
         "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
         "a_double": M.dbl(initialValue: 13 / 7),
         "this_is_great": M.bl(initialValue: true),

@@ -14,6 +14,10 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
 
   WeatherCubit(this._weatherRepository) : super(WeatherState.model);
 
+  String get cityName => state[CityName.label];
+  double get temperature => state["weather_data"]["temperature"];
+  String get weather => state["weather_data"]["weather"];
+
   Future<void> getWeather(CityName cityName) async {
     try {
       emit(state.transitionToWithUpdate(

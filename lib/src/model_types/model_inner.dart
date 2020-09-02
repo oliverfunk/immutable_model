@@ -40,18 +40,18 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       : next.isEmpty ? this : ModelInner._next(this, _validateModel(_buildFromNext(next)));
 
   BuiltMap<String, dynamic> _buildFromNext(Map<String, dynamic> next) => _current.rebuild((mb) {
-        next.forEach((updateField, updateValue) {
-          hasField(updateField)
+        next.forEach((fieldLabel, nextValue) {
+          hasField(fieldLabel)
               ? mb.updateValue(
-                  updateField,
-                  (currentModel) => updateValue == null
+                  fieldLabel,
+                  (currentModel) => nextValue == null
                       ? currentModel.next(null)
-                      : updateValue is ModelValue // model update
-                          ? currentModel.nextFromModel(updateValue)
-                          : updateValue is ValueUpdater // function update
-                              ? currentModel.nextFromFunc(updateValue)
-                              : currentModel.nextFromDynamic(updateValue)) // normal value update
-              : throw ImmutableModelUpdateException(this, next, "Field '$updateField' not in this model.");
+                      : nextValue is ModelValue // model update
+                          ? currentModel.nextFromModel(nextValue)
+                          : nextValue is ValueUpdater // function update
+                              ? currentModel.nextFromFunc(nextValue)
+                              : currentModel.nextFromDynamic(nextValue)) // normal value update
+              : throw ImmutableModelUpdateException(this, next, "Field '$fieldLabel' not in this model.");
         });
       });
 

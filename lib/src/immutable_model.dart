@@ -51,6 +51,11 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> update(Map<String, dynamic> updates) =>
       (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
 
+  ImmutableModel<S> updateIfIn(Map<String, dynamic> updates, S inState) =>
+      (updates == null || updates.isEmpty || currentState.runtimeType != inState.runtimeType)
+          ? this
+          : ImmutableModel<S>._nextModel(this, _model.next(updates));
+
   ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
       (updaters == null || updaters.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updaters));
 

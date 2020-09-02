@@ -1,6 +1,5 @@
-import 'package:test/test.dart';
-
 import 'package:immutable_model/immutable_model.dart';
+import 'package:test/test.dart';
 //final i = ModelInner({
 //  "int" : ModelPrimitive<int>(2),
 //  "str" : ModelPrimitive<String>("Hello"),
@@ -94,9 +93,7 @@ import 'package:immutable_model/immutable_model.dart';
 //      ], true, false)
 //});
 
-enum TestEnum {
- First, Second, Third
-}
+enum TestEnum { First, Second, Third }
 
 //test("test misc", (){
 //print(TestEnum.values);
@@ -117,7 +114,7 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final mt = TestEnum.values
+    final mt = TestEnum.values;
 
     final model = ImmutableModel(
       {
@@ -152,7 +149,8 @@ void main() {
         }),
       },
       modelValidator: (modelMap) =>
-          (modelMap['some_values']['date_begin'] as DateTime).isBefore(modelMap['some_values']['date_end'] as DateTime),
+          (modelMap['some_values']['date_begin'] as DateTime)
+              .isBefore(modelMap['some_values']['date_end'] as DateTime),
     );
 
     final mod2 = model.update({
