@@ -1,4 +1,3 @@
-import '../exceptions.dart';
 import '../model_value.dart';
 
 class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
@@ -49,12 +48,8 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   bool checkValid(String toValidate) => enumStrings.any((enStr) => enStr == toValidate);
 
   @override
-  String fromSerialized(dynamic jsonValue) => jsonValue is String
-      ? enumStrings.firstWhere(
-          (enStr) => enStr == jsonValue,
-          orElse: () => throw ImmutableModelDeserialisationException(this, jsonValue),
-        )
-      : throw ImmutableModelDeserialisationException(this, jsonValue);
+  String fromSerialized(dynamic jsonValue) =>
+      jsonValue is String ? enumStrings.firstWhere((enStr) => enStr == jsonValue, orElse: () => null) : null;
 
   @override
   String get fieldLabel => _fieldLabel;

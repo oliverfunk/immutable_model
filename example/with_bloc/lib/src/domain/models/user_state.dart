@@ -20,7 +20,7 @@ abstract class UserState {
     },
     modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
         .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
-    initalState: UserUnauthed(),
+    initalState: const UserUnauthed(),
     cacheBufferSize: 10,
   );
 

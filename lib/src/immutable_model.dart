@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-import 'buffer.dart';
+import 'utils/buffer.dart';
 import 'model_types/model_inner.dart';
 import 'model_value.dart';
 
@@ -90,7 +90,7 @@ class ImmutableModel<S> extends Equatable {
 
   // field ops
 
-  Iterable<String> get fields => _model.fields;
+  Iterable<String> get fields => _model.fieldLabels;
 
   int get numberOfFields => _model.numberOfFields;
 
@@ -100,7 +100,7 @@ class ImmutableModel<S> extends Equatable {
 
   dynamic fieldValue(String field) => _model.fieldValue(field);
 
-  dynamic operator [](String field) => fieldValue(field);
+  dynamic operator [](String field) => _model[field];
 
   // misc
 

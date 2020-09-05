@@ -1,6 +1,8 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
+import 'utils/log.dart';
+import 'errors.dart';
 import 'exceptions.dart';
 
 typedef dynamic ValueUpdater(dynamic currentValue);
@@ -17,37 +19,34 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   /// Determines whether [toValidate] is valid or not.
   bool checkValid(V toValidate);
 
-  @protected
-  dynamic whichInvalid(V invalid) => invalid;
-
-  /// Validates [toValidate]. If it is valid, [toValidate] is returned and if not a [ImmutableModelValidationException] is thorwn.
-  @protected
-  @nonVirtual
-  V validate(V toValidate) =>
-      checkValid(toValidate) ? toValidate : throw ImmutableModelValidationException(this, whichInvalid(toValidate));
-
   /// Returns a new [M] given the [next] value of [V].
   @protected
   M build(V next);
 
-  // value update methods
-
   /// Validate [value] and return a new instance of this [ModelValue].
-  /// If [value] is null, simply return [this]
   @nonVirtual
-  M next(V value) => value == null ? this : build(validate(value));
+  M next(V value) => value == null
+      ? this
+      : checkValid(value) ? build(value) : logExceptionAndReturn(this, ValidationException(this, value));
 
   @nonVirtual
-  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ImmutableModelTypeException(this, value);
+  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelTypeError(this, value);
 
   @nonVirtual
   M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));
 
   @nonVirtual
-  M nextFromSerialized(dynamic value) => next(fromSerialized(value));
+  M nextFromSerialized(dynamic value) {
+    final V serialisedValue = fromSerialized(value);
+    if (serialisedValue == null) {
+      return logExceptionAndReturn(this, DeserialisationException(this, value));
+    } else {
+      return next(serialisedValue);
+    }
+  }
 
   @nonVirtual
-  M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ImmutableModelEqualityException(this, other);
+  M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ModelHistoryEqualityError(this, other);
 
   bool hasEqualityOfHistory(M other) => identical(this.initialModel, other.initialModel);
 
@@ -56,9 +55,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   /// Return this [ModelValue] as a serializable object for the JSON.encode() method.
   dynamic asSerializable() => value;
 
-  /// Return [serialized] as the value of this [ModelValue].
-  V fromSerialized(dynamic serialized) =>
-      serialized is V ? serialized : throw ImmutableModelDeserialisationException(this, serialized);
+  /// Return [serialized] as a value of type [V] for this [ModelValue].
+  V fromSerialized(dynamic serialized) => serialized is V ? serialized : null;
 
   @override
   List<Object> get props => [value];

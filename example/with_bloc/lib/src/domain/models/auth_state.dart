@@ -6,7 +6,7 @@ abstract class AuthState {
       "email": M.email(),
       "password": M.password(),
     },
-    initalState: AuthInitial(),
+    initalState: const AuthInitial(),
   );
 
   const AuthState();

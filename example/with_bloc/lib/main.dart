@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging/logging.dart';
 
 import 'src/app.dart';
 
@@ -32,5 +33,11 @@ class SimpleBlocObserver extends BlocObserver {
 
 void main() {
   Bloc.observer = SimpleBlocObserver();
+
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });
+
   runApp(App());
 }

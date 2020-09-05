@@ -1,9 +1,10 @@
 import 'package:built_collection/built_collection.dart';
 
+import '../utils/log.dart';
 import '../exceptions.dart';
-import '../immutable_model.dart';
-import '../model_value.dart';
+
 import 'model_inner.dart';
+import '../model_value.dart';
 
 typedef bool ListItemValidator<V>(V item);
 
@@ -108,9 +109,6 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
       toValidate.every((element) => _itemValidator(element)); // check every item in the list against the validator
 
   @override
-  V whichInvalid(List<V> invalid) => invalid.firstWhere((li) => !_itemValidator(li));
-
-  @override
   dynamic asSerializable() => V == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
 
   @override
@@ -120,14 +118,19 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
           ? serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>
           : serialized.cast<V>();
     } else {
-      throw ImmutableModelDeserialisationException(this, serialized);
+      return null;
     }
   }
 
   ModelList<V> removeAt(int index) => ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
 
-  ModelList<V> replaceAt(int index, V element) =>
-      ModelList._next(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
+  ModelList<V> replaceAt(int index, V item) => ModelList._next(this, _current.rebuild((lb) {
+        if (_itemValidator(item)) {
+          lb[index] = item;
+        } else {
+          logException(ValidationException(this, item));
+        }
+      }));
 
   ModelList<V> clear() => ModelList._next(this, _current.rebuild((lb) => lb.clear()));
 
@@ -152,13 +155,16 @@ class ModelValidatedList extends ModelList<Map<String, dynamic>> {
     bool append = true,
   ]) : super._mapList(initialList, (li) => _validateItemAgainstModel(model, li), append);
 
-  static bool _validateItemAgainstModel(ModelInner model, Map<String, dynamic> update) {
-    model.validateUpdateStrictly(update);
-    // if validate stricly returns, the update is valid
-    return true;
-  }
+  static bool _validateItemAgainstModel(ModelInner model, Map<String, dynamic> update) =>
+      model.checkUpdateStrictly(update);
 
   @override
-  ModelList<Map<String, dynamic>> replaceAt(int index, Map<String, dynamic> element) =>
-      ModelList._next(this, _current.rebuild((lb) => lb[index] = validate([element])[0]));
+  ModelList<Map<String, dynamic>> replaceAt(int index, Map<String, dynamic> item) =>
+      ModelList._next(this, _current.rebuild((lb) {
+        if (_itemValidator(item)) {
+          lb[index] = item;
+        } else {
+          logException(ValidationException(this, item));
+        }
+      }));
 }

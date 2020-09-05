@@ -1,4 +1,3 @@
-import '../exceptions.dart';
 import '../model_value.dart';
 
 typedef bool ValueValidator<V>(V value);
@@ -80,9 +79,8 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
   dynamic asSerializable() => T == DateTime ? (value as DateTime).toIso8601String() : value;
 
   @override
-  T fromSerialized(dynamic serialized) => (T == DateTime && serialized is String)
-      ? DateTime.parse(serialized) as T
-      : serialized is T ? serialized : throw ImmutableModelDeserialisationException(this, serialized);
+  T fromSerialized(dynamic serialized) =>
+      (T == DateTime && serialized is String) ? DateTime.parse(serialized) as T : serialized is T ? serialized : null;
 
   // {
   //   if (T == DateTime) {

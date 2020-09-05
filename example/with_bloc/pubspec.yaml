@@ -13,7 +13,7 @@ dependencies:
     path: ../../
   flutter_bloc: ^6.0.1
   equatable: ^1.2.3
-  random_words: ^1.0.2
+  logging: ^0.11.4
 
 dev_dependencies:
   flutter_test:

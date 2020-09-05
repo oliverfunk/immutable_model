@@ -21,7 +21,7 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
   Future<void> fetchWeather(CityName cityName) async {
     try {
       emit(state.transitionToAndUpdate(
-        WeatherLoading(),
+        const WeatherLoading(),
         {
           cityName.fieldLabel: cityName,
         },

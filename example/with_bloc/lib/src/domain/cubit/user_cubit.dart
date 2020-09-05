@@ -16,5 +16,5 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
       }));
 
   void updateSomeValues(Map<String, dynamic> updates) =>
-      emit(state.updateIfIn({"chosen_values": updates}, UserAuthed()));
+      emit(state.updateIfIn({"chosen_values": updates}, const UserAuthed()));
 }

@@ -1,6 +1,5 @@
 library immutable_model;
 
-import 'src/immutable_model.dart';
 import 'model_types.dart';
 import 'value_types.dart';
 
@@ -10,7 +9,6 @@ import 'value_types.dart';
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
-// todo: what about strict updates fofe EmodelEMil etc.
 // todo: diallow all nulls, rethink them. You dont need them for resetting
 // TODO: imporve excpetions, do away with throwing and use a logger instead. If invalid update just return this
 // todo: gen GraphQL query
@@ -21,7 +19,7 @@ import 'value_types.dart';
 // maybe you want user_email
 
 // expose only the exceptions, the main immutable_model class and the M. shorthands
-export 'src/exceptions.dart';
+export 'src/errors.dart';
 export 'src/immutable_model.dart';
 
 abstract class M {
