@@ -12,7 +12,7 @@ class _CityInputField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 50),
       child: TextField(
         controller: TextEditingController()..text = context.bloc<WeatherCubit>().state[CityName.label],
-        onSubmitted: (cityNameStr) => context.bloc<WeatherCubit>().getWeather(CityName(cityNameStr)),
+        onSubmitted: (cityNameStr) => context.bloc<WeatherCubit>().fetchWeather(CityName(cityNameStr)),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -57,6 +57,13 @@ class WeatherComponent extends StatelessWidget {
       ],
     );
   }
+
+  // Widget _undoButton(UserCubit userCubit) => Center(
+  //     child: RaisedButton(
+  //       child: Text("Undo"),
+  //       onPressed: () => userCubit.undo(),
+  //     ),
+  //   );
 
   @override
   Widget build(BuildContext context) => Container(

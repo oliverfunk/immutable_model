@@ -12,9 +12,7 @@ Widget preferancesJsonDisplay() => BlocBuilder<UserCubit, ImmutableModel<UserSta
             Text("User not auth'd yet"),
           ],
         );
-      } else if (state.currentState is UserAuthed) {
-        return Text(state.toJson().toString());
       } else {
-        return Text('Nothing yet');
+        return Text(state.toJson().toString());
       }
     });

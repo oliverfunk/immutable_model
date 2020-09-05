@@ -3,6 +3,7 @@ import 'package:built_collection/built_collection.dart';
 import '../exceptions.dart';
 import '../immutable_model.dart';
 import '../model_value.dart';
+import 'model_inner.dart';
 
 typedef bool ListItemValidator<V>(V item);
 
@@ -146,14 +147,14 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {
   ModelValidatedList(
-    ImmutableModel model, [
+    ModelInner model, [
     List<Map<String, dynamic>> initialList,
     bool append = true,
   ]) : super._mapList(initialList, (li) => _validateItemAgainstModel(model, li), append);
 
-  static bool _validateItemAgainstModel(ImmutableModel model, Map<String, dynamic> item) {
-    model.update(item);
-    // if strict update completes, it's valid
+  static bool _validateItemAgainstModel(ModelInner model, Map<String, dynamic> update) {
+    model.validateUpdateStrictly(update);
+    // if validate stricly returns, the update is valid
     return true;
   }
 

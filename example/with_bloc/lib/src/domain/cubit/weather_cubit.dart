@@ -18,18 +18,20 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
   double get temperature => state["weather_data"]["temperature"];
   String get weather => state["weather_data"]["weather"];
 
-  Future<void> getWeather(CityName cityName) async {
+  Future<void> fetchWeather(CityName cityName) async {
     try {
-      emit(state.transitionToWithUpdate(
+      emit(state.transitionToAndUpdate(
         WeatherLoading(),
         {
           cityName.fieldLabel: cityName,
         },
       ));
       final weatherModel = await _weatherRepository.fetchWeather(cityName.value);
-      emit(state.transitionTo(WeatherLoaded()).mergeFrom(weatherModel));
+      emit(state.transitionTo(const WeatherLoaded()).mergeFrom(weatherModel));
     } on NetworkException {
-      emit(state.transitionTo(WeatherError("Couldn't fetch weather. Is the device online?")));
+      emit(state.transitionTo(const WeatherError("Couldn't fetch weather. Is the device online?")));
     }
   }
+
+  void previous() => emit(state.restoreBy(1));
 }

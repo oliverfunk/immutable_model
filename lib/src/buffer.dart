@@ -10,7 +10,7 @@ class CacheBuffer<T> {
     }
   }
 
-  int numberOfItems() => _buffer.length;
+  int get numberCachedOfItems => _buffer.length;
 
   void cacheItem(T toCache) {
     if (bufferSize == 0 || toCache == null) {
@@ -18,20 +18,19 @@ class CacheBuffer<T> {
     }
 
     // if the buffer is full, remove the FIFO first and add the new item
-    if (numberOfItems() == bufferSize) {
+    if (numberCachedOfItems == bufferSize) {
       _buffer.removeFirst();
     }
     _buffer.add(toCache);
   }
 
-  T restoreTo(int point) {
+  T restoreBy(int point) {
     if (point <= 0) {
       throw Error();
     } else if (bufferSize == 0) {
       throw Exception('Cannot restore, buffer is size 0');
-    } else if (point > numberOfItems()) {
-      throw Exception(
-          'Cannot restore, point $point out of buffer range ${numberOfItems()}');
+    } else if (point > numberCachedOfItems) {
+      throw Exception('Cannot restore to point $point, exceeds number of cached items: $numberCachedOfItems');
     }
 
     T val;
@@ -46,9 +45,8 @@ class CacheBuffer<T> {
       throw Error();
     } else if (bufferSize == 0) {
       throw Exception('Cannot peek, buffer is size 0');
-    } else if (point > numberOfItems()) {
-      throw Exception(
-          'Cannot peek, point $point out of buffer range $numberOfItems()');
+    } else if (point > numberCachedOfItems) {
+      throw Exception('Cannot peek at point $point, exceeds number of cached items: $numberCachedOfItems');
     }
 
     return _buffer.elementAt(point - 1);
@@ -59,5 +57,5 @@ class CacheBuffer<T> {
   }
 
   @override
-  String toString() => 'Cache Buffer [$numberOfItems()/$bufferSize]:\n$_buffer';
+  String toString() => 'Cache Buffer [$numberCachedOfItems/$bufferSize]:\n$_buffer';
 }

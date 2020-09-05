@@ -7,7 +7,7 @@ abstract class UserState {
     {
       "email": M.email(),
       "password": M.password(),
-      "some_values": M.inner({
+      "chosen_values": M.inner({
         "words": M.str(initialValue: "Hello M!"),
         "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
         "a_double": M.dbl(initialValue: 13 / 7),
@@ -18,9 +18,10 @@ abstract class UserState {
         'list_of_evens': M.ntList(initialValue: [2, 4, 6, 8], validator: (n) => n.isEven),
       }),
     },
-    modelValidator: (modelMap) =>
-        (modelMap['some_values']['date_begin'] as DateTime).isBefore(modelMap['some_values']['date_end'] as DateTime),
+    modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
+        .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
     initalState: UserUnauthed(),
+    cacheBufferSize: 10,
   );
 
   const UserState();

@@ -114,15 +114,13 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final mt = TestEnum.values;
-
     final model = ImmutableModel(
       {
         "email": M.email(
           defaultEmail: "oli.funk@gmail.com",
         ),
         "password": M.password(),
-        "some_values": M.inner({
+        "chosen_values": M.inner({
           "a_str": M.str(
             initialValue: "Hello M!",
           ),
@@ -148,17 +146,16 @@ void main() {
           ),
         }),
       },
-      modelValidator: (modelMap) =>
-          (modelMap['some_values']['date_begin'] as DateTime)
-              .isBefore(modelMap['some_values']['date_end'] as DateTime),
+      modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
+          .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
     );
 
     final mod2 = model.update({
-      'some_values': {'a_double': 0.2, 'a_str': 'Next'}
+      'chosen_values': {'a_double': 0.2, 'a_str': 'Next'}
     });
 
     final mod3 = model.update({
-      'some_values': {'a_double': null}
+      'chosen_values': {'a_double': null}
     });
 
     print(mod2);

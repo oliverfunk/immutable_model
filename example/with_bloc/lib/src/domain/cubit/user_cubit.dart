@@ -8,13 +8,13 @@ import '../models/user_state.dart';
 class UserCubit extends Cubit<ImmutableModel<UserState>> {
   UserCubit() : super(UserState.model);
 
-  ModelInner get someValues => state['some_values'] as ModelInner;
+  ModelInner get someValues => state['chosen_values'] as ModelInner;
 
-  void userAuthed(ModelEmail email, ModelPassword password) => emit(state.transitionToWithUpdate(UserAuthed(), {
+  void userAuthed(ModelEmail email, ModelPassword password) => emit(state.transitionToAndUpdate(UserAuthed(), {
         'email': email,
         'password': password,
       }));
 
   void updateSomeValues(Map<String, dynamic> updates) =>
-      emit(state.updateIfIn({"some_values": updates}, UserUnauthed()));
+      emit(state.updateIfIn({"chosen_values": updates}, UserAuthed()));
 }

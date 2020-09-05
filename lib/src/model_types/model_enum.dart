@@ -49,9 +49,6 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   bool checkValid(String toValidate) => enumStrings.any((enStr) => enStr == toValidate);
 
   @override
-  dynamic asSerializable() => convertEnum(value);
-
-  @override
   String fromSerialized(dynamic jsonValue) => jsonValue is String
       ? enumStrings.firstWhere(
           (enStr) => enStr == jsonValue,
@@ -61,4 +58,7 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
 
   @override
   String get fieldLabel => _fieldLabel;
+
+  @override
+  String toString() => "<$E>($value)";
 }

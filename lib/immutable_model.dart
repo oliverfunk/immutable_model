@@ -10,11 +10,9 @@ import 'value_types.dart';
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
-// todo: I don't think invalidate inputs should trhwo, just don't update.
-// TODO: redo ModelValidatedList using just a Map not a IM
+// todo: what about strict updates fofe EmodelEMil etc.
 // todo: diallow all nulls, rethink them. You dont need them for resetting
-// todo: write IfInUpdate... updating only if you're in a certain state.
-// TODO: imporve excpetions
+// TODO: imporve excpetions, do away with throwing and use a logger instead. If invalid update just return this
 // todo: gen GraphQL query
 // todo: try use lists for models
 // TODO: make sure enums work, test ModelPrimitve deserialse
@@ -118,7 +116,7 @@ abstract class M {
       ModelList.dateTimeList(initialValue, validator, append, fieldLabel);
 
   static ModelValidatedList mvList(
-    ImmutableModel model, {
+    ModelInner model, {
     List<Map<String, dynamic>> initialValue,
     bool append = true,
   }) =>

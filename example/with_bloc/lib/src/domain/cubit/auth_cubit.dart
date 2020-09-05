@@ -11,7 +11,7 @@ class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
   AuthCubit(this.userCubit) : super(AuthState.model);
 
   void signIn(ModelEmail email, ModelPassword password) {
-    emit(state.transitionToWithUpdate(AuthLoading(), {
+    emit(state.transitionToAndUpdate(AuthLoading(), {
       'email': email,
       'password': password,
     }));

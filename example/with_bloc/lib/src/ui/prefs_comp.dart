@@ -3,28 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
-import 'package:with_bloc/src/domain/cubit/user_cubit.dart';
-import 'package:with_bloc/src/domain/models/user_state.dart';
+
+import '../domain/cubit/user_cubit.dart';
+import '../domain/models/user_state.dart';
 
 class PreferancesComp extends StatelessWidget {
-  UserCubit _userCubit(BuildContext context) => context.bloc<UserCubit>();
+  static UserCubit _userCubit(BuildContext context) => context.bloc<UserCubit>();
 
   Widget _inputWord(UserCubit userCubit) => TextFormField(
         initialValue: userCubit.someValues['words'],
         onChanged: (value) => userCubit.updateSomeValues({'words': value}),
         decoration: InputDecoration(
-          hintText: "Enter some words",
-          border: UnderlineInputBorder(),
+          labelText: "Enter some words",
+          border: OutlineInputBorder(),
         ),
       );
-
-// validated_number"
-// a_double": M.dbl(
-// this_is_great": M
-// favourite_season"
-// date_begin": M.dt imnasms
-// date_end": M.dt(i
-// list_of_evens': M
 
   Widget _inputValidatedNumber(UserCubit userCubit) => Container(
         decoration: BoxDecoration(border: Border.all(color: Colors.black)),
@@ -40,7 +33,7 @@ class PreferancesComp extends StatelessWidget {
           ),
           BlocBuilder<UserCubit, ImmutableModel<UserState>>(
             buildWhen: (previous, current) =>
-                previous['some_values']['validated_number'] != current['some_values']['validated_number'],
+                previous['chosen_values']['validated_number'] != current['chosen_values']['validated_number'],
             builder: (context, model) => Text(userCubit.someValues['validated_number'].toString()),
           ),
           IconButton(
@@ -67,7 +60,7 @@ class PreferancesComp extends StatelessWidget {
           Text("Is this great?"),
           BlocBuilder<UserCubit, ImmutableModel<UserState>>(
             buildWhen: (previous, current) =>
-                previous['some_values']['this_is_great'] != current['some_values']['this_is_great'],
+                previous['chosen_values']['this_is_great'] != current['chosen_values']['this_is_great'],
             builder: (context, model) => Checkbox(
                 value: userCubit.someValues['this_is_great'],
                 onChanged: (b) => userCubit.updateSomeValues({'this_is_great': b})),
@@ -77,7 +70,7 @@ class PreferancesComp extends StatelessWidget {
 
   Widget _inputFavSeason(UserCubit userCubit) => BlocBuilder<UserCubit, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous['some_values']['favourite_season'] != current['some_values']['favourite_season'],
+            previous['chosen_values']['favourite_season'] != current['chosen_values']['favourite_season'],
         builder: (context, model) => DropdownButton<String>(
           value: userCubit.someValues['favourite_season'],
           icon: Icon(Icons.keyboard_arrow_down, size: 20.0),
@@ -120,7 +113,7 @@ class PreferancesComp extends StatelessWidget {
           Text("Select a beginning date"),
           BlocBuilder<UserCubit, ImmutableModel<UserState>>(
             buildWhen: (previous, current) =>
-                previous['some_values']['date_begin'] != current['some_values']['date_begin'],
+                previous['chosen_values']['date_begin'] != current['chosen_values']['date_begin'],
             builder: (context, state) => Text(
               "${userCubit.someValues['date_begin'].toLocal()}".split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -140,7 +133,8 @@ class PreferancesComp extends StatelessWidget {
         Column(children: <Widget>[
           Text("Select an end date"),
           BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-            buildWhen: (previous, current) => previous['some_values']['date_end'] != current['some_values']['date_end'],
+            buildWhen: (previous, current) =>
+                previous['chosen_values']['date_end'] != current['chosen_values']['date_end'],
             builder: (context, state) => Text(
               "${userCubit.someValues['date_end'].toLocal()}".split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -178,7 +172,7 @@ class PreferancesComp extends StatelessWidget {
                 ),
               ))
           .toList(growable: false));
-// todo: show them undo0o
+
   @override
   Widget build(BuildContext context) => Container(
         child: Column(children: [

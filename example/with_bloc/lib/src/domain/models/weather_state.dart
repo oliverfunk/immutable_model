@@ -29,7 +29,7 @@ abstract class WeatherState {
         strictUpdates: true,
       ),
     },
-    initalState: WeatherInitial(),
+    initalState: const WeatherInitial(),
   );
 
   const WeatherState();

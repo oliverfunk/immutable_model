@@ -37,7 +37,7 @@ class ImmutableModel<S> extends Equatable {
       : _model = last._model,
         _cache = last._cache;
 
-  ImmutableModel<S> restoreTo(int point) => _cache.restoreTo(point);
+  ImmutableModel<S> restoreBy(int point) => _cache.restoreBy(point);
 
   // value
 
@@ -71,12 +71,12 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> resetFields(List<String> fields) =>
       (fields == null || fields.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.resetFields(fields));
 
-  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.resetAll());
+  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.reset());
 
   ImmutableModel<S> transitionTo(S nextState) =>
       nextState == null ? this : ImmutableModel<S>._nextState(this, nextState);
 
-  ImmutableModel<S> transitionToWithUpdate(S nextState, Map<String, dynamic> updates) =>
+  ImmutableModel<S> transitionToAndUpdate(S nextState, Map<String, dynamic> updates) =>
       (nextState == null) && (updates == null || updates.isEmpty)
           ? this
           : ImmutableModel<S>._nextBoth(this, nextState, _model.next(updates));
