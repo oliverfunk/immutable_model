@@ -28,26 +28,3 @@ class DeserialisationException extends ImmutableModelException {
   DeserialisationException(ModelValue model, dynamic receivedValue)
       : super(model, "Could not deserialise value '$receivedValue'");
 }
-
-// class ImmutableModelUpdateException implements Exception {
-//   final ModelValue model;
-//   final dynamic received;
-//   final String reason;
-
-//   ImmutableModelUpdateException(this.model, this.received, this.reason);
-
-//   @override
-//   String toString() => _eStr<ImmutableModelUpdateException>(
-//       modelFor: model, reason: "Could not update this model with: ${received}.\n$reason");
-// }
-
-// class ImmutableModelDeserialisationException implements Exception {
-//   final ModelValue model;
-//   final dynamic receivedValue;
-
-//   ImmutableModelDeserialisationException(this.model, this.receivedValue);
-
-//   @override
-//   String toString() =>
-//       _eStr<ImmutableModelDeserialisationException>(modelFor: model, reason: "Cannot desearilse '$receivedValue'}>");
-// }

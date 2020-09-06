@@ -11,8 +11,10 @@ class ModelPassword extends ModelPrimitive<String> {
 
   ModelPassword([String value, String fieldLabel = 'password']) : super.string(value, validator, fieldLabel);
 
+  ModelPassword.constructNext(ModelPassword last, value) : super.constructNext(last, value);
+
   @override
-  ModelPassword build(String value) => ModelPassword(value);
+  ModelPassword build(String value) => ModelPassword.constructNext(this, value);
 
   @override
   String asSerializable() => sha256.convert(utf8.encode(value)).toString();

@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../model_value.dart';
 
 typedef bool ValueValidator<V>(V value);
@@ -56,13 +58,14 @@ class ModelPrimitive<T> extends ModelValue<ModelPrimitive<T>, T> {
         _validator = validator as ValueValidator<T>,
         _fieldLabel = fieldLabel;
 
-  ModelPrimitive._next(ModelPrimitive<T> last, this._current)
+  @protected
+  ModelPrimitive.constructNext(ModelPrimitive<T> last, this._current)
       : _initialModel = last.initialModel,
         _validator = last._validator,
         _fieldLabel = last._fieldLabel;
 
   @override
-  ModelPrimitive<T> build(T nextValue) => ModelPrimitive._next(this, nextValue);
+  ModelPrimitive<T> build(T nextValue) => ModelPrimitive.constructNext(this, nextValue);
 
   // methods
 

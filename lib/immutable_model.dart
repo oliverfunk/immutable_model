@@ -9,16 +9,15 @@ import 'value_types.dart';
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
-// todo: diallow all nulls, rethink them. You dont need them for resetting
-// TODO: imporve excpetions, do away with throwing and use a logger instead. If invalid update just return this
+//todo: fix mergeing!
 // todo: gen GraphQL query
 // todo: try use lists for models
-// TODO: make sure enums work, test ModelPrimitve deserialse
+// todo: diff method for sending data
 // TODO: big problems. Think of a way to make it easy to access model values when defiing a model
 // possibly using static Strings but then what if you want to set ur own fieldLabel for ex. in email
 // maybe you want user_email
 
-// expose only the exceptions, the main immutable_model class and the M. shorthands
+// expose only erros, the main immutable_model class and the M. shorthands
 export 'src/errors.dart';
 export 'src/immutable_model.dart';
 

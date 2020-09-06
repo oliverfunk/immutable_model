@@ -43,7 +43,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   ModelInner _builder(
     Map<String, dynamic> update,
-    BuiltMap<String, dynamic> Function(Map<String, dynamic>) mapBuilder,
+    BuiltMap<String, dynamic> Function(Map<String, dynamic> update) mapBuilder,
   ) =>
       (strictUpdates && !checkUpdateStrictly(update))
           ? logExceptionAndReturn(this, StrictUpdateException(this, update))

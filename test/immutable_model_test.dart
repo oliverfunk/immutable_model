@@ -1,4 +1,5 @@
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
 import 'package:test/test.dart';
 //final i = ModelInner({
 //  "int" : ModelPrimitive<int>(2),
@@ -114,6 +115,9 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
+final prim = ModelPrimitive.bool(true);
+prim.constructNext()
+
     final model = ImmutableModel(
       {
         "email": M.email(

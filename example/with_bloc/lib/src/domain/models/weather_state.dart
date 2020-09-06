@@ -36,18 +36,18 @@ abstract class WeatherState {
 }
 
 class WeatherInitial extends WeatherState {
-  const WeatherInitial() : super();
+  const WeatherInitial();
 }
 
 class WeatherLoading extends WeatherState {
-  const WeatherLoading() : super();
+  const WeatherLoading();
 }
 
 class WeatherLoaded extends WeatherState {
-  const WeatherLoaded() : super();
+  const WeatherLoaded();
 }
 
 class WeatherError extends WeatherState {
   final String message;
-  const WeatherError(this.message) : super();
+  const WeatherError(this.message);
 }
