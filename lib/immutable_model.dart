@@ -64,6 +64,13 @@ abstract class M {
   }) =>
       ModelPrimitive.string(initialValue, validator, fieldLabel);
 
+  static ModelPrimitive<String> txt({
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  }) =>
+      ModelPrimitive.text(initialValue, validator, fieldLabel);
+
   static ModelPrimitive<DateTime> dt({
     DateTime initialValue,
     ValueValidator<DateTime> validator,
