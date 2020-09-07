@@ -9,7 +9,6 @@ import 'value_types.dart';
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
-//todo: fix mergeing!
 // todo: gen GraphQL query
 // todo: try use lists for models
 // todo: diff method for sending data

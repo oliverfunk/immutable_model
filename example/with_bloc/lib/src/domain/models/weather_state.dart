@@ -5,13 +5,10 @@ import 'package:immutable_model/model_types.dart';
 
 class CityName extends ModelPrimitive<String> {
   // checks if check word is capitalised
-  static final validator = (str) => str.isNotEmpty && str.split(" ").every((w) => w[0] == w[0].toUpperCase());
+  static final validator = (str) => (str as String).split(" ").every((w) => w[0] == w[0].toUpperCase());
   static const label = "city_name";
 
-  CityName([String value]) : super.string(value, validator, label);
-
-  @override
-  CityName build(String value) => CityName(value);
+  CityName([String value]) : super.text(value, validator, label);
 
   @override
   bool hasEqualityOfHistory(ModelValue other) => other is CityName;

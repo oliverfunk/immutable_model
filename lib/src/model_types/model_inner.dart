@@ -11,33 +11,31 @@ import '../errors.dart';
 typedef bool ModelValidator(Map<String, dynamic> modelMap);
 
 class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
-  final ModelInner _initialModel;
-
   final BuiltMap<String, ModelValue> _current;
-  final ModelValidator _modelValidator;
+  final ModelValidator modelValidator;
   final bool strictUpdates;
 
-  final String _fieldLabel;
-
   ModelInner(
-    Map<String, ModelValue> model, [
-    ModelValidator modelValidator,
+    Map<String, ModelValue> modelMap, [
+    this.modelValidator,
     this.strictUpdates = false,
     String fieldLabel,
-  ])  : assert(model != null && model.isNotEmpty, "The model cannot be null and must have fields"),
-        _initialModel = null,
-        _current = BuiltMap.of(model),
-        _modelValidator = modelValidator,
-        _fieldLabel = fieldLabel;
+  ])  : assert(modelMap != null && modelMap.isNotEmpty, "The model cannot be null and must have fields"),
+        assert(modelValidator == null || modelValidator(modelMap), "Inital values in $modelMap do not validate"),
+        _current = BuiltMap.of(modelMap),
+        super.inital(
+          modelMap,
+          (_) => true, // this class manages it's own validation
+          fieldLabel,
+        );
 
   ModelInner._next(ModelInner last, this._current)
-      : _initialModel = last.initialModel,
-        _modelValidator = last._modelValidator,
+      : modelValidator = last.modelValidator,
         strictUpdates = last.strictUpdates,
-        _fieldLabel = last._fieldLabel;
+        super.fromLast(last);
 
   BuiltMap<String, ModelValue> _validateModel(BuiltMap<String, ModelValue> toValidate) =>
-      (_modelValidator == null || _modelValidator(toValidate.asMap()))
+      (modelValidator == null || modelValidator(toValidate.asMap()))
           ? toValidate
           : logExceptionAndReturn(_current, ValidationException(this, toValidate));
 
@@ -95,12 +93,6 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   Map<String, ModelValue> get asModelMap => _current.asMap();
 
-  @override
-  ModelInner get initialModel => _initialModel ?? this;
-
-  @override
-  bool checkValid(Map<String, dynamic> toValidate) => true;
-
   ModelInner merge(ModelInner other) => hasEqualityOfHistory(other)
       ? ModelInner._next(this, _buildMergeOther(other.asModelMap))
       : throw ModelHistoryEqualityError(this, other);
@@ -111,7 +103,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
               otherField,
               (currentModel) => currentModel is ModelInner
                   ? currentModel.merge(otherModel)
-                  : otherModel.isInitial ? currentModel.isInitial ? otherModel : currentModel : otherModel);
+                  : otherModel.isInitial ? currentModel : otherModel);
         });
       });
 
@@ -121,22 +113,23 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
     bool strictUpdates = false,
     String fieldLabel,
   ]) {
+    // merge the two validators
     ModelValidator mergedValidator;
-    if (_modelValidator == null) {
-      if (other._modelValidator == null) {
+    if (modelValidator == null) {
+      if (other.modelValidator == null) {
         // both null
         mergedValidator = null;
       } else {
         // only other not null
-        mergedValidator = other._modelValidator;
+        mergedValidator = other.modelValidator;
       }
     } else {
-      if (other._modelValidator == null) {
+      if (other.modelValidator == null) {
         // only this not null
-        mergedValidator = _modelValidator;
+        mergedValidator = modelValidator;
       } else {
         // both not null
-        mergedValidator = (map) => _modelValidator(map) && other._modelValidator(map);
+        mergedValidator = (map) => modelValidator(map) && other.modelValidator(map);
       }
     }
 
@@ -174,18 +167,15 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
           fields.forEach((field) {
             hasField(field)
                 ? mb.updateValue(
-                    field, (currentModel) => currentModel is ModelInner ? currentModel.reset() : initialModel[field])
+                    field, (currentModel) => currentModel is ModelInner ? currentModel.reset() : inital[field])
                 : throw ModelAccessError(this, field);
           });
         }));
 
-  ModelInner reset() => initialModel;
+  ModelInner reset() => inital;
 
   @override
   List<Object> get props => [_current];
-
-  @override
-  String get fieldLabel => _fieldLabel;
 
   @override
   String toString() => _current.toString();

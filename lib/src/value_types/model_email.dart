@@ -1,15 +1,18 @@
-import '../model_value.dart';
+import '../../model_types.dart';
 import '../model_types/model_primitive.dart';
 
-// a value type wraps its own validation
-
 class ModelEmail extends ModelPrimitive<String> {
-  static final validator = (emailStr) => RegExp(
-          r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
+  static final ValueValidator<String> validator = (emailStr) => RegExp(
+          r"^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
           caseSensitive: false)
       .hasMatch(emailStr);
 
-  ModelEmail([String value, String fieldLabel = 'email']) : super.string(value, validator, fieldLabel);
+  ModelEmail([String email, String fieldLabel = 'email']) : super.string(email, validator, fieldLabel);
+
+  ModelEmail._constructNext(ModelEmail last, value) : super.constructNext(last, value);
+
+  @override
+  ModelEmail build(String value) => ModelEmail._constructNext(this, value);
 
   @override
   bool hasEqualityOfHistory(ModelValue other) => other is ModelEmail;

@@ -6,18 +6,38 @@ import 'errors.dart';
 import 'exceptions.dart';
 
 typedef dynamic ValueUpdater(dynamic currentValue);
+typedef bool ValueValidator<V>(V value);
 
 @immutable
 abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   V get value;
 
-  M get initialModel;
+  final M _initialModel;
+  M get inital => _initialModel ?? this;
 
   @nonVirtual
-  bool get isInitial => identical(this, initialModel);
+  bool get isInitial => identical(this, inital);
 
-  /// Determines whether [toValidate] is valid or not.
-  bool checkValid(V toValidate);
+  /// Returns the model field name string for this [ModelValue] in some.
+  final String fieldLabel;
+
+  final ValueValidator<V> _validator;
+  @nonVirtual
+  bool validate(V toValidate) => _validator == null || _validator(toValidate);
+
+  ModelValue.inital(
+    V initalValue,
+    ValueValidator<V> validator,
+    this.fieldLabel,
+  )   : assert(initalValue == null || validator == null || validator(initalValue),
+            "Initalising with invalid value: $initalValue"),
+        _validator = validator,
+        _initialModel = null;
+
+  ModelValue.fromLast(M last)
+      : _initialModel = last.inital,
+        _validator = last._validator,
+        fieldLabel = last.fieldLabel;
 
   /// Returns a new [M] given the [next] value of [V].
   @protected
@@ -27,7 +47,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   @nonVirtual
   M next(V value) => value == null
       ? this
-      : checkValid(value) ? build(value) : logExceptionAndReturn(this, ValidationException(this, value));
+      : validate(value) ? build(value) : logExceptionAndReturn(this, ValidationException(this, value));
 
   @nonVirtual
   M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelTypeError(this, value);
@@ -48,7 +68,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   @nonVirtual
   M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ModelHistoryEqualityError(this, other);
 
-  bool hasEqualityOfHistory(M other) => identical(this.initialModel, other.initialModel);
+  bool hasEqualityOfHistory(M other) => identical(this.inital, other.inital);
 
   // serialisation methods
 
@@ -62,10 +82,6 @@ abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
   List<Object> get props => [value];
 
   // reflective methods
-
-  /// Returns the model field name string for this [ModelValue] in some.
-  /// Useful for reflection
-  String get fieldLabel => null;
 
   @nonVirtual
   Type get modelType => M;

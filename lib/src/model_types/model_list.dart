@@ -9,13 +9,8 @@ import '../model_value.dart';
 typedef bool ListItemValidator<V>(V item);
 
 class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
-  final ModelList<V> _initialModel;
-
   final BuiltList<V> _current;
-  final ListItemValidator<V> _itemValidator;
   final bool _append;
-
-  final String _fieldLabel;
 
   // constructors
 
@@ -23,72 +18,84 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
     List<bool> initialList,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<bool>.of(initialList) as BuiltList<V>,
-        _itemValidator = null,
+  ])  : _current = BuiltList<bool>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          null,
+          fieldLabel,
+        );
 
   ModelList.intList([
     List<int> initialList,
     ListItemValidator<int> itemValidator,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<int>.of(initialList) as BuiltList<V>,
-        _itemValidator = itemValidator as ListItemValidator<V>,
+  ])  : _current = BuiltList<int>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          itemValidator == null ? null : (List toValidate) => toValidate.every((element) => itemValidator(element)),
+          fieldLabel,
+        );
 
   ModelList.doubleList([
     List<double> initialList,
     ListItemValidator<double> itemValidator,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<double>.of(initialList) as BuiltList<V>,
-        _itemValidator = itemValidator as ListItemValidator<V>,
+  ])  : _current = BuiltList<double>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          itemValidator == null ? null : (List toValidate) => toValidate.every((element) => itemValidator(element)),
+          fieldLabel,
+        );
 
   ModelList.stringList([
     List<String> initialList,
     ListItemValidator<String> itemValidator,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<String>.of(initialList) as BuiltList<V>,
-        _itemValidator = itemValidator as ListItemValidator<V>,
+  ])  : _current = BuiltList<String>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          itemValidator == null ? null : (List toValidate) => toValidate.every((element) => itemValidator(element)),
+          fieldLabel,
+        );
 
   ModelList.dateTimeList([
     List<DateTime> initialList,
     ListItemValidator<DateTime> itemValidator,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<DateTime>.of(initialList) as BuiltList<V>,
-        _itemValidator = itemValidator as ListItemValidator<V>,
+  ])  : _current = BuiltList<DateTime>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          itemValidator == null ? null : (List toValidate) => toValidate.every((element) => itemValidator(element)),
+          fieldLabel,
+        );
 
   ModelList._mapList([
     List<Map<String, dynamic>> initialList,
-    ListItemValidator<Map<String, dynamic>> listItemValidator,
+    ListItemValidator<Map<String, dynamic>> itemValidator,
     bool append = true,
     String fieldLabel,
-  ])  : _initialModel = null,
-        _current = BuiltList<Map<String, dynamic>>.of(initialList) as BuiltList<V>,
-        _itemValidator = listItemValidator as ListItemValidator<V>,
+  ])  : _current = BuiltList<Map<String, dynamic>>.of(initialList) as BuiltList<V>,
         _append = append,
-        _fieldLabel = fieldLabel;
+        super.inital(
+          initialList as List<V>,
+          itemValidator == null ? null : (List toValidate) => toValidate.every((element) => itemValidator(element)),
+          fieldLabel,
+        );
 
   ModelList._next(ModelList<V> last, this._current)
-      : _initialModel = last.initialModel,
-        _itemValidator = last._itemValidator,
-        _append = last._append,
-        _fieldLabel = last._fieldLabel;
+      : _append = last._append,
+        super.fromLast(last);
+
+// ModelPrimitive._next(ModelPrimitive<T> last, this._current) : super.fromLast(last);
 
   @override
   ModelList<V> build(List<V> next) =>
@@ -100,32 +107,20 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
   List<V> get value => _current.toList();
 
   @override
-  ModelList<V> get initialModel => _initialModel ?? this;
-
-  @override
-  bool checkValid(List<V> toValidate) =>
-      _itemValidator == null ||
-      toValidate.isEmpty ||
-      toValidate.every((element) => _itemValidator(element)); // check every item in the list against the validator
-
   @override
   dynamic asSerializable() => V == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
 
   @override
-  List<V> fromSerialized(dynamic serialized) {
-    if (serialized is List) {
-      return V == DateTime
+  List<V> fromSerialized(dynamic serialized) => serialized is List
+      ? V == DateTime
           ? serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<V>
-          : serialized.cast<V>();
-    } else {
-      return null;
-    }
-  }
+          : serialized.cast<V>()
+      : null;
 
   ModelList<V> removeAt(int index) => ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
 
   ModelList<V> replaceAt(int index, V item) => ModelList._next(this, _current.rebuild((lb) {
-        if (_itemValidator(item)) {
+        if (validate([item])) {
           lb[index] = item;
         } else {
           logException(ValidationException(this, item));
@@ -143,9 +138,6 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
   @override
   List<Object> get props => [_current];
-
-  @override
-  String get fieldLabel => _fieldLabel;
 }
 
 class ModelValidatedList extends ModelList<Map<String, dynamic>> {
@@ -161,7 +153,7 @@ class ModelValidatedList extends ModelList<Map<String, dynamic>> {
   @override
   ModelList<Map<String, dynamic>> replaceAt(int index, Map<String, dynamic> item) =>
       ModelList._next(this, _current.rebuild((lb) {
-        if (_itemValidator(item)) {
+        if (validate([item])) {
           lb[index] = item;
         } else {
           logException(ValidationException(this, item));

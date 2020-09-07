@@ -1,5 +1,4 @@
-import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/model_types.dart';
+import 'package:immutable_model/value_types.dart';
 import 'package:test/test.dart';
 //final i = ModelInner({
 //  "int" : ModelPrimitive<int>(2),
@@ -115,56 +114,56 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-final prim = ModelPrimitive.bool(true);
-prim.constructNext()
+    final e = ModelEmail('o');
+    // final prim = M.nt(initialValue: 2);
+    // final p2 = prim.next(3);
+    // final model = ImmutableModel(
+    //   {
+    //     "email": M.email(
+    //       defaultEmail: "oli.funk@gmail.com",
+    //     ),
+    //     "password": M.password(),
+    //     "chosen_values": M.inner({
+    //       "a_str": M.str(
+    //         initialValue: "Hello M!",
+    //       ),
+    //       "validated_number": M.nt(
+    //         initialValue: 0,
+    //         validator: (n) => n >= 0,
+    //       ),
+    //       "a_double": M.dbl(
+    //         initialValue: 13 / 7,
+    //       ),
+    //       "this_is_great": M.bl(
+    //         initialValue: true,
+    //       ),
+    //       "date_begin": M.dt(
+    //         initialValue: DateTime.now(),
+    //       ),
+    //       "date_end": M.dt(
+    //         initialValue: DateTime.now().add(Duration(seconds: 100)),
+    //       ),
+    //       'list_of_evens': M.ntList(
+    //         initialValue: [2, 4, 6, 8],
+    //         validator: (n) => n.isEven,
+    //       ),
+    //     }),
+    //   },
+    //   modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
+    //       .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
+    // );
 
-    final model = ImmutableModel(
-      {
-        "email": M.email(
-          defaultEmail: "oli.funk@gmail.com",
-        ),
-        "password": M.password(),
-        "chosen_values": M.inner({
-          "a_str": M.str(
-            initialValue: "Hello M!",
-          ),
-          "validated_number": M.nt(
-            initialValue: 0,
-            validator: (n) => n >= 0,
-          ),
-          "a_double": M.dbl(
-            initialValue: 13 / 7,
-          ),
-          "this_is_great": M.bl(
-            initialValue: true,
-          ),
-          "date_begin": M.dt(
-            initialValue: DateTime.now(),
-          ),
-          "date_end": M.dt(
-            initialValue: DateTime.now().add(Duration(seconds: 100)),
-          ),
-          'list_of_evens': M.ntList(
-            initialValue: [2, 4, 6, 8],
-            validator: (n) => n.isEven,
-          ),
-        }),
-      },
-      modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
-          .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
-    );
+    // final mod2 = model.update({
+    //   'chosen_values': {'a_double': 0.2, 'a_str': 'Next'}
+    // });
 
-    final mod2 = model.update({
-      'chosen_values': {'a_double': 0.2, 'a_str': 'Next'}
-    });
+    // final mod3 = model.update({
+    //   'chosen_values': {'a_double': null}
+    // });
 
-    final mod3 = model.update({
-      'chosen_values': {'a_double': null}
-    });
-
-    print(mod2);
-    print(mod3);
-    print(mod2.mergeFrom(mod3));
+    // print(mod2);
+    // print(mod3);
+    // print(mod2.mergeFrom(mod3));
 
     // final mod = ImmutableModel({
     //   'enum': M.enm<TestAnotherEnum>(TestAnotherEnum.values, TestAnotherEnum.AnFirst),
