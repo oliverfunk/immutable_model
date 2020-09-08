@@ -1,7 +1,7 @@
 import '../model_types.dart';
 
 abstract class ImmutableModelException implements Exception {
-  final ModelValue model;
+  final ModelType model;
   final String reason;
 
   ImmutableModelException(this.model, this.reason);
@@ -11,7 +11,7 @@ abstract class ImmutableModelException implements Exception {
 }
 
 class ValidationException extends ImmutableModelException {
-  ValidationException(ModelValue model, dynamic receivedValue)
+  ValidationException(ModelType model, dynamic receivedValue)
       : super(model, "Validation failed on value '$receivedValue'");
 }
 
@@ -25,6 +25,6 @@ class StrictUpdateException extends ImmutableModelException {
 }
 
 class DeserialisationException extends ImmutableModelException {
-  DeserialisationException(ModelValue model, dynamic receivedValue)
+  DeserialisationException(ModelType model, dynamic receivedValue)
       : super(model, "Could not deserialise value '$receivedValue'");
 }

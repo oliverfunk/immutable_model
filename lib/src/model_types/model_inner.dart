@@ -1,7 +1,7 @@
 import 'package:built_collection/built_collection.dart';
 
 import '../../model_types.dart';
-import '../model_value.dart';
+import '../model_type.dart';
 
 import '../utils/log.dart';
 import '../exceptions.dart';
@@ -10,13 +10,13 @@ import '../errors.dart';
 /// note [modelMap] is unmodifable
 typedef bool ModelValidator(Map<String, dynamic> modelMap);
 
-class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
-  final BuiltMap<String, ModelValue> _current;
+class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
+  final BuiltMap<String, ModelType> _current;
   final ModelValidator modelValidator;
   final bool strictUpdates;
 
   ModelInner(
-    Map<String, ModelValue> modelMap, [
+    Map<String, ModelType> modelMap, [
     this.modelValidator,
     this.strictUpdates = false,
     String fieldLabel,
@@ -32,9 +32,9 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   ModelInner._next(ModelInner last, this._current)
       : modelValidator = last.modelValidator,
         strictUpdates = last.strictUpdates,
-        super.fromLast(last);
+        super.fromPrevious(last);
 
-  BuiltMap<String, ModelValue> _validateModel(BuiltMap<String, ModelValue> toValidate) =>
+  BuiltMap<String, ModelType> _validateModel(BuiltMap<String, ModelType> toValidate) =>
       (modelValidator == null || modelValidator(toValidate.asMap()))
           ? toValidate
           : logExceptionAndReturn(_current, ValidationException(this, toValidate));
@@ -54,7 +54,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
                   field,
                   (currentModel) => nextValue == null
                       ? currentModel.next(null)
-                      : nextValue is ModelValue // model update
+                      : nextValue is ModelType // model update
                           ? currentModel.nextFromModel(nextValue)
                           : nextValue is ValueUpdater // function update
                               ? currentModel.nextFromFunc(nextValue)
@@ -63,7 +63,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
         });
       });
 
-  BuiltMap<String, ModelValue> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
         jsonMap.forEach((jsonField, jsonValue) {
           // skip fields not in model
           if (hasField(jsonField)) {
@@ -79,7 +79,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
       });
 
   @override
-  ModelInner build(Map<String, dynamic> next) => _builder(next, _buildFromNext);
+  ModelInner buildNext(Map<String, dynamic> next) => _builder(next, _buildFromNext);
 
   /*
   * Checks if every field in the model is in the update and has a value.
@@ -91,13 +91,13 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
   @override
   Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
 
-  Map<String, ModelValue> get asModelMap => _current.asMap();
+  Map<String, ModelType> get asModelMap => _current.asMap();
 
   ModelInner merge(ModelInner other) => hasEqualityOfHistory(other)
       ? ModelInner._next(this, _buildMergeOther(other.asModelMap))
       : throw ModelHistoryEqualityError(this, other);
 
-  BuiltMap<String, dynamic> _buildMergeOther(Map<String, ModelValue> other) => _current.rebuild((mb) {
+  BuiltMap<String, dynamic> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
@@ -152,7 +152,7 @@ class ModelInner extends ModelValue<ModelInner, Map<String, dynamic>> {
 
   int get numberOfFields => _current.length;
 
-  ModelValue fieldModel(String field) => hasField(field) ? _current[field] : throw ModelAccessError(this, field);
+  ModelType fieldModel(String field) => hasField(field) ? _current[field] : throw ModelAccessError(this, field);
 
   dynamic fieldValue(String field) => fieldModel(field).value;
 

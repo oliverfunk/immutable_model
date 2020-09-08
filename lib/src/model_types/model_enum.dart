@@ -1,6 +1,6 @@
-import '../model_value.dart';
+import '../model_type.dart';
 
-class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
+class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   final E _current;
   final List<E> _enums;
 
@@ -9,7 +9,7 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
   static List<String> convertEnumList<E>(List<E> enumList) =>
       enumList.map((en) => convertEnum(en)).toList(growable: false);
 
-  ModelEnum.fromEnumList(
+  ModelEnum(
     List<E> enums,
     E initial, [
     String fieldLabel,
@@ -22,10 +22,10 @@ class ModelEnum<E> extends ModelValue<ModelEnum<E>, String> {
 
   ModelEnum._next(ModelEnum<E> last, this._current)
       : _enums = last._enums,
-        super.fromLast(last);
+        super.fromPrevious(last);
 
   @override
-  ModelEnum<E> build(String nextEnumString) =>
+  ModelEnum<E> buildNext(String nextEnumString) =>
       ModelEnum._next(this, _enums.firstWhere((en) => nextEnumString == convertEnum(en)));
 
   // public methods

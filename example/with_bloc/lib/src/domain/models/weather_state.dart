@@ -1,17 +1,17 @@
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/model_types.dart';
+import 'package:immutable_model/value_types.dart';
 
-// test what happens when model goes invalid
-
-class CityName extends ModelPrimitive<String> {
-  // checks if check word is capitalised
-  static final validator = (str) => (str as String).split(" ").every((w) => w[0] == w[0].toUpperCase());
+class CityName extends ModelValue<CityName, String> with ValueType {
+  // checks if every word is capitalised
+  static final validator = (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
   static const label = "city_name";
 
-  CityName([String value]) : super.text(value, validator, label);
+  CityName([String defaultCityName]) : super.text(defaultCityName, validator, label);
+
+  CityName._next(CityName previous, String value) : super.constructNext(previous, value);
 
   @override
-  bool hasEqualityOfHistory(ModelValue other) => other is CityName;
+  CityName buildNext(String nextValue) => CityName._next(this, nextValue);
 }
 
 abstract class WeatherState {

@@ -23,7 +23,7 @@ export 'src/immutable_model.dart';
 abstract class M {
   // model types
   static ModelInner inner(
-    Map<String, ModelValue> model, {
+    Map<String, ModelType> model, {
     ModelValidator modelValidator,
     bool strictUpdates = false,
     String fieldLabel,
@@ -35,48 +35,48 @@ abstract class M {
     E initial, {
     String fieldLabel,
   }) =>
-      ModelEnum.fromEnumList(enums, initial, fieldLabel);
+      ModelEnum(enums, initial, fieldLabel);
 
-  static ModelPrimitive<bool> bl({
+  static ModelBool bl({
     bool initialValue,
     String fieldLabel,
   }) =>
-      ModelPrimitive.bool(initialValue, fieldLabel);
+      ModelBool(initialValue, fieldLabel);
 
-  static ModelPrimitive<int> nt({
+  static ModelInt nt({
     int initialValue,
     ValueValidator<int> validator,
     String fieldLabel,
   }) =>
-      ModelPrimitive.int(initialValue, validator, fieldLabel);
+      ModelInt(initialValue, validator, fieldLabel);
 
-  static ModelPrimitive<double> dbl({
+  static ModelDouble dbl({
     double initialValue,
     ValueValidator<double> validator,
     String fieldLabel,
   }) =>
-      ModelPrimitive.double(initialValue, validator, fieldLabel);
+      ModelDouble(initialValue, validator, fieldLabel);
 
-  static ModelPrimitive<String> str({
+  static ModelString str({
     String initialValue,
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelPrimitive.string(initialValue, validator, fieldLabel);
+      ModelString(initialValue, validator, fieldLabel);
 
-  static ModelPrimitive<String> txt({
+  static ModelString txt({
     String initialValue,
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelPrimitive.text(initialValue, validator, fieldLabel);
+      ModelString.text(initialValue, validator, fieldLabel);
 
-  static ModelPrimitive<DateTime> dt({
+  static ModelDateTime dt({
     DateTime initialValue,
     ValueValidator<DateTime> validator,
     String fieldLabel,
   }) =>
-      ModelPrimitive.datetime(initialValue, validator, fieldLabel);
+      ModelDateTime(initialValue, validator, fieldLabel);
 
   static ModelList<bool> blList({
     List<bool> initialValue,

@@ -1,8 +1,8 @@
 import '../model_types.dart';
-import 'model_value.dart';
+import 'model_type.dart';
 
 class ModelTypeError extends Error {
-  final ModelValue thisModel;
+  final ModelType thisModel;
   final dynamic receivedValue;
 
   ModelTypeError(this.thisModel, this.receivedValue);
@@ -15,8 +15,8 @@ class ModelTypeError extends Error {
 }
 
 class ModelHistoryEqualityError extends Error {
-  final ModelValue thisModel;
-  final ModelValue receivedModel;
+  final ModelType thisModel;
+  final ModelType receivedModel;
 
   ModelHistoryEqualityError(this.thisModel, this.receivedModel);
 

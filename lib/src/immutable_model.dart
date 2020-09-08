@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 import 'utils/buffer.dart';
 import 'model_types/model_inner.dart';
-import 'model_value.dart';
+import 'model_type.dart';
 
 enum ModelState { Default }
 
@@ -12,7 +12,7 @@ class ImmutableModel<S> extends Equatable {
   final CacheBuffer<ImmutableModel<S>> _cache;
 
   ImmutableModel(
-    Map<String, ModelValue> model, {
+    Map<String, ModelType> model, {
     ModelValidator modelValidator,
     S initalState,
     bool strictUpdates = false,
@@ -59,7 +59,7 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
       (updaters == null || updaters.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updaters));
 
-  ImmutableModel<S> updateWithModels(Map<String, ModelValue> updates) =>
+  ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
       (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
 
   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
@@ -96,7 +96,7 @@ class ImmutableModel<S> extends Equatable {
 
   bool hasField(String field) => _model.hasField(field);
 
-  ModelValue fieldModel(String field) => _model.fieldModel(field);
+  ModelType fieldModel(String field) => _model.fieldModel(field);
 
   dynamic fieldValue(String field) => _model.fieldValue(field);
 

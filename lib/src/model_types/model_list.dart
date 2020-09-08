@@ -3,12 +3,12 @@ import 'package:built_collection/built_collection.dart';
 import '../utils/log.dart';
 import '../exceptions.dart';
 
+import '../model_type.dart';
 import 'model_inner.dart';
-import '../model_value.dart';
 
 typedef bool ListItemValidator<V>(V item);
 
-class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
+class ModelList<V> extends ModelType<ModelList<V>, List<V>> {
   final BuiltList<V> _current;
   final bool _append;
 
@@ -93,12 +93,12 @@ class ModelList<V> extends ModelValue<ModelList<V>, List<V>> {
 
   ModelList._next(ModelList<V> last, this._current)
       : _append = last._append,
-        super.fromLast(last);
+        super.fromPrevious(last);
 
 // ModelPrimitive._next(ModelPrimitive<T> last, this._current) : super.fromLast(last);
 
   @override
-  ModelList<V> build(List<V> next) =>
+  ModelList<V> buildNext(List<V> next) =>
       ModelList._next(this, _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
 
   // public methods

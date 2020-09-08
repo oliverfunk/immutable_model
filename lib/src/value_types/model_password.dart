@@ -1,23 +1,20 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../../model_types.dart';
-import '../model_types/model_primitive.dart';
+import '../model_type.dart';
+import '../model_value.dart';
 
-class ModelPassword extends ModelPrimitive<String> {
+class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
   static final ValueValidator<String> validator =
       (pwdStr) => RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$", caseSensitive: false).hasMatch(pwdStr);
 
-  ModelPassword([String value, String fieldLabel = 'password']) : super.string(value, validator, fieldLabel);
+  ModelPassword([String fieldLabel = 'password']) : super.string(null, validator, fieldLabel);
 
-  ModelPassword._constructNext(ModelPassword last, value) : super.constructNext(last, value);
+  ModelPassword._next(ModelPassword previous, String value) : super.constructNext(previous, value);
 
   @override
-  ModelPassword build(String value) => ModelPassword._constructNext(this, value);
+  ModelPassword buildNext(String nextValue) => ModelPassword._next(this, nextValue);
 
   @override
   String asSerializable() => sha256.convert(utf8.encode(value)).toString();
-
-  @override
-  bool hasEqualityOfHistory(ModelValue other) => other is ModelPassword;
 }

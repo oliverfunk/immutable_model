@@ -1,98 +1,60 @@
-import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
+import 'model_type.dart';
 
-import 'utils/log.dart';
-import 'errors.dart';
-import 'exceptions.dart';
-
-typedef dynamic ValueUpdater(dynamic currentValue);
-typedef bool ValueValidator<V>(V value);
-
-@immutable
-abstract class ModelValue<M extends ModelValue<M, V>, V> extends Equatable {
-  V get value;
-
-  final M _initialModel;
-  M get inital => _initialModel ?? this;
-
-  @nonVirtual
-  bool get isInitial => identical(this, inital);
-
-  /// Returns the model field name string for this [ModelValue] in some.
-  final String fieldLabel;
-
-  final ValueValidator<V> _validator;
-  @nonVirtual
-  bool validate(V toValidate) => _validator == null || _validator(toValidate);
-
-  ModelValue.inital(
-    V initalValue,
-    ValueValidator<V> validator,
-    this.fieldLabel,
-  )   : assert(initalValue == null || validator == null || validator(initalValue),
-            "Initalising with invalid value: $initalValue"),
-        _validator = validator,
-        _initialModel = null;
-
-  ModelValue.fromLast(M last)
-      : _initialModel = last.inital,
-        _validator = last._validator,
-        fieldLabel = last.fieldLabel;
-
-  /// Returns a new [M] given the [next] value of [V].
-  @protected
-  M build(V next);
-
-  /// Validate [value] and return a new instance of this [ModelValue].
-  @nonVirtual
-  M next(V value) => value == null
-      ? this
-      : validate(value) ? build(value) : logExceptionAndReturn(this, ValidationException(this, value));
-
-  @nonVirtual
-  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelTypeError(this, value);
-
-  @nonVirtual
-  M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));
-
-  @nonVirtual
-  M nextFromSerialized(dynamic value) {
-    final V serialisedValue = fromSerialized(value);
-    if (serialisedValue == null) {
-      return logExceptionAndReturn(this, DeserialisationException(this, value));
-    } else {
-      return next(serialisedValue);
-    }
-  }
-
-  @nonVirtual
-  M nextFromModel(M other) => hasEqualityOfHistory(other) ? other : throw ModelHistoryEqualityError(this, other);
-
-  bool hasEqualityOfHistory(M other) => identical(this.inital, other.inital);
-
-  // serialisation methods
-
-  /// Return this [ModelValue] as a serializable object for the JSON.encode() method.
-  dynamic asSerializable() => value;
-
-  /// Return [serialized] as a value of type [V] for this [ModelValue].
-  V fromSerialized(dynamic serialized) => serialized is V ? serialized : null;
+abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> {
+  final V _current;
 
   @override
-  List<Object> get props => [value];
+  V get value => _current;
 
-  // reflective methods
+  ModelValue.bool([
+    bool initialValue,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, null, fieldLabel);
 
-  @nonVirtual
-  Type get modelType => M;
+  ModelValue.int([
+    int initialValue,
+    ValueValidator<int> validator,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
-  @nonVirtual
-  Type get valueType => V;
+  ModelValue.double([
+    double initialValue,
+    ValueValidator<double> validator,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
-  // misc
+  ModelValue.string([
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
-  String toLongString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}${runtimeType}($value)";
+  ModelValue.text([
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, (str) => str != null && (str as String).isNotEmpty && validator(str as dynamic),
+            fieldLabel);
+
+  ModelValue.datetime([
+    DateTime initialValue,
+    ValueValidator<DateTime> validator,
+    String fieldLabel,
+  ])  : _current = initialValue as V,
+        super.inital(initialValue as V, validator as ValueValidator<V>, fieldLabel);
+
+  ModelValue.constructNext(M previous, this._current) : super.fromPrevious(previous);
+}
+
+mixin ValueType<M extends ModelType<M, V>, V> on ModelValue<M, V> {
+  @override
+  M buildFromModel(M previous) => buildNext(previous.value);
 
   @override
-  String toString() => "<$valueType>($value)";
+  bool hasEqualityOfHistory(ModelType other) => other is M;
 }
