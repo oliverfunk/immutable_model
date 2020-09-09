@@ -3,7 +3,7 @@ import 'package:immutable_model/immutable_model.dart';
 abstract class AuthState {
   static final model = ImmutableModel<AuthState>(
     {
-      "email": M.email(),
+      "email": M.email(defaultEmail: 'example@gmail.com'),
       "password": M.password(),
     },
     initalState: const AuthInitial(),

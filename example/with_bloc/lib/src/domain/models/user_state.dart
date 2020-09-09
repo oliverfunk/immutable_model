@@ -6,15 +6,14 @@ abstract class UserState {
   static final model = ImmutableModel<UserState>(
     {
       "email": M.email(),
-      "password": M.password(),
       "chosen_values": M.inner({
-        "words": M.str(initialValue: "Hello M!"),
+        "entered_text": M.str(initialValue: "Hello M!"),
         "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
-        "a_double": M.dbl(initialValue: 13 / 7),
-        "this_is_great": M.bl(initialValue: true),
-        "favourite_season": M.enm(_Seasons.values, _Seasons.Summer),
+        "entered_double": M.dbl(initialValue: 13 / 7),
+        "chosen_bool": M.bl(initialValue: true),
+        "chosen_enum": M.enm(_Seasons.values, _Seasons.Summer),
         "date_begin": M.dt(initialValue: DateTime.now()),
-        "date_end": M.dt(initialValue: DateTime.now().add(Duration(seconds: 100))),
+        "date_end": M.dt(initialValue: DateTime.now().add(Duration(days: 1))),
         'list_of_evens': M.ntList(initialValue: [2, 4, 6, 8], validator: (n) => n.isEven),
       }),
     },

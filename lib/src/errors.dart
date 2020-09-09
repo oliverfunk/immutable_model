@@ -1,3 +1,5 @@
+import 'package:immutable_model/immutable_model.dart';
+
 import '../model_types.dart';
 import 'model_type.dart';
 
@@ -37,4 +39,17 @@ class ModelAccessError extends Error {
   String toString() => "ModelAccessError\n"
       "Requested field '$field' not in model. Available fields are:\n"
       " ${model.fieldLabels}";
+}
+
+class ModelStateError extends Error {
+  final dynamic currentState;
+  final dynamic requiredState;
+
+  ModelStateError(this.currentState, this.requiredState);
+
+  @override
+  String toString() => "ModelStateError\n"
+      "The model is in an incorrect state and cannot update.\n"
+      " Current state:  ${currentState.runtimeType}\n"
+      " Required state: ${requiredState.runtimeType}";
 }

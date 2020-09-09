@@ -24,35 +24,54 @@ class ExamplesPage extends StatelessWidget {
             create: (context) => AuthCubit(context.bloc<UserCubit>()),
           ),
           BlocProvider<WeatherCubit>(
-            create: (context) => WeatherCubit(FakeWeatherRepository()),
+            create: (context) => WeatherCubit(FakeWeatherRepository()), // should use DI
           ),
         ],
         child: Container(
           padding: const EdgeInsets.all(10),
           alignment: Alignment.center,
-          child: Column(
+          child: ListView(
             children: [
-              Row(children: [
-                Expanded(
-                  flex: 2,
-                  child: SignInComponent(),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: signinJsonDisplay(),
-                ),
-              ]),
-              Row(children: [
-                Expanded(
-                  flex: 2,
-                  child: PreferancesComp(),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: preferancesJsonDisplay(),
-                ),
-              ]),
-              Padding(padding: EdgeInsets.only(top: 5.0)),
+              Padding(
+                padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+                child: Center(child: Text("User sign in form:", style: TextStyle(fontSize: 30))),
+              ),
+              Container(
+                decoration: BoxDecoration(border: Border.symmetric(vertical: BorderSide(color: Colors.grey.shade300))),
+                child: Row(children: [
+                  Expanded(
+                    flex: 2,
+                    child: SignInComponent(),
+                  ),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
+                  Expanded(
+                    flex: 2,
+                    child: signinJsonDisplay(),
+                  ),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 50.0, bottom: 5.0),
+                child: Center(child: Text("User choices form:", style: TextStyle(fontSize: 30))),
+              ),
+              Container(
+                decoration: BoxDecoration(border: Border.symmetric(vertical: BorderSide(color: Colors.grey.shade300))),
+                child: Row(children: [
+                  Expanded(
+                    flex: 2,
+                    child: PreferancesComp(),
+                  ),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
+                  Expanded(
+                    flex: 2,
+                    child: preferancesJsonDisplay(),
+                  ),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 50.0, bottom: 5.0),
+                child: Center(child: Text("Fake weather getter:", style: TextStyle(fontSize: 30))),
+              ),
               WeatherComponent(),
             ],
           ),

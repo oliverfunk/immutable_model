@@ -8,7 +8,7 @@ class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
   static final ValueValidator<String> validator =
       (pwdStr) => RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$", caseSensitive: false).hasMatch(pwdStr);
 
-  ModelPassword([String fieldLabel = 'password']) : super.string(null, validator, fieldLabel);
+  ModelPassword([String password, String fieldLabel = 'password']) : super.string(password, validator, fieldLabel);
 
   ModelPassword._next(ModelPassword previous, String value) : super.constructNext(previous, value);
 

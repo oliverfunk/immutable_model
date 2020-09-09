@@ -1,11 +1,14 @@
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
-import 'utils/buffer.dart';
-import 'model_types/model_inner.dart';
+import 'utils/cache_buffer.dart';
+import 'errors.dart';
 import 'model_type.dart';
+import 'model_types/model_inner.dart';
 
 enum ModelState { Default }
 
+@immutable
 class ImmutableModel<S> extends Equatable {
   final ModelInner _model;
   final S _state;
@@ -22,14 +25,23 @@ class ImmutableModel<S> extends Equatable {
         _state = initalState ?? ModelState.Default as S,
         _cache = CacheBuffer(cacheBufferSize);
 
-  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model) : _cache = last._cache {
-    _cache.cacheItem(last);
+  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model, [bool cacheOrPurge = true])
+      : _cache = last._cache {
+    if (cacheOrPurge) {
+      _cache.cacheItem(last);
+    } else {
+      _cache.purge();
+    }
   }
 
-  ImmutableModel._nextModel(ImmutableModel<S> last, this._model)
+  ImmutableModel._nextModel(ImmutableModel<S> last, this._model, [bool cacheOrPurge = true])
       : _state = last._state,
         _cache = last._cache {
-    _cache.cacheItem(last);
+    if (cacheOrPurge) {
+      _cache.cacheItem(last);
+    } else {
+      _cache.purge();
+    }
   }
 
   // doens't cache
@@ -48,45 +60,50 @@ class ImmutableModel<S> extends Equatable {
 
   // updating
 
+  Map<String, dynamic> _assertNotEmpty(Map<String, dynamic> updateToCheck) =>
+      updateToCheck.isNotEmpty ? updateToCheck : throw AssertionError("Update can't be empty");
+
   ImmutableModel<S> update(Map<String, dynamic> updates) =>
-      (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
+      ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
 
   ImmutableModel<S> updateIfIn(Map<String, dynamic> updates, S inState) =>
-      (updates == null || updates.isEmpty || currentState.runtimeType != inState.runtimeType)
-          ? this
-          : ImmutableModel<S>._nextModel(this, _model.next(updates));
+      currentState.runtimeType == inState.runtimeType
+          ? ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)))
+          : throw ModelStateError(currentState, inState);
 
   ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
-      (updaters == null || updaters.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updaters));
+      ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updaters)));
 
   ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
-      (updates == null || updates.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.next(updates));
+      ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
 
   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
-      other == null ? this : ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
+      ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
 
   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
-      other == null ? this : ImmutableModel<S>._nextModel(this, _model.merge(other._model));
+      ImmutableModel<S>._nextModel(this, _model.merge(other._model));
 
-  ImmutableModel<S> resetFields(List<String> fields) =>
-      (fields == null || fields.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.resetFields(fields));
+  ImmutableModel<S> resetFields(List<String> fields) => fields.isNotEmpty
+      ? ImmutableModel<S>._nextModel(this, _model.resetFields(fields))
+      : throw AssertionError("Fields can't be empty");
 
-  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.reset());
+  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.reset(), false);
 
-  ImmutableModel<S> transitionTo(S nextState) =>
-      nextState == null ? this : ImmutableModel<S>._nextState(this, nextState);
+  ImmutableModel<S> transitionTo(S nextState) => ImmutableModel<S>._nextState(this, nextState);
+
+  ImmutableModel<S> resetAndTransitionTo(S nextState) =>
+      ImmutableModel<S>._nextBoth(this, nextState, _model.reset(), false);
 
   ImmutableModel<S> transitionToAndUpdate(S nextState, Map<String, dynamic> updates) =>
-      (nextState == null) && (updates == null || updates.isEmpty)
-          ? this
-          : ImmutableModel<S>._nextBoth(this, nextState, _model.next(updates));
+      ImmutableModel<S>._nextBoth(this, nextState, _model.next(_assertNotEmpty(updates)));
 
   // JSON
 
   Map<String, dynamic> toJson() => _model.asSerializable();
 
+  // more lient for json
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
-      (jsonMap == null || jsonMap.isEmpty) ? this : ImmutableModel<S>._nextModel(this, _model.fromJson(jsonMap));
+      ImmutableModel<S>._nextModel(this, _model.fromJson(jsonMap));
 
   // field ops
 

@@ -11,6 +11,7 @@ class SignInComponent extends StatelessWidget {
 
   Widget _emailInput(BuildContext context) => TextFormField(
         key: _emailKey,
+        initialValue: context.bloc<AuthCubit>().state['email'],
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',
@@ -36,8 +37,8 @@ class SignInComponent extends StatelessWidget {
           children: [
             _emailInput(context),
             _passwordInput(context),
+            Padding(padding: EdgeInsets.only(top: 10.0)),
             RaisedButton(
-              padding: const EdgeInsets.only(top: 10),
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   context.bloc<AuthCubit>().signIn(
@@ -53,9 +54,5 @@ class SignInComponent extends StatelessWidget {
       );
 
   @override
-  Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.all(5),
-        decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-        child: _signInForm(context),
-      );
+  Widget build(BuildContext context) => _signInForm(context);
 }

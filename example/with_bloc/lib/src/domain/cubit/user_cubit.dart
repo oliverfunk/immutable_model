@@ -10,10 +10,11 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
 
   ModelInner get someValues => state['chosen_values'] as ModelInner;
 
-  void userAuthed(ModelEmail email, ModelPassword password) => emit(state.transitionToAndUpdate(const UserAuthed(), {
+  void userAuthed(ModelEmail email) => emit(state.transitionToAndUpdate(const UserAuthed(), {
         'email': email,
-        'password': password,
       }));
+
+  void userUnauthed() => emit(state.resetAndTransitionTo(const UserUnauthed()));
 
   void updateSomeValues(Map<String, dynamic> updates) =>
       emit(state.updateIfIn({"chosen_values": updates}, const UserAuthed()));

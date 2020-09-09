@@ -63,21 +63,6 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
         });
       });
 
-  BuiltMap<String, ModelType> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
-        jsonMap.forEach((jsonField, jsonValue) {
-          // skip fields not in model
-          if (hasField(jsonField)) {
-            mb.updateValue(
-                jsonField,
-                (currentModel) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
-                    ? currentModel
-                    : currentModel is ModelInner
-                        ? currentModel.fromJson(fromSerialized(jsonValue))
-                        : currentModel.nextFromSerialized(jsonValue));
-          }
-        });
-      });
-
   @override
   ModelInner buildNext(Map<String, dynamic> next) => _builder(next, _buildFromNext);
 
@@ -143,7 +128,23 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   Map<String, dynamic> asSerializable() =>
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
-  ModelInner fromJson(dynamic jsonMap) => _builder(jsonMap, (jsonMap) => _buildFromJson(fromSerialized(jsonMap)));
+  ModelInner fromJson(Map<String, dynamic> jsonMap) =>
+      jsonMap.isEmpty ? this : _builder(jsonMap, (jsonMap) => _buildFromJson(fromSerialized(jsonMap)));
+
+  BuiltMap<String, ModelType> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
+        jsonMap.forEach((jsonField, jsonValue) {
+          // skip fields not in model
+          if (hasField(jsonField)) {
+            mb.updateValue(
+                jsonField,
+                (currentModel) => jsonValue == null || jsonValue == '' // skip nulls and empty strings
+                    ? currentModel
+                    : currentModel is ModelInner
+                        ? currentModel.fromJson(fromSerialized(jsonValue))
+                        : currentModel.nextFromSerialized(jsonValue));
+          }
+        });
+      });
 
   // field ops
   Iterable<String> get fieldLabels => _current.keys;
@@ -166,8 +167,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       : ModelInner._next(this, _current.rebuild((mb) {
           fields.forEach((field) {
             hasField(field)
-                ? mb.updateValue(
-                    field, (currentModel) => currentModel is ModelInner ? currentModel.reset() : inital[field])
+                ? mb.updateValue(field, (currentModel) => currentModel.inital)
                 : throw ModelAccessError(this, field);
           });
         }));

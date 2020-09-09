@@ -14,15 +14,16 @@ class FakeWeatherRepository implements WeatherRepository {
       () {
         // Simulate some network exception
         final random = Random();
-        // if (random.nextBool()) {
-        //   throw NetworkException();
-        // }
+        // 1 in 5 chance
+        if (random.nextInt(11) > 8) {
+          throw NetworkException();
+        }
 
         // faux returned json
         final returnedJson = {
           "weather_data": {
-            "temperature": 20 + random.nextInt(15) + random.nextDouble(),
-            "weather": "Sunny",
+            "temperature": 10 + random.nextInt(5) + random.nextDouble(),
+            "weather": ["Sunny", "Rainy", "Cloudy", "Windy"][random.nextInt(4)],
           }
         };
 

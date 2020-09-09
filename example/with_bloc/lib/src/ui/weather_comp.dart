@@ -5,23 +5,20 @@ import 'package:immutable_model/immutable_model.dart';
 import '../domain/cubit/weather_cubit.dart';
 import '../domain/models/weather_state.dart';
 
+WeatherCubit _weatherCubit(BuildContext context) => context.bloc<WeatherCubit>();
+
 class _CityInputField extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 50),
-      child: TextField(
-        controller: TextEditingController()..text = context.bloc<WeatherCubit>().state[CityName.label],
-        onSubmitted: (cityNameStr) => context.bloc<WeatherCubit>().fetchWeather(CityName(cityNameStr)),
+  Widget build(BuildContext context) => TextField(
+        controller: TextEditingController()..text = _weatherCubit(context).cityName,
+        onSubmitted: (cityNameStr) => _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: Icon(Icons.search),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class WeatherComponent extends StatelessWidget {
@@ -37,21 +34,21 @@ class WeatherComponent extends StatelessWidget {
     );
   }
 
-  Column _buildShowWeather(String cityName, double temperatureCelsius) {
+  Column _buildShowWeather(String cityName, double temperatureCelsius, String weather) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Text(
           cityName,
           style: TextStyle(
-            fontSize: 40,
+            fontSize: 30,
             fontWeight: FontWeight.w700,
           ),
         ),
         Text(
           // Display the temperature with 1 decimal place
-          "${temperatureCelsius.toStringAsFixed(1)} °C",
-          style: TextStyle(fontSize: 80),
+          "$weather - ${temperatureCelsius.toStringAsFixed(1)} °C",
+          style: TextStyle(fontSize: 50),
         ),
         _CityInputField(),
       ],
@@ -67,7 +64,6 @@ class WeatherComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.symmetric(vertical: 16),
         alignment: Alignment.center,
         child: BlocConsumer<WeatherCubit, ImmutableModel<WeatherState>>(
           listener: (context, state) {
@@ -87,7 +83,8 @@ class WeatherComponent extends StatelessWidget {
             } else if (currentState is WeatherLoading) {
               return _buildLoading();
             } else if (currentState is WeatherLoaded) {
-              return _buildShowWeather(state[CityName.label], state['weather_data']['temperature']);
+              return _buildShowWeather(
+                  _weatherCubit(context).cityName, _weatherCubit(context).temperature, _weatherCubit(context).weather);
             } else {
               return _buildInitialInput();
             }
