@@ -4,11 +4,9 @@ class CacheBuffer<T> {
   final int bufferSize;
   final Queue<T> _buffer;
 
-  CacheBuffer(this.bufferSize) : _buffer = Queue() {
-    if (bufferSize < 0) {
-      throw Error();
-    }
-  }
+  CacheBuffer(this.bufferSize)
+      : assert(bufferSize >= 0, "The buffer's size can't be negative"),
+        _buffer = Queue();
 
   int get numberCachedOfItems => _buffer.length;
 

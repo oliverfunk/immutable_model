@@ -23,14 +23,14 @@ class ImmutableModel<S> extends Equatable {
   })  : assert(initalState is S, "The model's initalState must be set"),
         _model = ModelInner(model, modelValidator, strictUpdates),
         _state = initalState ?? ModelState.Default as S,
-        _cache = CacheBuffer(cacheBufferSize);
+        _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
 
   ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model, [bool cacheOrPurge = true])
       : _cache = last._cache {
     if (cacheOrPurge) {
-      _cache.cacheItem(last);
+      _cache?.cacheItem(last);
     } else {
-      _cache.purge();
+      _cache?.purge();
     }
   }
 
@@ -38,9 +38,9 @@ class ImmutableModel<S> extends Equatable {
       : _state = last._state,
         _cache = last._cache {
     if (cacheOrPurge) {
-      _cache.cacheItem(last);
+      _cache?.cacheItem(last);
     } else {
-      _cache.purge();
+      _cache?.purge();
     }
   }
 
@@ -49,7 +49,8 @@ class ImmutableModel<S> extends Equatable {
       : _model = last._model,
         _cache = last._cache;
 
-  ImmutableModel<S> restoreBy(int point) => _cache.restoreBy(point);
+  // todo
+  ImmutableModel<S> restoreBy(int point) => _cache == null ? this : _cache.restoreBy(point);
 
   // value
 

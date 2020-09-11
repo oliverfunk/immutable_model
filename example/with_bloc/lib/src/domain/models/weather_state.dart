@@ -6,9 +6,9 @@ class CityName extends ModelValue<CityName, String> with ValueType {
   static final validator = (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
   static const label = "city_name";
 
-  CityName([String defaultCityName]) : super.text(defaultCityName, validator, label);
+  CityName([String defaultCityName]) : super.text(defaultCityName.trim(), validator, label);
 
-  CityName._next(CityName previous, String value) : super.constructNext(previous, value);
+  CityName._next(CityName previous, String value) : super.constructNext(previous, value.trim());
 
   @override
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);

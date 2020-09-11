@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:with_bloc/src/ui/perfs_json_disp.dart';
-import 'package:with_bloc/src/ui/prefs_comp.dart';
 
 import '../data/weather_repository.dart';
 
-import '../domain/cubit/auth_cubit.dart';
-import '../domain/cubit/user_cubit.dart';
-import '../domain/cubit/weather_cubit.dart';
+import '../domain/cubits/auth_cubit.dart';
+import '../domain/cubits/user_cubit.dart';
+import '../domain/cubits/weather_cubit.dart';
 
 import 'signin_comp.dart';
 import 'signin_json_disp.dart';
+import 'perfs_json_disp.dart';
+import 'prefs_comp.dart';
 import 'weather_comp.dart';
 
 class ExamplesPage extends StatelessWidget {

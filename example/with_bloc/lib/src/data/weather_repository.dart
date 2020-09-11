@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/cubit/weather_cubit.dart';
+import '../domain/cubits/weather_cubit.dart';
 import '../domain/models/weather_state.dart';
 
 class FakeWeatherRepository implements WeatherRepository {
@@ -15,7 +15,7 @@ class FakeWeatherRepository implements WeatherRepository {
         // Simulate some network exception
         final random = Random();
         // 1 in 5 chance
-        if (random.nextInt(11) > 8) {
+        if (random.nextInt(11) > 2) {
           throw NetworkException();
         }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/cubit/weather_cubit.dart';
+import '../domain/cubits/weather_cubit.dart';
 import '../domain/models/weather_state.dart';
 
 WeatherCubit _weatherCubit(BuildContext context) => context.bloc<WeatherCubit>();

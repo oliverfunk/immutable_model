@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/value_types.dart';
 
-import '../domain/cubit/auth_cubit.dart';
+import '../domain/cubits/auth_cubit.dart';
 
 class SignInComponent extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();

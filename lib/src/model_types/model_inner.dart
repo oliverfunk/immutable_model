@@ -40,14 +40,14 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
           : logExceptionAndReturn(_current, ValidationException(this, toValidate));
 
   ModelInner _builder(
-    Map<String, dynamic> update,
     BuiltMap<String, dynamic> Function(Map<String, dynamic> update) mapBuilder,
+    Map<String, dynamic> update,
   ) =>
       (strictUpdates && !checkUpdateStrictly(update))
           ? logExceptionAndReturn(this, StrictUpdateException(this, update))
           : update.isEmpty ? this : ModelInner._next(this, _validateModel(mapBuilder(update)));
 
-  BuiltMap<String, dynamic> _buildFromNext(Map<String, dynamic> next) => _current.rebuild((mb) {
+  BuiltMap<String, dynamic> _buildNext(Map<String, dynamic> next) => _current.rebuild((mb) {
         next.forEach((field, nextValue) {
           hasField(field)
               ? mb.updateValue(
@@ -64,7 +64,31 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       });
 
   @override
-  ModelInner buildNext(Map<String, dynamic> next) => _builder(next, _buildFromNext);
+  ModelInner buildNext(Map<String, dynamic> next) => _builder(_buildNext, next);
+
+  // ModelInner select(List<String> selectorLabels, [dynamic value]) => ModelInner._next(this, _current.rebuild((mb) {
+  //       selectorLabels.forEach((label) {
+  //         hasField(label)
+  //             ? value != null
+  //               ? mb.updateValue(
+  //                 label,
+  //                 (currentModel) => nextValue == null
+  //                     ? currentModel.next(null)
+  //                     : nextValue is ModelType // model update
+  //                         ? currentModel.nextFromModel(nextValue)
+  //                         : nextValue is ValueUpdater // function update
+  //                             ? currentModel.nextFromFunc(nextValue)
+  //                             : currentModel.nextFromDynamic(nextValue)) // normal value update
+  //               :
+  //             : throw ModelAccessError(this, field);
+  //       });
+  //     }));
+  // ModelInner nextWithSelector(ModelType Function(String label) selector, dynamic value) {}
+
+  // BuiltMap<String, dynamic> _buildWithSelector(ModelType Function(List<String> labels) selector, dynamic value) => _current.rebuild((mb) {
+
+  //     selector(mb) = selector(mb).next(value);
+  //     });
 
   /*
   * Checks if every field in the model is in the update and has a value.
@@ -129,7 +153,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
   ModelInner fromJson(Map<String, dynamic> jsonMap) =>
-      jsonMap.isEmpty ? this : _builder(jsonMap, (jsonMap) => _buildFromJson(fromSerialized(jsonMap)));
+      jsonMap.isEmpty ? this : _builder((jsonMap) => _buildFromJson(fromSerialized(jsonMap)), jsonMap);
 
   BuiltMap<String, ModelType> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
         jsonMap.forEach((jsonField, jsonValue) {
