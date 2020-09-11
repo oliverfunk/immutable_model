@@ -106,6 +106,8 @@ class ModelList<V> extends ModelType<ModelList<V>, List<V>> {
   @override
   List<V> get value => _current.toList();
 
+  List<V> get asNoneMut => _current.asList();
+
   @override
   @override
   dynamic asSerializable() => V == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
@@ -133,9 +135,6 @@ class ModelList<V> extends ModelType<ModelList<V>, List<V>> {
 
   V operator [](int index) => getElementAt(index);
 
-// []= must return void, so can't use it...
-//  ModelList<V> operator []=(int index, V element) => replace(index, element);
-
   @override
   List<Object> get props => [_current];
 }
@@ -149,14 +148,4 @@ class ModelValidatedList extends ModelList<Map<String, dynamic>> {
 
   static bool _validateItemAgainstModel(ModelInner model, Map<String, dynamic> update) =>
       model.checkUpdateStrictly(update);
-
-  @override
-  ModelList<Map<String, dynamic>> replaceAt(int index, Map<String, dynamic> item) =>
-      ModelList._next(this, _current.rebuild((lb) {
-        if (validate([item])) {
-          lb[index] = item;
-        } else {
-          logException(ValidationException(this, item));
-        }
-      }));
 }

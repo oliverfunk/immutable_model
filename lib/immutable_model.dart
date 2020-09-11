@@ -8,7 +8,7 @@ import 'value_types.dart';
 // help you write sound, authorative domain layer
 // helps you find out why ur app is broken for ex. if the data source changes format IM excp should be thrown when desearliseing
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
-
+// TODO: FOR THE EXAMPLSE, CALC THE TOTAL FOR HTE LISTO F EVENS TO SHOW USE OF MEMOTIZED
 // todo: gen GraphQL query
 // todo: try use lists for models
 // todo: diff method for sending data

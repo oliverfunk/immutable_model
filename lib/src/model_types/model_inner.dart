@@ -40,14 +40,14 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
           : logExceptionAndReturn(_current, ValidationException(this, toValidate));
 
   ModelInner _builder(
+    BuiltMap<String, ModelType> Function(Map<String, dynamic> update) mapBuilder,
     Map<String, dynamic> update,
-    BuiltMap<String, dynamic> Function(Map<String, dynamic> update) mapBuilder,
   ) =>
       (strictUpdates && !checkUpdateStrictly(update))
           ? logExceptionAndReturn(this, StrictUpdateException(this, update))
           : update.isEmpty ? this : ModelInner._next(this, _validateModel(mapBuilder(update)));
 
-  BuiltMap<String, dynamic> _buildFromNext(Map<String, dynamic> next) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildNext(Map<String, dynamic> next) => _current.rebuild((mb) {
         next.forEach((field, nextValue) {
           hasField(field)
               ? mb.updateValue(
@@ -64,7 +64,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       });
 
   @override
-  ModelInner buildNext(Map<String, dynamic> next) => _builder(next, _buildFromNext);
+  ModelInner buildNext(Map<String, dynamic> next) => _builder(_buildNext, next);
+
+  ModelInner nextWithSelector(List<String> selectorLabels, dynamic value) => next(_mapifyList(selectorLabels, value));
+
+  Map<String, dynamic> _mapifyList(Iterable<String> list, dynamic value) =>
+      list.length == 1 ? {list.first: value} : {list.first: _mapifyList(list.skip(1), value)};
 
   /*
   * Checks if every field in the model is in the update and has a value.
@@ -74,7 +79,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
   // not efficient
   @override
-  Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
+  Map<String, dynamic> get value => _current.toMap().map((field, model) => MapEntry(field, model.value));
 
   Map<String, ModelType> get asModelMap => _current.asMap();
 
@@ -82,7 +87,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       ? ModelInner._next(this, _buildMergeOther(other.asModelMap))
       : throw ModelHistoryEqualityError(this, other);
 
-  BuiltMap<String, dynamic> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
@@ -129,7 +134,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
 
   ModelInner fromJson(Map<String, dynamic> jsonMap) =>
-      jsonMap.isEmpty ? this : _builder(jsonMap, (jsonMap) => _buildFromJson(fromSerialized(jsonMap)));
+      jsonMap.isEmpty ? this : _builder((jsonMap) => _buildFromJson(fromSerialized(jsonMap)), jsonMap);
 
   BuiltMap<String, ModelType> _buildFromJson(Map<String, dynamic> jsonMap) => _current.rebuild((mb) {
         jsonMap.forEach((jsonField, jsonValue) {

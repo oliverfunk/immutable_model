@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
 
-import '../domain/cubit/user_cubit.dart';
+import '../domain/cubits/user_cubit.dart';
 import '../domain/models/user_state.dart';
 
 UserCubit _userCubit(BuildContext context) => context.bloc<UserCubit>();
@@ -23,7 +23,7 @@ class PreferancesComp extends StatelessWidget {
 
   Widget _inputWords(UserCubit userCubit) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
-        initialValue: userCubit.someValues['entered_text'],
+        initialValue: UserState.enteredText(userCubit.state),
         onChanged: (value) => userCubit.updateSomeValues({'entered_text': value}),
       );
 
@@ -38,9 +38,8 @@ class PreferancesComp extends StatelessWidget {
           }),
         ),
         BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-          buildWhen: (previous, current) =>
-              previous['chosen_values']['validated_number'] != current['chosen_values']['validated_number'],
-          builder: (context, model) => Text(userCubit.someValues['validated_number'].toString()),
+          buildWhen: (previous, current) => UserState.validatedNumber(previous) != UserState.validatedNumber(current),
+          builder: (context, model) => Text(UserState.validatedNumber(model).toString()),
         ),
         IconButton(
           icon: Icon(Icons.keyboard_arrow_up),
@@ -53,17 +52,15 @@ class PreferancesComp extends StatelessWidget {
 
   Widget _inputDouble(UserCubit userCubit) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
-        initialValue: userCubit.someValues['entered_double'].toStringAsFixed(3),
+        initialValue: UserState.enteredDouble(userCubit.state).toStringAsFixed(3),
         onChanged: (value) => userCubit.updateSomeValues({'entered_double': double.parse(value)}),
       );
 
   Widget _inputBoolean(UserCubit userCubit) => BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-        buildWhen: (previous, current) =>
-            previous['chosen_values']['chosen_bool'] != current['chosen_values']['chosen_bool'],
+        buildWhen: (previous, current) => UserState.chosenBool(previous) != UserState.chosenBool(current),
         builder: (context, model) => Container(
           child: Checkbox(
-              value: userCubit.someValues['chosen_bool'],
-              onChanged: (b) => userCubit.updateSomeValues({'chosen_bool': b})),
+              value: UserState.chosenBool(model), onChanged: (b) => userCubit.updateSomeValues({'chosen_bool': b})),
         ),
       );
 
@@ -72,9 +69,9 @@ class PreferancesComp extends StatelessWidget {
             previous['chosen_values']['chosen_enum'] != current['chosen_values']['chosen_enum'],
         builder: (context, model) => DropdownButton<String>(
           underline: Container(),
-          value: userCubit.someValues['chosen_enum'],
-          onChanged: (String newValue) => userCubit.updateSomeValues({'chosen_enum': newValue}),
-          items: (userCubit.someValues.fieldModel('chosen_enum') as ModelEnum)
+          value: UserState.chosenEnum(model),
+          onChanged: (String enStr) => userCubit.updateSomeValues({'chosen_enum': enStr}),
+          items: (UserState.chosenValues(model).fieldModel('chosen_enum') as ModelEnum)
               .enumStrings
               .map<DropdownMenuItem<String>>((String value) => DropdownMenuItem<String>(
                     value: value,
@@ -84,29 +81,27 @@ class PreferancesComp extends StatelessWidget {
         ),
       );
 
-  _selectDateBegin(BuildContext context, UserCubit userCubit) async {
-    final selectedDate = userCubit.someValues['date_begin'];
+  _selectDateBegin(BuildContext context, DateTime current) async {
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: current,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != selectedDate) userCubit.updateSomeValues({'date_begin': picked});
+    if (picked != null && picked != current) _userCubit(context).updateSomeValues({'date_begin': picked});
   }
 
   Widget _inputDateBegin() => BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-        buildWhen: (previous, current) =>
-            previous['chosen_values']['date_begin'] != current['chosen_values']['date_begin'],
-        builder: (context, state) => Column(
+        buildWhen: (previous, current) => UserState.dateBegin(previous) != UserState.dateBegin(current),
+        builder: (context, model) => Column(
           children: [
             Text(
-              "${_userCubit(context).someValues['date_begin'].toLocal()}".split(' ')[0],
+              "${UserState.dateBegin(model).toLocal()}".split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             RaisedButton(
               padding: EdgeInsets.all(10.0),
-              onPressed: () => _selectDateBegin(context, _userCubit(context)),
+              onPressed: () => _selectDateBegin(context, UserState.dateBegin(model)),
               child: Text(
                 'Select date',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -117,28 +112,27 @@ class PreferancesComp extends StatelessWidget {
         ),
       );
 
-  _selectDateEnd(BuildContext context, UserCubit userCubit) async {
-    final selectedDate = userCubit.someValues['date_end'];
+  _selectDateEnd(BuildContext context, DateTime current) async {
     final DateTime picked = await showDatePicker(
       context: context,
-      initialDate: selectedDate,
+      initialDate: current,
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != selectedDate) userCubit.updateSomeValues({'date_end': picked});
+    if (picked != null && picked != current) _userCubit(context).updateSomeValues({'date_end': picked});
   }
 
   Widget _inputDateEnd() => BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-        buildWhen: (previous, current) => previous['chosen_values']['date_end'] != current['chosen_values']['date_end'],
-        builder: (context, state) => Column(
+        buildWhen: (previous, current) => UserState.dateEnd(previous) != UserState.dateEnd(current),
+        builder: (context, model) => Column(
           children: [
             Text(
-              "${_userCubit(context).someValues['date_end'].toLocal()}".split(' ')[0],
+              "${UserState.dateEnd(model).toLocal()}".split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             RaisedButton(
               padding: EdgeInsets.all(10.0),
-              onPressed: () => _selectDateEnd(context, _userCubit(context)),
+              onPressed: () => _selectDateEnd(context, UserState.dateEnd(model)),
               child: Text(
                 'Select date',
                 style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
@@ -152,7 +146,7 @@ class PreferancesComp extends StatelessWidget {
   Widget _inputEvensRow(UserCubit userCubit) => Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: (userCubit.someValues['list_of_evens'] as List<int>)
+      children: (UserState.listOfEvens(userCubit.state))
           .asMap()
           .entries
           .map((entry) => Flexible(
@@ -163,8 +157,8 @@ class PreferancesComp extends StatelessWidget {
                   initialValue: entry.value.toString(),
                   onChanged: (value) {
                     userCubit.updateSomeValues({
-                      'list_of_evens': (userCubit.someValues.fieldModel('list_of_evens') as ModelList<int>)
-                          .replaceAt(entry.key, int.parse(value))
+                      // if you need a more effecient way of replacing, using the ModelList<> replaceAt function
+                      'list_of_evens': (list) => list[entry.key] = entry.value,
                     });
                   },
                 ),
@@ -197,6 +191,13 @@ class PreferancesComp extends StatelessWidget {
               _formInput("Choose an end date:", _inputDateEnd()),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Change list of evens:", _inputEvensRow(_userCubit(context))),
+              // Row(
+              //   children: [
+              //     RaisedButton(child: Text("Sort Asc"), onPressed: () => _userCubit(context).sortListAsc()),
+              //     Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
+              //     RaisedButton(child: Text("Sort Dec"), onPressed: () => _userCubit(context).sortListDec()),
+              //   ],
+              // ),
             ]);
           }
         },

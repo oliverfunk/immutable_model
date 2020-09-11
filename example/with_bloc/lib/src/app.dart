@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'ui/examples_page.dart';
 
 class App extends StatelessWidget {
-  static const String _title = "immutable_model example with BLoC Cubits";
+  static const String _title = "immutable_model example with BLoCs";
 
   @override
   Widget build(BuildContext context) {

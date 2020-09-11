@@ -1,0 +1,19 @@
+name: with_redux
+description: Example using immutable_model with Redux.
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  immutable_model:
+    path: ../../
+  flutter_bloc: ^6.0.1
+  equatable: ^1.2.3
+  logging: ^0.11.4
+
+flutter:
+  uses-material-design: true
