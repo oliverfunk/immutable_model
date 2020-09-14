@@ -35,8 +35,18 @@ class ModelAccessError extends Error {
 
   @override
   String toString() => "ModelAccessError\n"
-      "Requested field '$field' not in model. Available fields are:\n"
-      " ${model.fieldLabels}";
+      "Requested field '$field' not in model.\n"
+      " Available fields are: ${model.fieldLabels}";
+}
+
+class ModelSelectError extends Error {
+  final String field;
+
+  ModelSelectError(this.field);
+
+  @override
+  String toString() => "ModelSelectError\n"
+      "Attemping to traverse but the selected model from field '$field' is not a ModelInner.";
 }
 
 class ModelStateError extends Error {

@@ -9,8 +9,8 @@ import '../domain/cubits/weather_cubit.dart';
 
 import 'signin_comp.dart';
 import 'signin_json_disp.dart';
-import 'perfs_json_disp.dart';
-import 'prefs_comp.dart';
+import 'choices_json_disp.dart';
+import 'choices_comp.dart';
 import 'weather_comp.dart';
 
 class ExamplesPage extends StatelessWidget {
@@ -59,12 +59,12 @@ class ExamplesPage extends StatelessWidget {
                 child: Row(children: [
                   Expanded(
                     flex: 2,
-                    child: PreferancesComp(),
+                    child: ChoicesComp(),
                   ),
                   Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                   Expanded(
                     flex: 2,
-                    child: preferancesJsonDisplay(),
+                    child: choicesJsonDisplay(),
                   ),
                 ]),
               ),

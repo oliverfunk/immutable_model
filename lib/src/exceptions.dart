@@ -7,7 +7,7 @@ abstract class ImmutableModelException implements Exception {
   ImmutableModelException(this.model, this.reason);
 
   @override
-  String toString() => "${this.runtimeType} occured for ${model.toLongString()}: $reason";
+  String toString() => "${this.runtimeType} occured for ${model.modelType}: $reason";
 }
 
 class ValidationException extends ImmutableModelException {

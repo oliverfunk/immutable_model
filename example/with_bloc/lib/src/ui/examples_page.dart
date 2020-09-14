@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:with_bloc/src/domain/blocs/auth/auth_bloc.dart';
+import 'package:with_bloc/src/domain/blocs/user/user_bloc.dart';
+import 'package:with_bloc/src/domain/blocs/weather/weather_bloc.dart';
 
 import '../data/weather_repository.dart';
 
-import '../domain/cubits/auth_cubit.dart';
-import '../domain/cubits/user_cubit.dart';
-import '../domain/cubits/weather_cubit.dart';
-
 import 'signin_comp.dart';
 import 'signin_json_disp.dart';
-import 'perfs_json_disp.dart';
-import 'prefs_comp.dart';
+import 'choices_json_disp.dart';
+import 'choices_comp.dart';
 import 'weather_comp.dart';
 
 class ExamplesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
-          BlocProvider<UserCubit>(
-            create: (context) => UserCubit(),
+          BlocProvider<UserBloc>(
+            create: (context) => UserBloc(),
           ),
-          BlocProvider<AuthCubit>(
-            create: (context) => AuthCubit(context.bloc<UserCubit>()),
+          BlocProvider<AuthBloc>(
+            create: (context) => AuthBloc(context.bloc<UserBloc>()),
           ),
-          BlocProvider<WeatherCubit>(
-            create: (context) => WeatherCubit(FakeWeatherRepository()), // should use DI
+          BlocProvider<WeatherBloc>(
+            create: (context) => WeatherBloc(FakeWeatherRepository()), // should use DI
           ),
         ],
         child: Container(
@@ -59,12 +58,12 @@ class ExamplesPage extends StatelessWidget {
                 child: Row(children: [
                   Expanded(
                     flex: 2,
-                    child: PreferancesComp(),
+                    child: ChoicesComp(),
                   ),
                   Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
                   Expanded(
                     flex: 2,
-                    child: preferancesJsonDisplay(),
+                    child: choicesJsonDisplay(),
                   ),
                 ]),
               ),

@@ -14,8 +14,8 @@ class FakeWeatherRepository implements WeatherRepository {
       () {
         // Simulate some network exception
         final random = Random();
-        // 1 in 5 chance
-        if (random.nextInt(11) > 2) {
+        // 1 in 10 chance
+        if (random.nextInt(11) > 1) {
           throw NetworkException();
         }
 
@@ -28,7 +28,7 @@ class FakeWeatherRepository implements WeatherRepository {
         };
 
         // Return "fetched" weather
-        return WeatherState.model.fromJson(returnedJson);
+        return weatherStateModel.fromJson(returnedJson);
       },
     );
   }

@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
+import 'model_selector.dart';
 import 'utils/cache_buffer.dart';
 import 'errors.dart';
 import 'model_type.dart';
@@ -78,6 +79,14 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
       ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
 
+  ImmutableModel<S> updateWithSelector<V>(ModelSelector<V> selector, V value) =>
+      ImmutableModel<S>._nextModel(this, _model.nextWithSelector(selector, value));
+
+  ImmutableModel<S> updateWithSelectorIfIn<V>(ModelSelector<V> selector, V value, S inState) =>
+      currentState.runtimeType == inState.runtimeType
+          ? ImmutableModel<S>._nextModel(this, _model.nextWithSelector(selector, value))
+          : throw ModelStateError(currentState, inState);
+
   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
       ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
 
@@ -113,6 +122,10 @@ class ImmutableModel<S> extends Equatable {
   int get numberOfFields => _model.numberOfFields;
 
   bool hasField(String field) => _model.hasField(field);
+
+  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) => _model.selectModel(selector);
+
+  V select<V>(ModelSelector<V> selector) => _model.select(selector);
 
   ModelType fieldModel(String field) => _model.fieldModel(field);
 

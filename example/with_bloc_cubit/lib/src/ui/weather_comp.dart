@@ -10,7 +10,7 @@ WeatherCubit _weatherCubit(BuildContext context) => context.bloc<WeatherCubit>()
 class _CityInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
-        controller: TextEditingController()..text = _weatherCubit(context).cityName,
+        controller: TextEditingController()..text = WeatherState.cityName(_weatherCubit(context).state),
         onSubmitted: (cityNameStr) => _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
@@ -55,19 +55,12 @@ class WeatherComponent extends StatelessWidget {
     );
   }
 
-  // Widget _undoButton(UserCubit userCubit) => Center(
-  //     child: RaisedButton(
-  //       child: Text("Undo"),
-  //       onPressed: () => userCubit.undo(),
-  //     ),
-  //   );
-
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.center,
         child: BlocConsumer<WeatherCubit, ImmutableModel<WeatherState>>(
-          listener: (context, state) {
-            final currentState = state.currentState;
+          listener: (context, model) {
+            final currentState = model.currentState;
             if (currentState is WeatherError) {
               Scaffold.of(context).showSnackBar(
                 SnackBar(
@@ -76,15 +69,15 @@ class WeatherComponent extends StatelessWidget {
               );
             }
           },
-          builder: (context, state) {
-            final currentState = state.currentState;
+          builder: (context, model) {
+            final currentState = model.currentState;
             if (currentState is WeatherInitial) {
               return _buildInitialInput();
             } else if (currentState is WeatherLoading) {
               return _buildLoading();
             } else if (currentState is WeatherLoaded) {
               return _buildShowWeather(
-                  _weatherCubit(context).cityName, _weatherCubit(context).temperature, _weatherCubit(context).weather);
+                  WeatherState.cityName(model), WeatherState.temperature(model), WeatherState.weather(model));
             } else {
               return _buildInitialInput();
             }

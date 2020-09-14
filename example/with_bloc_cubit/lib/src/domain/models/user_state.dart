@@ -1,7 +1,6 @@
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/model_types.dart';
 
-enum _Seasons { Summer, Winter, Autum, Spring }
+enum _Seasons { Spring, Summer, Winter, Autum }
 
 final userStateModel = ImmutableModel<UserState>(
   {
@@ -11,7 +10,7 @@ final userStateModel = ImmutableModel<UserState>(
       "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
       "entered_double": M.dbl(initialValue: 13 / 7),
       "chosen_bool": M.bl(initialValue: true),
-      "chosen_enum": M.enm(_Seasons.values, _Seasons.Summer),
+      "chosen_enum": M.enm(_Seasons.values, _Seasons.Spring),
       "date_begin": M.dt(initialValue: DateTime.now()),
       "date_end": M.dt(initialValue: DateTime.now().add(Duration(days: 1))),
       'list_of_evens': M.ntList(initialValue: [2, 4, 6, 8], validator: (n) => n.isEven, append: false),
@@ -24,15 +23,15 @@ final userStateModel = ImmutableModel<UserState>(
 );
 
 abstract class UserState {
-  static final chosenValues = (ImmutableModel<UserState> model) => model['chosen_values'] as ModelInner;
-  static final enteredText = (ImmutableModel<UserState> model) => chosenValues(model)['entered_text'] as String;
-  static final validatedNumber = (ImmutableModel<UserState> model) => chosenValues(model)['validated_number'] as int;
-  static final enteredDouble = (ImmutableModel<UserState> model) => chosenValues(model)['entered_double'] as double;
-  static final chosenBool = (ImmutableModel<UserState> model) => chosenValues(model)['chosen_bool'] as bool;
-  static final chosenEnum = (ImmutableModel<UserState> model) => chosenValues(model)['chosen_enum'] as String;
-  static final dateBegin = (ImmutableModel<UserState> model) => chosenValues(model)['date_begin'] as DateTime;
-  static final dateEnd = (ImmutableModel<UserState> model) => chosenValues(model)['date_end'] as DateTime;
-  static final listOfEvens = (ImmutableModel<UserState> model) => chosenValues(model)['list_of_evens'] as List<int>;
+  static const _chosenValues = "chosen_values";
+  static const enteredTextSel = ModelSelector<String>(_chosenValues + ".entered_text");
+  static const validatedNumberSel = ModelSelector<int>(_chosenValues + ".validated_number");
+  static const enteredDoubleSel = ModelSelector<double>(_chosenValues + ".entered_double");
+  static const chosenBoolSel = ModelSelector<bool>(_chosenValues + ".chosen_bool");
+  static const chosenEnumSel = ModelSelector<String>(_chosenValues + ".chosen_enum");
+  static const dateBeginSel = ModelSelector<DateTime>(_chosenValues + ".date_begin");
+  static const dateEndSel = ModelSelector<DateTime>(_chosenValues + ".date_end");
+  static const listOfEvensSel = ModelSelector<List<int>>(_chosenValues + ".list_of_evens");
 
   const UserState();
 }

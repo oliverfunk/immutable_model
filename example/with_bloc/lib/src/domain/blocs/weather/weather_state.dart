@@ -1,4 +1,5 @@
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
 import 'package:immutable_model/value_types.dart';
 
 class CityName extends ModelValue<CityName, String> with ValueType {
@@ -14,20 +15,25 @@ class CityName extends ModelValue<CityName, String> with ValueType {
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);
 }
 
+final weatherStateModel = ImmutableModel<WeatherState>(
+  {
+    CityName.label: CityName("Cape Town"),
+    "weather_data": M.inner(
+      {
+        "temperature": M.dbl(),
+        "weather": M.str(),
+      },
+      strictUpdates: true,
+    ),
+  },
+  initalState: const WeatherInitial(),
+);
+
 abstract class WeatherState {
-  static final model = ImmutableModel<WeatherState>(
-    {
-      CityName.label: CityName("Cape Town"),
-      "weather_data": M.inner(
-        {
-          "temperature": M.dbl(),
-          "weather": M.str(),
-        },
-        strictUpdates: true,
-      ),
-    },
-    initalState: const WeatherInitial(),
-  );
+  static final cityName = (ImmutableModel<WeatherState> model) => model[CityName.label] as String;
+  static final _weatherData = (ImmutableModel<WeatherState> model) => model['weather_data'] as ModelInner;
+  static final temperature = (ImmutableModel<WeatherState> model) => _weatherData(model)["temperature"];
+  static final weather = (ImmutableModel<WeatherState> model) => _weatherData(model)["weather"];
 
   const WeatherState();
 }

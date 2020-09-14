@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/value_types.dart';
 
-import '../domain/cubits/auth_cubit.dart';
+import '../domain/blocs/auth/auth_bloc.dart';
 
 class SignInComponent extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();
@@ -11,7 +11,7 @@ class SignInComponent extends StatelessWidget {
 
   Widget _emailInput(BuildContext context) => TextFormField(
         key: _emailKey,
-        initialValue: context.bloc<AuthCubit>().state['email'],
+        initialValue: context.bloc<AuthBloc>().state['email'],
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',
@@ -41,10 +41,10 @@ class SignInComponent extends StatelessWidget {
             RaisedButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  context.bloc<AuthCubit>().signIn(
+                  context.bloc<AuthBloc>().add(SignIn(
                         ModelEmail(_emailKey.currentState.value),
                         ModelPassword(_passwordKey.currentState.value),
-                      );
+                      ));
                 }
               },
               child: Text('Sign In'),

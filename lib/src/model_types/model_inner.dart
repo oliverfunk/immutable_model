@@ -1,4 +1,5 @@
 import 'package:built_collection/built_collection.dart';
+import 'package:immutable_model/src/model_selector.dart';
 
 import '../../model_types.dart';
 import '../model_type.dart';
@@ -66,10 +67,11 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   @override
   ModelInner buildNext(Map<String, dynamic> next) => _builder(_buildNext, next);
 
-  ModelInner nextWithSelector(List<String> selectorLabels, dynamic value) => next(_mapifyList(selectorLabels, value));
+  ModelInner nextWithSelector<V>(ModelSelector<V> selector, V value) =>
+      next(_mapifySelectors(selector.selectors, value));
 
-  Map<String, dynamic> _mapifyList(Iterable<String> list, dynamic value) =>
-      list.length == 1 ? {list.first: value} : {list.first: _mapifyList(list.skip(1), value)};
+  Map<String, dynamic> _mapifySelectors(Iterable<String> list, dynamic value) =>
+      list.length == 1 ? {list.first: value} : {list.first: _mapifySelectors(list.skip(1), value)};
 
   /*
   * Checks if every field in the model is in the update and has a value.
@@ -157,6 +159,22 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   bool hasField(String field) => _current.containsKey(field);
 
   int get numberOfFields => _current.length;
+
+  ModelType _select(Iterable<String> selectorStrings) {
+    final fm = fieldModel(selectorStrings.first);
+    if (selectorStrings.length == 1) {
+      return fm;
+    } else {
+      return fm is ModelInner ? fm._select(selectorStrings.skip(1)) : throw ModelSelectError(selectorStrings.first);
+    }
+  }
+
+  // R useSelector<R>(SelectorString<R> sel) => select(sel.selectorString) as R;
+
+  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
+      _select(selector.selectors) as ModelType<dynamic, V>;
+
+  V select<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
   ModelType fieldModel(String field) => hasField(field) ? _current[field] : throw ModelAccessError(this, field);
 

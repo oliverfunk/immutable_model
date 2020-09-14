@@ -7,16 +7,21 @@ import '../models/user_state.dart';
 class UserCubit extends Cubit<ImmutableModel<UserState>> {
   UserCubit() : super(userStateModel);
 
-  void userAuthed(ModelEmail email) => emit(state.transitionToAndUpdate(const UserAuthed(), {
+  // derried values
+  int listTotal() => state.select(UserState.listOfEvensSel).reduce((value, element) => value + element);
+
+  void authUser(ModelEmail email) => emit(state.transitionToAndUpdate(const UserAuthed(), {
         'email': email,
       }));
 
-  void userUnauthed() => emit(state.resetAndTransitionTo(const UserUnauthed()));
+  void unauthUser() => emit(state.resetAndTransitionTo(const UserUnauthed()));
 
-  void updateSomeValues(Map<String, dynamic> updates) =>
-      emit(state.updateIfIn({"chosen_values": updates}, const UserAuthed()));
+  void updateValues<V>(ModelSelector<V> selector, V value) =>
+      emit(state.updateWithSelectorIfIn(selector, value, const UserAuthed()));
 
-  void sortListAsc() => updateSomeValues({"list_of_evens": (list) => list.sort((a, b) => a > b ? 1 : a == b ? 0 : -1)});
+  void sortListAsc() =>
+      updateValues(UserState.listOfEvensSel, (list) => list..sort((a, b) => a > b ? 1 : a == b ? 0 : -1));
 
-  void sortListDec() => updateSomeValues({"list_of_evens": (list) => list.sort((a, b) => a < b ? 1 : a == b ? 0 : -1)});
+  void sortListDec() =>
+      updateValues(UserState.listOfEvensSel, (list) => list..sort((a, b) => a < b ? 1 : a == b ? 0 : -1));
 }

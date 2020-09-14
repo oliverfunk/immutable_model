@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/cubits/weather_cubit.dart';
-import '../domain/models/weather_state.dart';
+import '../domain/blocs/weather/weather_bloc.dart';
+import '../domain/blocs/weather/weather_state.dart';
 
 class FakeWeatherRepository implements WeatherRepository {
   @override
@@ -14,8 +14,8 @@ class FakeWeatherRepository implements WeatherRepository {
       () {
         // Simulate some network exception
         final random = Random();
-        // 1 in 5 chance
-        if (random.nextInt(11) > 2) {
+        // 1 in 10 chance
+        if (random.nextInt(11) > 1) {
           throw NetworkException();
         }
 
@@ -28,7 +28,7 @@ class FakeWeatherRepository implements WeatherRepository {
         };
 
         // Return "fetched" weather
-        return WeatherState.model.fromJson(returnedJson);
+        return weatherStateModel.fromJson(returnedJson);
       },
     );
   }
