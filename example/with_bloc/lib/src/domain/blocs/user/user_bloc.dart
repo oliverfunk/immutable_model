@@ -12,7 +12,7 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
   UserBloc() : super(userStateModel);
 
   // derried values
-  int listTotal() => UserState.listOfEvens(state).reduce((value, element) => value + element);
+  int listTotal() => state.select(UserState.listOfEvensSel).reduce((value, element) => value + element);
 
   @override
   Stream<ImmutableModel<UserState>> mapEventToState(
@@ -24,16 +24,14 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
       });
     } else if (event is UnauthUser) {
       yield state.resetAndTransitionTo(const UserUnauthed());
-    } else if (event is UpdateChosenValues) {
-      yield state.updateIfIn({"chosen_values": event.updates}, const UserAuthed());
+    } else if (event is UpdateValues) {
+      yield state.updateWithSelectorIfIn(event.selector, event.value, const UserAuthed());
     } else if (event is SortListAsc) {
-      yield state.updateIfIn({
-        "chosen_values": {"list_of_evens": (list) => list..sort((a, b) => a > b ? 1 : a == b ? 0 : -1)}
-      }, const UserAuthed());
+      yield state.updateWithSelectorIfIn(
+          UserState.listOfEvensSel, (list) => list..sort((a, b) => a > b ? 1 : a == b ? 0 : -1), const UserAuthed());
     } else if (event is SortListDec) {
-      yield state.updateIfIn({
-        "chosen_values": {"list_of_evens": (list) => list..sort((a, b) => a < b ? 1 : a == b ? 0 : -1)}
-      }, const UserAuthed());
+      yield state.updateWithSelectorIfIn(
+          UserState.listOfEvensSel, (list) => list..sort((a, b) => a < b ? 1 : a == b ? 0 : -1), const UserAuthed());
     }
   }
 }

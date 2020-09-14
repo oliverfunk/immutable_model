@@ -157,11 +157,7 @@ void main() {
       'chosen_values': {'list_of_evens': (list) => list..insert(2, 60)}
     });
 
-    final mod3 = model.update({
-      'chosen_values': {'entered_double': null}
-    });
-
-    print(mod2);
+    print(mod2.toJsonDiff(model));
     // print(mod3);
     // print(mod2.mergeFrom(mod3));
 

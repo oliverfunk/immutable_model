@@ -146,7 +146,8 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputEvensRow(UserCubit userCubit) => Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: (userCubit.state.select(UserState.listOfEvensSel) as List<int>)
+        children: userCubit.state
+            .select(UserState.listOfEvensSel)
             .asMap()
             .entries
             .map((entry) => Flexible(

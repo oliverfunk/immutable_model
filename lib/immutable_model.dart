@@ -10,10 +10,9 @@ import 'value_types.dart';
 // the way you write the domain layer ebcomes the contract for the entire app. It forces the correct implementation.
 
 // todo: write the rest of the examples!
-// todo: add logging and selectors
+// todo: add logging
 // todo: gen GraphQL query
 // todo: try use lists for models
-// todo: diff method for sending data
 
 // expose only erros, the main immutable_model class and the M. shorthands
 export 'src/errors.dart';

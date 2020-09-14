@@ -14,8 +14,8 @@ class FakeWeatherRepository implements WeatherRepository {
       () {
         // Simulate some network exception
         final random = Random();
-        // 1 in 10 chance
-        if (random.nextInt(11) > 1) {
+        // 1 in 5 chance
+        if (random.nextInt(10) <= 1) {
           throw NetworkException();
         }
 

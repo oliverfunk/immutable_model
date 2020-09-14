@@ -20,7 +20,7 @@ class ImmutableModel<S> extends Equatable {
     ModelValidator modelValidator,
     S initalState,
     bool strictUpdates = false,
-    int cacheBufferSize = 0,
+    int cacheBufferSize,
   })  : assert(initalState is S, "The model's initalState must be set"),
         _model = ModelInner(model, modelValidator, strictUpdates),
         _state = initalState ?? ModelState.Default as S,
@@ -110,6 +110,8 @@ class ImmutableModel<S> extends Equatable {
   // JSON
 
   Map<String, dynamic> toJson() => _model.asSerializable();
+
+  Map<String, dynamic> toJsonDiff(ImmutableModel<S> other) => _model.toJsonDiff(other._model);
 
   // more lient for json
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>

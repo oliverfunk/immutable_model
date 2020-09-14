@@ -15,10 +15,11 @@ class UnauthUser extends UserEvent {
   const UnauthUser();
 }
 
-class UpdateChosenValues extends UserEvent {
-  final Map<String, dynamic> updates;
+class UpdateValues<V> extends UserEvent {
+  final ModelSelector<V> selector;
+  final V value;
 
-  const UpdateChosenValues(this.updates);
+  const UpdateValues(this.selector, this.value);
 }
 
 class SortListAsc extends UserEvent {

@@ -13,8 +13,8 @@ part 'auth_event.dart';
 Future<bool> _authUser(String email, String password) => Future.delayed(
       Duration(seconds: 1),
       () {
-        // 1 in 10 chance
-        return Random().nextInt(11) > 1;
+        // 1 in 5 chance of being false
+        return Random().nextInt(10) > 1;
         // return true;
       },
     );

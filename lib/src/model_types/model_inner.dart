@@ -86,10 +86,10 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   Map<String, ModelType> get asModelMap => _current.asMap();
 
   ModelInner merge(ModelInner other) => hasEqualityOfHistory(other)
-      ? ModelInner._next(this, _buildMergeOther(other.asModelMap))
+      ? ModelInner._next(this, _buildMerge(other._current))
       : throw ModelHistoryEqualityError(this, other);
 
-  BuiltMap<String, ModelType> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildMerge(BuiltMap<String, ModelType> other) => _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
@@ -98,6 +98,18 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
                   : otherModel.isInitial ? currentModel : otherModel);
         });
       });
+
+  Map<String, dynamic> toJsonDiff(ModelInner other) =>
+      hasEqualityOfHistory(other) ? _buildToJsonDiff(other._current) : throw ModelHistoryEqualityError(this, other);
+
+  Map<String, dynamic> _buildToJsonDiff(BuiltMap<String, ModelType> other) => Map.unmodifiable(_current
+      .toMap()
+      .map<String, dynamic>((currentField, currentModel) => currentModel == other[currentField]
+          ? MapEntry(currentField, null)
+          : currentModel is ModelInner
+              ? MapEntry(currentField, currentModel.toJsonDiff(other[currentField] as ModelInner))
+              : MapEntry(currentField, currentModel.asSerializable()))
+        ..removeWhere((field, model) => model == null));
 
   /// Join two models together. Values from other will over-wrtie values in this
   ModelInner join(
@@ -132,8 +144,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
   // not efficient, use sparingly retured map is unmodifable, if you want moidifabl euse value
   @override
-  Map<String, dynamic> asSerializable() =>
-      Map.unmodifiable(_current.toMap().map((field, value) => MapEntry(field, value.asSerializable())));
+  Map<String, dynamic> asSerializable() => Map.unmodifiable(
+      _current.toMap().map((currentField, currentModel) => MapEntry(currentField, currentModel.asSerializable())));
 
   ModelInner fromJson(Map<String, dynamic> jsonMap) =>
       jsonMap.isEmpty ? this : _builder((jsonMap) => _buildFromJson(fromSerialized(jsonMap)), jsonMap);
