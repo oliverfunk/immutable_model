@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/blocs/auth/auth_bloc.dart';
-import '../domain/blocs/auth/auth_state.dart';
+import '../domain/cubits/auth_cubit.dart';
+import '../domain/models/auth_state.dart';
 
-Widget signinJsonDisplay() => BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(builder: (context, model) {
+Widget signinJsonDisplay() => BlocBuilder<AuthCubit, ImmutableModel<AuthState>>(builder: (context, model) {
       if (model.currentState is AuthLoading) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

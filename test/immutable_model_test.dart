@@ -1,4 +1,5 @@
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
 import 'package:immutable_model/value_types.dart';
 import 'package:test/test.dart';
 //final i = ModelInner({
@@ -115,8 +116,6 @@ enum TestAnotherEnum { AnFirst, AnSecond, Third }
 
 void main() {
   test("test misc", () {
-    final prim = M.nt(initialValue: 2);
-    final p2 = prim.next(3);
     final model = ImmutableModel(
       {
         "email": M.email(
@@ -146,6 +145,7 @@ void main() {
           'list_of_evens': M.ntList(
             initialValue: [2, 4, 6, 8],
             validator: (n) => n.isEven,
+            append: false,
           ),
         }),
       },
@@ -154,7 +154,7 @@ void main() {
     );
 
     final mod2 = model.update({
-      'chosen_values': {'entered_double': 0.2, 'a_str': 'Next'}
+      'chosen_values': {'list_of_evens': (list) => list..insert(2, 60)}
     });
 
     final mod3 = model.update({
@@ -162,8 +162,8 @@ void main() {
     });
 
     print(mod2);
-    print(mod3);
-    print(mod2.mergeFrom(mod3));
+    // print(mod3);
+    // print(mod2.mergeFrom(mod3));
 
     // final mod = ImmutableModel({
     //   'enum': M.enm<TestAnotherEnum>(TestAnotherEnum.values, TestAnotherEnum.AnFirst),

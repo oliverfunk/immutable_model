@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/blocs/weather/weather_bloc.dart';
-import '../domain/blocs/weather/weather_state.dart';
+import '../domain/cubits/weather_cubit.dart';
+import '../domain/models/weather_state.dart';
 
-WeatherBloc _weatherBloc(BuildContext context) => context.bloc<WeatherBloc>();
+WeatherCubit _weatherCubit(BuildContext context) => context.bloc<WeatherCubit>();
 
 class _CityInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
-        controller: TextEditingController()..text = WeatherState.cityName(_weatherBloc(context).state),
-        onSubmitted: (cityNameStr) => _weatherBloc(context).add(FetchWeather(CityName(cityNameStr))),
+        controller: TextEditingController()..text = WeatherState.cityName(_weatherCubit(context).state),
+        onSubmitted: (cityNameStr) => _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -58,7 +58,7 @@ class WeatherComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.center,
-        child: BlocConsumer<WeatherBloc, ImmutableModel<WeatherState>>(
+        child: BlocConsumer<WeatherCubit, ImmutableModel<WeatherState>>(
           listener: (context, model) {
             final currentState = model.currentState;
             if (currentState is WeatherError) {

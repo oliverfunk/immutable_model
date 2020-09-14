@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:with_bloc/src/domain/blocs/auth/auth_bloc.dart';
-import 'package:with_bloc/src/domain/blocs/user/user_bloc.dart';
-import 'package:with_bloc/src/domain/blocs/weather/weather_bloc.dart';
 
 import '../data/weather_repository.dart';
+
+import '../domain/cubits/auth_cubit.dart';
+import '../domain/cubits/user_cubit.dart';
+import '../domain/cubits/weather_cubit.dart';
 
 import 'signin_comp.dart';
 import 'signin_json_disp.dart';
@@ -16,14 +17,14 @@ class ExamplesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
-          BlocProvider<UserBloc>(
-            create: (context) => UserBloc(),
+          BlocProvider<UserCubit>(
+            create: (context) => UserCubit(),
           ),
-          BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(context.bloc<UserBloc>()),
+          BlocProvider<AuthCubit>(
+            create: (context) => AuthCubit(context.bloc<UserCubit>()),
           ),
-          BlocProvider<WeatherBloc>(
-            create: (context) => WeatherBloc(FakeWeatherRepository()), // should use DI
+          BlocProvider<WeatherCubit>(
+            create: (context) => WeatherCubit(FakeWeatherRepository()), // should use DI
           ),
         ],
         child: Container(

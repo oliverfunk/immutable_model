@@ -1,6 +1,5 @@
-* TODO: documentation
-* TODO: write tests
-* TODO: Write about support types, write the readme and contribute
-* todo: build fromjson file generator
-* migrations
-* graphQL query
+- TODO: documentation
+- TODO: write tests
+- TODO: Write about supported types, write the readme and contribute
+- todo: build fromjson file generator
+- graphQL query

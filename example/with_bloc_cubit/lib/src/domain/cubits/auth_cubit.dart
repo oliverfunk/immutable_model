@@ -11,8 +11,8 @@ import '../models/auth_state.dart';
 Future<bool> _authUser(String email, String password) => Future.delayed(
       Duration(seconds: 1),
       () {
-        // 1 in 5 chance
-        return Random().nextInt(11) > 2;
+        // 1 in 10 chance
+        return Random().nextInt(11) > 1;
         // return true;
       },
     );
@@ -20,7 +20,7 @@ Future<bool> _authUser(String email, String password) => Future.delayed(
 class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
   final UserCubit userCubit;
 
-  AuthCubit(this.userCubit) : super(AuthState.model);
+  AuthCubit(this.userCubit) : super(authStateModel);
 
   Future<void> signIn(ModelEmail email, ModelPassword password) async {
     emit(state.transitionToAndUpdate(const AuthLoading(), {
@@ -30,10 +30,10 @@ class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
     // do some authroization using auth repo functions
     final didAuth = await _authUser(email.asSerializable(), password.asSerializable());
     if (didAuth) {
-      userCubit.userAuthed(email);
+      userCubit.authUser(email);
       emit(state.transitionTo(const AuthSuccess()));
     } else {
-      userCubit.userUnauthed();
+      userCubit.unauthUser();
       emit(state.transitionTo(const AuthError()));
     }
   }

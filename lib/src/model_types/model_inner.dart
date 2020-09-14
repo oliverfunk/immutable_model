@@ -1,4 +1,5 @@
 import 'package:built_collection/built_collection.dart';
+import 'package:immutable_model/src/model_selector.dart';
 
 import '../../model_types.dart';
 import '../model_type.dart';
@@ -40,14 +41,14 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
           : logExceptionAndReturn(_current, ValidationException(this, toValidate));
 
   ModelInner _builder(
-    BuiltMap<String, dynamic> Function(Map<String, dynamic> update) mapBuilder,
+    BuiltMap<String, ModelType> Function(Map<String, dynamic> update) mapBuilder,
     Map<String, dynamic> update,
   ) =>
       (strictUpdates && !checkUpdateStrictly(update))
           ? logExceptionAndReturn(this, StrictUpdateException(this, update))
           : update.isEmpty ? this : ModelInner._next(this, _validateModel(mapBuilder(update)));
 
-  BuiltMap<String, dynamic> _buildNext(Map<String, dynamic> next) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildNext(Map<String, dynamic> next) => _current.rebuild((mb) {
         next.forEach((field, nextValue) {
           hasField(field)
               ? mb.updateValue(
@@ -66,29 +67,11 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   @override
   ModelInner buildNext(Map<String, dynamic> next) => _builder(_buildNext, next);
 
-  // ModelInner select(List<String> selectorLabels, [dynamic value]) => ModelInner._next(this, _current.rebuild((mb) {
-  //       selectorLabels.forEach((label) {
-  //         hasField(label)
-  //             ? value != null
-  //               ? mb.updateValue(
-  //                 label,
-  //                 (currentModel) => nextValue == null
-  //                     ? currentModel.next(null)
-  //                     : nextValue is ModelType // model update
-  //                         ? currentModel.nextFromModel(nextValue)
-  //                         : nextValue is ValueUpdater // function update
-  //                             ? currentModel.nextFromFunc(nextValue)
-  //                             : currentModel.nextFromDynamic(nextValue)) // normal value update
-  //               :
-  //             : throw ModelAccessError(this, field);
-  //       });
-  //     }));
-  // ModelInner nextWithSelector(ModelType Function(String label) selector, dynamic value) {}
+  ModelInner nextWithSelector<V>(ModelSelector<V> selector, V value) =>
+      next(_mapifySelectors(selector.selectors, value));
 
-  // BuiltMap<String, dynamic> _buildWithSelector(ModelType Function(List<String> labels) selector, dynamic value) => _current.rebuild((mb) {
-
-  //     selector(mb) = selector(mb).next(value);
-  //     });
+  Map<String, dynamic> _mapifySelectors(Iterable<String> list, dynamic value) =>
+      list.length == 1 ? {list.first: value} : {list.first: _mapifySelectors(list.skip(1), value)};
 
   /*
   * Checks if every field in the model is in the update and has a value.
@@ -98,7 +81,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
   // not efficient
   @override
-  Map<String, dynamic> get value => _current.toMap().map((field, value) => MapEntry(field, value.value));
+  Map<String, dynamic> get value => _current.toMap().map((field, model) => MapEntry(field, model.value));
 
   Map<String, ModelType> get asModelMap => _current.asMap();
 
@@ -106,7 +89,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       ? ModelInner._next(this, _buildMergeOther(other.asModelMap))
       : throw ModelHistoryEqualityError(this, other);
 
-  BuiltMap<String, dynamic> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildMergeOther(Map<String, ModelType> other) => _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
@@ -176,6 +159,22 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   bool hasField(String field) => _current.containsKey(field);
 
   int get numberOfFields => _current.length;
+
+  ModelType _select(Iterable<String> selectorStrings) {
+    final fm = fieldModel(selectorStrings.first);
+    if (selectorStrings.length == 1) {
+      return fm;
+    } else {
+      return fm is ModelInner ? fm._select(selectorStrings.skip(1)) : throw ModelSelectError(selectorStrings.first);
+    }
+  }
+
+  // R useSelector<R>(SelectorString<R> sel) => select(sel.selectorString) as R;
+
+  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
+      _select(selector.selectors) as ModelType<dynamic, V>;
+
+  V select<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
   ModelType fieldModel(String field) => hasField(field) ? _current[field] : throw ModelAccessError(this, field);
 

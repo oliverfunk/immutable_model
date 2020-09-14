@@ -6,16 +6,23 @@
   "configurations": [
     {
       "type": "dart",
+      "name": "Run All Tests",
+      "request": "launch",
+      "program": "test/"
+    },
+    {
+      "type": "dart",
       "name": "Debug with_bloc on Chrome",
       "request": "launch",
       "program": "example/with_bloc/lib/main.dart",
       "args": ["-d", "chrome"]
-    }
+    },
     {
       "type": "dart",
-      "name": "Run All Tests",
+      "name": "Debug with_bloc_cubit on Chrome",
       "request": "launch",
-      "program": "test/",
+      "program": "example/with_bloc_cubit/lib/main.dart",
+      "args": ["-d", "chrome"]
     }
   ]
 }

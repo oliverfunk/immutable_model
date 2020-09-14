@@ -12,11 +12,7 @@ abstract class WeatherRepository {
 class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
   final WeatherRepository _weatherRepository;
 
-  WeatherCubit(this._weatherRepository) : super(WeatherState.model);
-
-  String get cityName => state[CityName.label];
-  double get temperature => state["weather_data"]["temperature"];
-  String get weather => state["weather_data"]["weather"];
+  WeatherCubit(this._weatherRepository) : super(weatherStateModel);
 
   Future<void> fetchWeather(CityName cityName) async {
     try {
@@ -33,6 +29,4 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
       emit(state.transitionTo(const WeatherError("Couldn't fetch weather. Is the device online?")));
     }
   }
-
-  void undo() => emit(state.restoreBy(1));
 }

@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/blocs/weather/weather_bloc.dart';
-import '../domain/blocs/weather/weather_state.dart';
+import '../domain/cubits/weather_cubit.dart';
+import '../domain/models/weather_state.dart';
 
 class FakeWeatherRepository implements WeatherRepository {
   @override
