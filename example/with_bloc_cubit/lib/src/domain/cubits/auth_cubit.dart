@@ -10,11 +10,8 @@ import '../models/auth_state.dart';
 // fake auth'ing function
 Future<bool> _authUser(String email, String password) => Future.delayed(
       Duration(seconds: 1),
-      () {
-        // 1 in 5 chance of being false
-        return Random().nextInt(10) > 1;
-        // return true;
-      },
+      // 1 in 5 chance of being false
+      () => Random().nextInt(10) > 1,
     );
 
 class AuthCubit extends Cubit<ImmutableModel<AuthState>> {

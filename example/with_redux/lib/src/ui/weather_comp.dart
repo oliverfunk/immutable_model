@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import '../domain/blocs/weather/weather_bloc.dart';
-import '../domain/blocs/weather/weather_state.dart';
+import '../domain/app_state.dart';
+import '../domain/redux/weather/weather_state.dart';
+import '../domain/redux/weather/weather_thunks.dart';
 
-WeatherBloc _weatherBloc(BuildContext context) => context.bloc<WeatherBloc>();
+Store<AppState> _store(BuildContext context) => StoreProvider.of<AppState>(context);
 
 class _CityInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
-        controller: TextEditingController()..text = WeatherState.cityName(_weatherBloc(context).state),
-        onSubmitted: (cityNameStr) => _weatherBloc(context).add(FetchWeather(CityName(cityNameStr))),
+        controller: TextEditingController()..text = WeatherState.cityName(_store(context).state.weatherModel),
+        onSubmitted: (cityNameStr) => _store(context).dispatch(fetchWeather(CityName(cityNameStr))),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -58,9 +60,10 @@ class WeatherComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         alignment: Alignment.center,
-        child: BlocConsumer<WeatherBloc, ImmutableModel<WeatherState>>(
-          listener: (context, model) {
-            final currentState = model.currentState;
+        child: StoreConnector<AppState, ImmutableModel<WeatherState>>(
+          converter: (store) => store.state.weatherModel,
+          onWillChange: (previousModel, newModel) {
+            final currentState = newModel.currentState;
             if (currentState is WeatherError) {
               Scaffold.of(context).showSnackBar(
                 SnackBar(

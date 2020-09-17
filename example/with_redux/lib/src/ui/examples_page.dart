@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:redux/redux.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux_thunk/redux_thunk.dart';
 
-import '../data/weather_repository.dart';
-
-import '../domain/blocs/auth/auth_bloc.dart';
-import '../domain/blocs/user/user_bloc.dart';
-import '../domain/blocs/weather/weather_bloc.dart';
+import '../domain/app_state.dart';
 
 import 'signin_comp.dart';
 import 'signin_json_disp.dart';
@@ -15,18 +13,12 @@ import 'weather_comp.dart';
 
 class ExamplesPage extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => MultiBlocProvider(
-        providers: [
-          BlocProvider<UserBloc>(
-            create: (context) => UserBloc(),
-          ),
-          BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(context.bloc<UserBloc>()),
-          ),
-          BlocProvider<WeatherBloc>(
-            create: (context) => WeatherBloc(FakeWeatherRepository()), // should use DI
-          ),
-        ],
+  Widget build(BuildContext context) => StoreProvider(
+        store: Store<AppState>(
+          appStateReducer,
+          initialState: AppState.inital(),
+          middleware: [thunkMiddleware],
+        ),
         child: Container(
           padding: const EdgeInsets.all(10),
           alignment: Alignment.center,

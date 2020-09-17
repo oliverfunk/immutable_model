@@ -22,13 +22,17 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     this.strictUpdates = false,
     String fieldLabel,
   ])  : assert(modelMap != null && modelMap.isNotEmpty, "The model cannot be null and must have fields"),
-        assert(modelValidator == null || modelValidator(modelMap), "Inital values in $modelMap do not validate"),
         _current = BuiltMap.of(modelMap),
         super.inital(
           modelMap,
           (_) => true, // this class manages it's own validation
           fieldLabel,
-        );
+        ) {
+    if (modelValidator != null && !modelValidator(modelMap)) {
+      logException(ValidationException(this, value));
+      throw ModelInitializationError(this, value);
+    }
+  }
 
   ModelInner._next(ModelInner last, this._current)
       : modelValidator = last.modelValidator,

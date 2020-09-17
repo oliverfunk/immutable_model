@@ -78,9 +78,9 @@ class WeatherComponent extends StatelessWidget {
             } else if (currentState is WeatherLoaded) {
               return _buildShowWeather(
                   WeatherState.cityName(model), WeatherState.temperature(model), WeatherState.weather(model));
-            } else {
-              return _buildInitialInput();
             }
+
+            return _buildInitialInput();
           },
         ),
       );

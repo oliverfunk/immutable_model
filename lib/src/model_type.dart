@@ -29,10 +29,13 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
     V initalValue,
     ValueValidator<V> validator,
     this.fieldLabel,
-  )   : assert(initalValue == null || validator == null || validator(initalValue),
-            "Initalising with invalid value: $initalValue"),
-        _validator = validator,
-        _initialModel = null;
+  )   : _validator = validator,
+        _initialModel = null {
+    if (initalValue != null && !validate(initalValue)) {
+      logException(ValidationException(this, value));
+      throw ModelInitializationError(this, value);
+    }
+  }
 
   ModelType.fromPrevious(M previous)
       : _initialModel = previous.inital,
@@ -50,7 +53,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
       : validate(value) ? buildNext(value) : logExceptionAndReturn(this, ValidationException(this, value));
 
   @nonVirtual
-  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelTypeError(this, value);
+  M nextFromDynamic(dynamic value) => value is V ? next(value) : throw ModelInitializationError(this, value);
 
   @nonVirtual
   M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));

@@ -33,6 +33,8 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   @override
   String get value => convertEnum(_current);
 
+  E get valueAsEnum => _current;
+
   List<E> get enums => _enums;
 
   List<String> get enumStrings => convertEnumList(_enums);

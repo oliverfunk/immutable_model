@@ -11,7 +11,8 @@ dependencies:
     sdk: flutter
   immutable_model:
     path: ../../
-  flutter_bloc: ^6.0.1
+  flutter_redux: ^0.6.0
+  redux_thunk: ^0.3.0
   equatable: ^1.2.3
   logging: ^0.11.4
 

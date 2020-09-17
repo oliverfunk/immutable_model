@@ -1,6 +1,19 @@
 import '../model_types.dart';
 import 'model_type.dart';
 
+class ModelInitializationError extends Error {
+  final ModelType thisModel;
+  final dynamic receivedValue;
+
+  ModelInitializationError(this.thisModel, this.receivedValue);
+
+  @override
+  String toString() => "ModelInitializationError\n"
+      "Attempting to initialize model <${thisModel.modelType}> with invalid data.\n"
+      " This model:     ${thisModel.toLongString()}\n"
+      " Invalid data:   $receivedValue";
+}
+
 class ModelTypeError extends Error {
   final ModelType thisModel;
   final dynamic receivedValue;
@@ -46,7 +59,7 @@ class ModelSelectError extends Error {
 
   @override
   String toString() => "ModelSelectError\n"
-      "Attemping to traverse but the selected model from field '$field' is not a ModelInner.";
+      "Attemping to traverse the state tree but the selected '$field' is not a ModelInner.";
 }
 
 class ModelStateError extends Error {
