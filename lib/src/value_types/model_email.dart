@@ -7,7 +7,7 @@ class ModelEmail extends ModelValue<ModelEmail, String> with ValueType {
           caseSensitive: false)
       .hasMatch(emailStr);
 
-  ModelEmail([String defaultEmail, String fieldLabel = 'email']) : super.string(defaultEmail, validator, fieldLabel);
+  ModelEmail([String defaultEmail, String fieldLabel = 'email']) : super.text(defaultEmail, validator, fieldLabel);
 
   ModelEmail._next(ModelEmail previous, String value) : super.constructNext(previous, value);
 

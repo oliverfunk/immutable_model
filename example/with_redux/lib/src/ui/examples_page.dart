@@ -16,7 +16,7 @@ class ExamplesPage extends StatelessWidget {
   Widget build(BuildContext context) => StoreProvider(
         store: Store<AppState>(
           appStateReducer,
-          initialState: AppState.inital(),
+          initialState: AppState.initial(),
           middleware: [thunkMiddleware],
         ),
         child: Container(

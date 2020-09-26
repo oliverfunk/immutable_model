@@ -1,73 +1,39 @@
-import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/model_types.dart';
-import 'package:immutable_model/value_types.dart';
 import 'package:test/test.dart';
 
-// todo: test each model_* without using imm_mod
+import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
+// import 'package:immutable_model/value_types.dart';
 
 enum TestAnotherEnum { AnFirst, AnSecond, Third }
-
-class CityName extends ModelValue<CityName, String> with ValueType {
-  // checks if every word is capitalised
-  static final validator = (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
-  static const label = "city_name";
-
-  CityName([String defaultCityName]) : super.text(defaultCityName.trim(), validator, label);
-
-  CityName._next(CityName previous, String value) : super.constructNext(previous, value.trim());
-
-  @override
-  CityName buildNext(String nextValue) => CityName._next(this, nextValue);
-}
-
 void main() {
-  test("test misc", () {
-    final cn = CityName('asd');
+  test("misc", () {
+    final userStateModel = ImmutableModel(
+      {
+        "email": M.email(),
+        "chosen_values": M.inner({
+          "entered_text": M.str(initialValue: "Hello M!"),
+          "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
+          "entered_double": M.dbl(initialValue: 13 / 7),
+          "chosen_bool": M.bl(initialValue: true),
+          "chosen_enum": M.enm(TestAnotherEnum.values, TestAnotherEnum.AnFirst),
+          "date_begin": M.dt(initialValue: DateTime.now()),
+          "date_end": M.dt(initialValue: DateTime.now().add(Duration(days: 1))),
+          'list_of_evens': M.ntList(initialValue: [2, 4, 6, 8], validator: (n) => n.isEven, append: false),
+        }),
+      },
+      modelValidator: (modelMap) {
+        final chosenValuesInner = modelMap['chosen_values'] as ModelInner;
+        return (chosenValuesInner['date_begin'] as DateTime).isBefore(chosenValuesInner['date_end'] as DateTime);
+      },
+    );
 
-    // final model = ImmutableModel(
-    //   {
-    //     "email": M.email(
-    //       defaultEmail: "oli.funk@gmail.com",
-    //     ),
-    //     "password": M.password(),
-    //     "chosen_values": M.inner({
-    //       "a_str": M.str(
-    //         initialValue: "Hello M!",
-    //       ),
-    //       "validated_number": M.nt(
-    //         initialValue: 0,
-    //         validator: (n) => n >= 0,
-    //       ),
-    //       "entered_double": M.dbl(
-    //         initialValue: 13 / 7,
-    //       ),
-    //       "chosen_bool": M.bl(
-    //         initialValue: true,
-    //       ),
-    //       "date_begin": M.dt(
-    //         initialValue: DateTime.now(),
-    //       ),
-    //       "date_end": M.dt(
-    //         initialValue: DateTime.now().add(Duration(seconds: 100)),
-    //       ),
-    //       'list_of_evens': M.ntList(
-    //         initialValue: [2, 4, 6, 8],
-    //         validator: (n) => n.isEven,
-    //         append: false,
-    //       ),
-    //     }),
-    //   },
-    //   modelValidator: (modelMap) => (modelMap['chosen_values']['date_begin'] as DateTime)
-    //       .isBefore(modelMap['chosen_values']['date_end'] as DateTime),
-    // );
+    final newm = userStateModel.update({
+      "chosen_values": {"entered_text": "Oliver"}
+    });
 
-    // final mod2 = model.update({
-    //   'chosen_values': {'list_of_evens': (list) => list..insert(2, 60)}
-    // });
+    final t = M.bl();
 
-    // print(mod2.toJsonDiff(model));
-    // print(mod3);
-    // print(mod2.mergeFrom(mod3));
+    print(newm);
   });
 
 //  group("Model object tests", () {

@@ -5,7 +5,7 @@ final authStateModel = ImmutableModel<AuthState>(
     "email": M.email(defaultEmail: 'example@gmail.com'),
     "password": M.password(),
   },
-  initalState: const AuthInitial(),
+  initialState: const AuthInitial(),
 );
 
 abstract class AuthState {

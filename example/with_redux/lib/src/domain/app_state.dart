@@ -21,7 +21,7 @@ class AppState {
     @required this.userModel,
     @required this.weatherModel,
   });
-  AppState.inital()
+  AppState.initial()
       : authModel = authStateModel,
         userModel = userStateModel,
         weatherModel = weatherStateModel;

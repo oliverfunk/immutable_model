@@ -32,7 +32,7 @@ class SignInComponent extends StatelessWidget {
 
   Widget _signInForm(BuildContext context) => Form(
         key: _formKey,
-        autovalidate: true,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Column(
           children: [
             _emailInput(context),

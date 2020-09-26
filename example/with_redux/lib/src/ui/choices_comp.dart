@@ -66,19 +66,45 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputFavSeason(Store<AppState> store) => StoreConnector<AppState, String>(
         converter: (store) => store.state.userModel.select(UserState.chosenEnumSel),
         distinct: true,
-        builder: (context, seasonString) => DropdownButton<String>(
-          underline: Container(),
-          value: seasonString,
-          onChanged: (String enStr) => store.dispatch(UpdateValues(UserState.chosenEnumSel, enStr)),
-          items: (_store(context).state.userModel.selectModel(UserState.chosenEnumSel) as ModelEnum)
-              .enumStrings
-              .map<DropdownMenuItem<String>>((String value) => DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  ))
-              .toList(),
+        builder: (context, seasonString) => Row(
+          children: [
+            DropdownButton<String>(
+              underline: Container(),
+              value: seasonString,
+              onChanged: (String enStr) => store.dispatch(UpdateValues(UserState.chosenEnumSel, enStr)),
+              items: (_store(context).state.userModel.selectModel(UserState.chosenEnumSel) as ModelEnum)
+                  .enumStrings
+                  .map<DropdownMenuItem<String>>((String value) => DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      ))
+                  .toList(),
+            ),
+            Padding(padding: EdgeInsets.only(left: 2.0)),
+            _buildSeasonWords(
+                (_store(context).state.userModel.selectModel(UserState.chosenEnumSel) as ModelEnum<Seasons>)
+                    .valueAsEnum),
+          ],
         ),
       );
+
+  // ignore: missing_return
+  Widget _buildSeasonWords(Seasons current) {
+    switch (current) {
+      case Seasons.Spring:
+        return Text("has sprung.");
+        break;
+      case Seasons.Summer:
+        return Text("time sunshine.");
+        break;
+      case Seasons.Winter:
+        return Text("is coming.");
+        break;
+      case Seasons.Autum:
+        return Text("leaves on the trees.");
+        break;
+    }
+  }
 
   _selectDateBegin(BuildContext context, DateTime current) async {
     final DateTime picked = await showDatePicker(

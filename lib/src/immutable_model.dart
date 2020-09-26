@@ -18,12 +18,12 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel(
     Map<String, ModelType> model, {
     ModelValidator modelValidator,
-    S initalState,
+    S initialState,
     bool strictUpdates = false,
     int cacheBufferSize,
-  })  : assert(initalState is S, "The model's initalState must be set"),
+  })  : assert(initialState is S, "The model's initialState must be set"),
         _model = ModelInner(model, modelValidator, strictUpdates),
-        _state = initalState ?? ModelState.Default as S,
+        _state = initialState ?? ModelState.Default as S,
         _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
 
   ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model, [bool cacheOrPurge = true])
@@ -79,6 +79,9 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
       ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
 
+  /*
+  * Updates a field in the model using the [selector] with [value]
+  */
   ImmutableModel<S> updateWithSelector<V>(ModelSelector<V> selector, V value) =>
       ImmutableModel<S>._nextModel(this, _model.nextWithSelector(selector, value));
 
@@ -137,7 +140,7 @@ class ImmutableModel<S> extends Equatable {
 
   // misc
 
-  /// Resets the initalModel to the newly joined one
+  /// Resets the initialModel to the newly joined one
   ImmutableModel<S> join(
     ImmutableModel otherModel, [
     bool strictUpdates = false,

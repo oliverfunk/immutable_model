@@ -7,7 +7,7 @@ abstract class ImmutableModelException implements Exception {
   ImmutableModelException(this.model, this.reason);
 
   @override
-  String toString() => "${this.runtimeType} occured for ${model.modelType}: $reason";
+  String toString() => "${runtimeType} occurred for ${model.toShortString()}:\n$reason";
 }
 
 class ValidationException extends ImmutableModelException {
@@ -19,12 +19,12 @@ class StrictUpdateException extends ImmutableModelException {
   StrictUpdateException(ModelInner model, Map<String, dynamic> update)
       : super(
             model,
-            "Some fields in model were not in the update or their value was null\n"
+            "The update did not contain all fields in the model or some values were null\n"
             "  Fields in model:   ${model.fieldLabels}\n"
             "  Fields in update:  ${update.keys}");
 }
 
 class DeserialisationException extends ImmutableModelException {
   DeserialisationException(ModelType model, dynamic receivedValue)
-      : super(model, "Could not deserialise value '$receivedValue'");
+      : super(model, "Could not deserialize value '$receivedValue'");
 }

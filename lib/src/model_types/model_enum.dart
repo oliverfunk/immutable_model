@@ -14,10 +14,10 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
     E initial, [
     String fieldLabel,
   ])  : assert(enums.isNotEmpty, "Provide an enum list using the EnumClass.values method"),
-        assert(initial != null, "An inital enum value must be provided"),
+        assert(initial != null, "An initial enum value must be provided"),
         _current = initial,
         _enums = enums,
-        super.inital(convertEnum(initial),
+        super.initial(convertEnum(initial),
             (String toValidate) => convertEnumList(enums).any((enStr) => enStr == toValidate), fieldLabel);
 
   ModelEnum._next(ModelEnum<E> last, this._current)
@@ -38,6 +38,9 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   List<E> get enums => _enums;
 
   List<String> get enumStrings => convertEnumList(_enums);
+
+  @override
+  dynamic asSerializable() => value;
 
   @override
   String fromSerialized(dynamic jsonValue) =>

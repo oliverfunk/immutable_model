@@ -26,7 +26,7 @@ final weatherStateModel = ImmutableModel<WeatherState>(
       strictUpdates: true,
     ),
   },
-  initalState: const WeatherInitial(),
+  initialState: const WeatherInitial(),
 );
 
 abstract class WeatherState {
