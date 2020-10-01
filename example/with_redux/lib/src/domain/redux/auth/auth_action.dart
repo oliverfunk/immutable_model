@@ -13,8 +13,8 @@ class SignInBegin extends AuthAction {
   const SignInBegin(this.email, this.password);
 }
 
-class SignInSuccsss extends AuthAction {
-  const SignInSuccsss();
+class SignInSuccess extends AuthAction {
+  const SignInSuccess();
 }
 
 class SignInFailure extends AuthAction {

@@ -11,7 +11,7 @@ class AuthReducer extends ReducerClass<ImmutableModel<AuthState>> {
         'email': action.email,
         'password': action.password,
       });
-    } else if (action is SignInSuccsss) {
+    } else if (action is SignInSuccess) {
       return model.transitionTo(const AuthSuccess());
     } else if (action is SignInFailure) {
       return model.transitionTo(const AuthError());

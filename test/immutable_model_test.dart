@@ -27,11 +27,7 @@ void main() {
       },
     );
 
-    final newm = userStateModel.update({
-      "chosen_values": {"entered_text": "Oliver"}
-    });
-
-    final t = M.bl();
+    final newm = userStateModel.select(ModelSelector<String>('chosen_values.validated_number'));
 
     print(newm);
   });

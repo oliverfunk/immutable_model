@@ -17,7 +17,9 @@ typedef dynamic ValueUpdater(dynamic currentValue);
 /// as provided by [Equatable].
 @immutable
 abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
-  /// The model's current value.
+  /// A copy of model's current value.
+  ///
+  /// Edit changing the values won't change the value in the model.
   V get value;
 
   /// The initial instance of this model.
@@ -35,7 +37,9 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   @nonVirtual
   bool get isInitial => identical(this, initial);
 
-  /// The field label associated with this model.
+  /// The field label associated with this model
+  ///
+  /// Generally set when used in a [ModelInner] or [ImmutableModel]. This is not guaranteed, however.
   ///
   /// Used in debugging or dynamically accessing this model via its field label.
   final String fieldLabel;
@@ -45,7 +49,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// Determines whether [toValidate] is valid or not.
   ///
-  /// Returns `true` if it is.
+  /// Returns `true` if it is and `false` otherwise.
   @nonVirtual
   bool validate(V toValidate) => _validator == null || _validator(toValidate);
 
@@ -84,7 +88,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// Returns an new instance of this model if [nextValue] is valid.
   ///
   /// Logs a [ValidationException] as a *WARNING* message (instead of throwing it) if [nextValue] is not valid
-  /// and returns the current instance.
+  /// and returns the current instance (with no update applied).
   @nonVirtual
   M next(V nextValue) => nextValue == null
       ? this
@@ -134,12 +138,13 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   // serialization methods
 
-  /// Returns the current model [value] as a serializable object.
+  /// Returns the current [value] of this model in a serializable format.
   ///
   /// The returned object should be serializable using the `JSON.encode` method.
   dynamic asSerializable();
 
-  /// Converts [serialized] to the value type [V] of this model.
+  /// Converts [serialized] to the value type [V] of this model and returns it.
+  /// Returns `null` if [serialized] could not be converted.
   ///
   /// [serialized] will normally be the value returned by [asSerializable].
   ///

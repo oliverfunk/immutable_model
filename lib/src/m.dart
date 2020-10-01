@@ -18,20 +18,7 @@ import '../value_types.dart';
 abstract class M {
   // model types
 
-  /// Returns a [ModelInner].
-  ///
-  /// [modelMap] defines a mapping between field label Strings and [ModelType] models. It cannot be null or empty.
-  ///
-  /// Each time the [ModelInner] is updated, the [modelValidator] function is run on the resulting map
-  /// (with the updated values). If the validation fails, a [ValidationException] will be logged
-  /// and the current instance will be returned, without having the update applied.
-  ///
-  /// If [strictUpdates] is true, every update must contain all fields defined in [modelMap]
-  /// and every field value cannot be null and must be valid. If it's false, updates can
-  /// contain a sub-set of the fields.
-  ///
-  /// Throws a [ModelInitializationError] if [modelValidator] is false after being run on [modelMap],
-  /// during initialization only.
+  /// Returns a [ModelInner]
   static ModelInner inner(
     Map<String, ModelType> model, {
     ModelValidator modelValidator,
@@ -40,6 +27,7 @@ abstract class M {
   }) =>
       ModelInner(model, modelValidator, strictUpdates, fieldLabel);
 
+  /// Returns a [ModelEnum]
   static ModelEnum<E> enm<E>(
     List<E> enums,
     E initial, {
@@ -47,12 +35,14 @@ abstract class M {
   }) =>
       ModelEnum(enums, initial, fieldLabel);
 
+  /// Returns a [ModelBool]
   static ModelBool bl({
     bool initialValue,
     String fieldLabel,
   }) =>
       ModelBool(initialValue, fieldLabel);
 
+  /// Returns a [ModelInt]
   static ModelInt nt({
     int initialValue,
     ValueValidator<int> validator,
@@ -60,6 +50,7 @@ abstract class M {
   }) =>
       ModelInt(initialValue, validator, fieldLabel);
 
+  /// Returns a [ModelDouble]
   static ModelDouble dbl({
     double initialValue,
     ValueValidator<double> validator,
@@ -67,6 +58,7 @@ abstract class M {
   }) =>
       ModelDouble(initialValue, validator, fieldLabel);
 
+  /// Returns a [ModelString]
   static ModelString str({
     String initialValue,
     ValueValidator<String> validator,
@@ -74,6 +66,7 @@ abstract class M {
   }) =>
       ModelString(initialValue, validator, fieldLabel);
 
+  /// Returns a [ModelString]
   static ModelString txt({
     String initialValue,
     ValueValidator<String> validator,
@@ -81,6 +74,7 @@ abstract class M {
   }) =>
       ModelString.text(initialValue, validator, fieldLabel);
 
+  /// Returns a [ModelDateTime]
   static ModelDateTime dt({
     DateTime initialValue,
     ValueValidator<DateTime> validator,
@@ -88,6 +82,7 @@ abstract class M {
   }) =>
       ModelDateTime(initialValue, validator, fieldLabel);
 
+  /// Returns a [ModelList.boolList]
   static ModelList<bool> blList({
     List<bool> initialValue,
     ListItemValidator<bool> validator,
@@ -96,6 +91,7 @@ abstract class M {
   }) =>
       ModelList.boolList(initialValue, append, fieldLabel);
 
+  /// Returns a [ModelList.intList]
   static ModelList<int> ntList({
     List<int> initialValue,
     ListItemValidator<int> validator,
@@ -104,6 +100,7 @@ abstract class M {
   }) =>
       ModelList.intList(initialValue, validator, append, fieldLabel);
 
+  /// Returns a [ModelList.doubleList]
   static ModelList<double> dblList({
     List<double> initialValue,
     ListItemValidator<double> validator,
@@ -112,6 +109,7 @@ abstract class M {
   }) =>
       ModelList.doubleList(initialValue, validator, append, fieldLabel);
 
+  /// Returns a [ModelList.stringList]
   static ModelList<String> strList({
     List<String> initialValue,
     ListItemValidator<String> validator,
@@ -120,6 +118,7 @@ abstract class M {
   }) =>
       ModelList.stringList(initialValue, validator, append, fieldLabel);
 
+  /// Returns a [ModelList.dateTimeList]
   static ModelList<DateTime> dtList({
     List<DateTime> initialValue,
     ListItemValidator<DateTime> validator,
@@ -128,22 +127,22 @@ abstract class M {
   }) =>
       ModelList.dateTimeList(initialValue, validator, append, fieldLabel);
 
-  /// A list of maps where each map must comply to the structure defined by [model]
-  /// and where each element in the map must have a value.
-  ///
-  /// The validation is performed using using a
-  static ModelValidatedList mvList(
+  /// Returns a [ModelList.modelValidatedList]
+  static ModelList<Map<String, dynamic>> mvList(
     ModelInner model, {
     List<Map<String, dynamic>> initialValue,
     bool append = true,
   }) =>
-      ModelValidatedList(model, initialValue, append);
+      ModelList.modelValidatedList(model, initialValue, append);
 
   // value types
+
+  /// Returns a [ModelEmail]
   static ModelEmail email({
     String defaultEmail,
   }) =>
       ModelEmail(defaultEmail);
 
+  /// Returns a [ModelPassword]
   static ModelPassword password() => ModelPassword();
 }

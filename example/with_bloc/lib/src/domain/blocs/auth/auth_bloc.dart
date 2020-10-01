@@ -29,7 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, ImmutableModel<AuthState>> {
         'email': event.email,
         'password': event.password,
       });
-      // do some authroization using auth repo functions
+      // do some authorization using auth repo functions
       final didAuth = await _authUser(event.email.asSerializable(), event.password.asSerializable());
       if (didAuth) {
         userBloc.add(AuthUser(event.email));

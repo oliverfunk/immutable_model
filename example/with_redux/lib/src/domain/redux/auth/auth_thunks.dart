@@ -18,11 +18,11 @@ Future<bool> _authUser(String email, String password) => Future.delayed(
 ThunkAction<AppState> signIn(ModelEmail email, ModelPassword password) {
   return (Store<AppState> store) async {
     store.dispatch(SignInBegin(email, password));
-    // do some authroization using auth repo functions
+    // do some authorization using auth repo functions
     final didAuth = await _authUser(email.asSerializable(), password.asSerializable());
     if (didAuth) {
       store.dispatch(AuthUser(email));
-      store.dispatch(SignInSuccsss());
+      store.dispatch(SignInSuccess());
     } else {
       store.dispatch(UnauthUser());
       store.dispatch(SignInFailure());
