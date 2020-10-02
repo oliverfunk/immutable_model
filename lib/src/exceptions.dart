@@ -1,5 +1,6 @@
 import '../model_types.dart';
 
+/// The abstract [Exception] used
 abstract class ImmutableModelException implements Exception {
   final ModelType model;
   final String reason;

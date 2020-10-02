@@ -1,9 +1,6 @@
 /// The main library, exposing the [ImmutableModel] class, [ModelSelector] and the static [M] class containing model shorthands.
 ///
-/// An examples defintion of animmutable mode:
-/// ```dart
-/// final stateModel = ImmutableModel();
-/// ```
+/// Using the shorthands defined in [M] is the recommended way of defining [ModelType]'s used in an [ImmutableModel].
 library immutable_model;
 
 export 'src/immutable_model.dart';

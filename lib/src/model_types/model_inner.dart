@@ -143,7 +143,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Note: this returns a copy of all components and nested-components of the underlying map,
   /// meaning this could potentially be an expensive call if this model is large.
-  /// Consider instead accessing only the required field values (using the [selectValue] or [fieldValue] methods).
+  /// Consider instead accessing only the required field values (using the [selectValue] or [get] methods).
   @override
   Map<String, dynamic> get value => _current.toMap().map((field, model) => MapEntry(field, model.value));
 
@@ -252,7 +252,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   Map<String, dynamic> fromSerialized(dynamic serialized) => serialized is! Map<String, dynamic>
       ? null
       : serialized.map((serField, serValue) => hasModel(serField)
-          ? MapEntry(serField, fieldModel(serField).fromSerialized(serValue))
+          ? MapEntry(serField, getModel(serField).fromSerialized(serValue))
           : MapEntry(serField, null))
     ..removeWhere((field, value) => value == null);
 
@@ -266,7 +266,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   bool hasModel(String fieldLabel) => _current.containsKey(fieldLabel);
 
   ModelType _select(Iterable<String> selectorStrings) {
-    final fm = fieldModel(selectorStrings.first);
+    final fm = getModel(selectorStrings.first);
     if (selectorStrings.length == 1) {
       return fm;
     } else {
@@ -282,16 +282,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   V selectValue<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
   /// Returns the [ModelType] model specified by [fieldLabel].
-  ModelType fieldModel(String fieldLabel) =>
+  ModelType getModel(String fieldLabel) =>
       hasModel(fieldLabel) ? _current[fieldLabel] : throw ModelAccessError(this, fieldLabel);
 
   /// Returns the value of the model specified by [fieldLabel].
-  dynamic fieldValue(String fieldLabel) => fieldModel(fieldLabel).value;
+  dynamic get(String fieldLabel) => getModel(fieldLabel).value;
 
   /// Returns the value of the model specified by [fieldLabel], except if the model is a [ModelInner], in which case
   /// the [ModelInner] model will be returned, not its value.
   dynamic operator [](String fieldLabel) {
-    final fm = fieldModel(fieldLabel);
+    final fm = getModel(fieldLabel);
     return fm is ModelInner ? fm : fm.value;
   }
 

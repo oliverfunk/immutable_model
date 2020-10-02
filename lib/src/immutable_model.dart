@@ -7,10 +7,10 @@ import 'errors.dart';
 import 'model_type.dart';
 import 'model_types/model_inner.dart';
 
-/// Default state for an [ImmutableModel]
+/// Default placeholder state for [ImmutableModel]'s
 enum ModelState { Default }
 
-/// The central class used to define an immutable state model.
+/// The main class used to define immutable state models.
 @immutable
 class ImmutableModel<S> extends Equatable {
   /// The internal [ModelInner] used by this class.
@@ -112,7 +112,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// Note: this returns a copy of all components and nested-components of the underlying map,
   /// meaning this could potentially be an expensive call if this model is large.
-  /// Consider instead accessing only the required field values (using the [select] or [fieldValue] methods).
+  /// Consider instead accessing only the required field values (using the [select] or [get] methods).
   Map<String, dynamic> toMap() => _model.value;
 
   // updating
@@ -224,10 +224,10 @@ class ImmutableModel<S> extends Equatable {
   V select<V>(ModelSelector<V> selector) => _model.selectValue(selector);
 
   /// Returns the [ModelType] model specified by [fieldLabel].
-  ModelType fieldModel(String fieldLabel) => _model.fieldModel(fieldLabel);
+  ModelType getModel(String fieldLabel) => _model.getModel(fieldLabel);
 
   /// Returns the value of the model specified by [fieldLabel].
-  dynamic fieldValue(String fieldLabel) => _model.fieldValue(fieldLabel);
+  dynamic get(String fieldLabel) => _model.get(fieldLabel);
 
   /// Returns the value of the model specified by [fieldLabel], except if the model is a [ModelInner], in which case
   /// the [ModelInner] model will be returned, not its value.

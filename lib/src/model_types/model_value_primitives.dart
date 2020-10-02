@@ -1,7 +1,7 @@
 import '../model_type.dart';
 import '../model_value.dart';
 
-/// A model of a [bool]. This class needs no validator.
+/// A model for a [bool]. This class needs no validator.
 class ModelBool extends ModelValue<ModelBool, bool> {
   ModelBool._([
     bool initialValue,
@@ -26,7 +26,7 @@ class ModelBool extends ModelValue<ModelBool, bool> {
   ModelBool buildNext(bool nextValue) => ModelBool._next(this, nextValue);
 }
 
-/// A model of a validated [int].
+/// A model for a validated [int].
 class ModelInt extends ModelValue<ModelInt, int> {
   ModelInt._([
     int initialValue,
@@ -63,7 +63,7 @@ class ModelInt extends ModelValue<ModelInt, int> {
   ModelInt buildNext(int nextValue) => ModelInt._next(this, nextValue);
 }
 
-/// A model of a validated [double].
+/// A model for a validated [double].
 class ModelDouble extends ModelValue<ModelDouble, double> {
   ModelDouble._([
     double initialValue,
@@ -99,7 +99,7 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
   ModelDouble buildNext(double nextValue) => ModelDouble._next(this, nextValue);
 }
 
-/// A model of a validated [String].
+/// A model for a validated [String].
 class ModelString extends ModelValue<ModelString, String> {
   ModelString._([
     String initialValue,
@@ -164,7 +164,7 @@ class ModelString extends ModelValue<ModelString, String> {
   ModelString buildNext(String nextValue) => ModelString._next(this, nextValue);
 }
 
-/// A model of a validated [DateTime]
+/// A model for a validated [DateTime]
 class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
   ModelDateTime._([
     DateTime initialValue,

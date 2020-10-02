@@ -1,5 +1,5 @@
-- TODO: documentation
-- TODO: write tests
-- TODO: Write about supported types, write the readme and contribute
-- todo: build fromjson file generator
-- graphQL query
+# Roadmap
+
+- Output graphQL query from a model
+- write tests
+- build model generator from JSON files

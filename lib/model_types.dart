@@ -1,4 +1,7 @@
-/// Is this libray doci for MOdel tpyes?
+/// The library exposing all base [ModelType] classes defined in this package.
+///
+/// Import this library if you need to access their type definitions,
+/// otherwise use the shorthands defined in [M] when using them in an [ImmutableModel].
 library model_types;
 
 export 'src/model_type.dart';
