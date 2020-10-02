@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../model_type.dart';
 import '../model_value.dart';
 
 /// A model of a valid password string.
 class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
-  static final ValueValidator<String> validator =
-      (pwdStr) => RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").hasMatch(pwdStr);
+  static bool validator(String pwdStr) => RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").hasMatch(pwdStr);
 
   /// Constructs a [ModelValue] of a [String] for a password [ValueType].
   ///
@@ -15,7 +13,10 @@ class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
   ///
   /// The password string is hashed when [asSerializable] is called. This is to mitigate against the cleartext password
   /// being sent down the wire.
-  ModelPassword([String password, String fieldLabel = 'password']) : super.text(password, validator, fieldLabel);
+  ModelPassword(
+    String password, {
+    String fieldLabel = 'password',
+  }) : super.text(password, validator, fieldLabel);
 
   ModelPassword._next(ModelPassword previous, String value) : super.constructNext(previous, value);
 

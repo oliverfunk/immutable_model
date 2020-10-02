@@ -8,7 +8,7 @@ abstract class ImmutableModelException implements Exception {
   ImmutableModelException(this.model, this.reason);
 
   @override
-  String toString() => "${runtimeType} occurred for ${model.toShortString()}:\n$reason";
+  String toString() => "$runtimeType occurred for ${model.toShortString()}:\n$reason";
 }
 
 /// An [Exception] that occurs when a model is updated with an invalid value.

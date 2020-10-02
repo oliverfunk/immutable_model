@@ -29,6 +29,7 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
   ///
   /// This model needs no validation.
   ModelValue.bool([
+    // ignore: avoid_positional_boolean_parameters
     bool initialValue,
     String fieldLabel,
   ])  : _current = initialValue as V,

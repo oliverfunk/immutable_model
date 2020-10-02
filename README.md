@@ -1,5 +1,9 @@
 # immutable_model
 
+[![pub package](https://img.shields.io/pub/v/immutable_model.svg)](https://pub.dev/packages/immutable_model)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://pub.dev/packages/effective_dart)
+
 This package lets you define valid, immutable state models in a succinct way (with no code generation) that are interoperable between commonly used state management systems and that support serialization to and from JSON out of the box.
 
 Fully implemented examples using this package with the **BLoC** (and Cubits) and **Redux** frameworks can found in the [example](https://github.com/oliverfunk/immutable_model/tree/master/example) folder.

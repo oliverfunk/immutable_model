@@ -18,7 +18,11 @@ class ModelBool extends ModelValue<ModelBool, bool> {
   ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
-  factory ModelBool([bool initialValue, String fieldLabel]) => ModelBool._(initialValue, fieldLabel);
+  factory ModelBool({
+    bool initialValue,
+    String fieldLabel,
+  }) =>
+      ModelBool._(initialValue, fieldLabel);
 
   ModelBool._next(ModelBool previous, bool value) : super.constructNext(previous, value);
 
@@ -54,7 +58,11 @@ class ModelInt extends ModelValue<ModelInt, int> {
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelInt([int initialValue, ValueValidator<int> validator, String fieldLabel]) =>
+  factory ModelInt({
+    int initialValue,
+    ValueValidator<int> validator,
+    String fieldLabel,
+  }) =>
       ModelInt._(initialValue, validator, fieldLabel);
 
   ModelInt._next(ModelInt previous, int value) : super.constructNext(previous, value);
@@ -90,7 +98,11 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelDouble([double initialValue, ValueValidator<double> validator, String fieldLabel]) =>
+  factory ModelDouble({
+    double initialValue,
+    ValueValidator<double> validator,
+    String fieldLabel,
+  }) =>
       ModelDouble._(initialValue, validator, fieldLabel);
 
   ModelDouble._next(ModelDouble previous, double value) : super.constructNext(previous, value);
@@ -132,7 +144,11 @@ class ModelString extends ModelValue<ModelString, String> {
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelString([String initialValue, ValueValidator<String> validator, String fieldLabel]) =>
+  factory ModelString({
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  }) =>
       ModelString._(initialValue, validator, fieldLabel);
 
   /// Constructs a [ModelValue] of a [String], where the underlying [String] cannot be null or empty.
@@ -155,7 +171,11 @@ class ModelString extends ModelValue<ModelString, String> {
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelString.text([String initialValue, ValueValidator<String> validator, String fieldLabel]) =>
+  factory ModelString.text({
+    String initialValue,
+    ValueValidator<String> validator,
+    String fieldLabel,
+  }) =>
       ModelString._text(initialValue, validator, fieldLabel);
 
   ModelString._next(ModelString previous, String value) : super.constructNext(previous, value);
@@ -194,7 +214,11 @@ class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelDateTime([DateTime initialValue, ValueValidator<DateTime> validator, String fieldLabel]) =>
+  factory ModelDateTime({
+    DateTime initialValue,
+    ValueValidator<DateTime> validator,
+    String fieldLabel,
+  }) =>
       ModelDateTime._(initialValue, validator, fieldLabel);
 
   ModelDateTime._next(ModelDateTime previous, DateTime value) : super.constructNext(previous, value);

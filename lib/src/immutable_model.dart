@@ -1,13 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-import 'model_selector.dart';
-import 'utils/cache_buffer.dart';
 import 'errors.dart';
+import 'model_selector.dart';
 import 'model_type.dart';
 import 'model_types/model_inner.dart';
+import 'utils/cache_buffer.dart';
 
 /// Default placeholder state for [ImmutableModel]'s
+// ignore: constant_identifier_names
 enum ModelState { Default }
 
 /// The main class used to define immutable state models.
@@ -50,7 +51,7 @@ class ImmutableModel<S> extends Equatable {
     bool strictUpdates = false,
     int cacheBufferSize,
   })  : assert(initialState is S, "The model's initialState must be set"),
-        _model = ModelInner(modelMap, modelValidator, strictUpdates),
+        _model = ModelInner(modelMap, modelValidator: modelValidator, strictUpdates: strictUpdates),
         _state = initialState ?? ModelState.Default as S,
         _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
 
@@ -245,10 +246,10 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// The cache buffer size of this is set as the cache buffer size for the joined instance.
   ImmutableModel<S> join(
-    ImmutableModel other, [
+    ImmutableModel other, {
     bool strictUpdates = false,
-  ]) {
-    final joinedInner = _model.join(other._model, strictUpdates);
+  }) {
+    final joinedInner = _model.join(other._model, strictUpdates: strictUpdates);
     return ImmutableModel<S>(
       joinedInner.asModelMap,
       modelValidator: joinedInner.modelValidator,

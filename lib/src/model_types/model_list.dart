@@ -1,13 +1,12 @@
 import 'package:built_collection/built_collection.dart';
 
-import '../utils/log.dart';
 import '../exceptions.dart';
-
 import '../model_type.dart';
+import '../utils/log.dart';
 import 'model_inner.dart';
 
 /// A function that validates an item from a list
-typedef bool ListItemValidator<V>(V list);
+typedef ListItemValidator<V> = bool Function(V list);
 
 /// A model for a validated list of items.
 class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
@@ -27,7 +26,7 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
           initialList,
           listItemValidator == null
               ? null
-              : (List<T> toValidate) => toValidate.every((listItem) => listItemValidator(listItem)),
+              : (toValidate) => toValidate.every((listItem) => listItemValidator(listItem)),
           fieldLabel,
         );
 
@@ -44,11 +43,11 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
-  factory ModelList.boolList([
+  factory ModelList.boolList({
     List<bool> initialList,
     bool append = true,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelList._(initialList as List<T>, null, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [int]s.
@@ -74,12 +73,12 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [listItemValidator] returns `false` on an element of [initialList].
-  factory ModelList.intList([
+  factory ModelList.intList({
     List<int> initialList,
     ListItemValidator<int> listItemValidator,
     bool append = true,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [double]s.
@@ -105,12 +104,12 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [listItemValidator] returns `false` on an element of [initialList].
-  factory ModelList.doubleList([
+  factory ModelList.doubleList({
     List<double> initialList,
     ListItemValidator<double> listItemValidator,
     bool append = true,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [String]s.
@@ -136,12 +135,12 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [listItemValidator] returns `false` on an element of [initialList].
-  factory ModelList.stringList([
+  factory ModelList.stringList({
     List<String> initialList,
     ListItemValidator<String> listItemValidator,
     bool append = true,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [DateTime]s.
@@ -167,12 +166,12 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [listItemValidator] returns `false` on an element of [initialList].
-  factory ModelList.dateTimeList([
+  factory ModelList.dateTimeList({
     List<DateTime> initialList,
     ListItemValidator<DateTime> listItemValidator,
     bool append = true,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [Map]s that are validated against a [ModelInner].
@@ -200,11 +199,11 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   ///
   /// Throws a [ModelInitializationError] if [initialList] contains an invalid map.
   factory ModelList.modelValidatedList(
-    ModelInner model, [
+    ModelInner model, {
     List<Map<String, dynamic>> initialList,
     bool append = true,
     String fieldLabel,
-  ]) {
+  }) {
     assert(model != null, "A model must be provided");
     return ModelList._(
         initialList as List<T>, (mapItem) => model.checkUpdate(mapItem as Map<String, dynamic>), append, fieldLabel);
@@ -229,7 +228,7 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   @override
   List<T> fromSerialized(dynamic serialized) => serialized is List
       ? T == DateTime
-          ? serialized.cast<String>().map((dtStr) => DateTime.parse(dtStr)) as List<T>
+          ? serialized.cast<String>().map(DateTime.parse) as List<T>
           : serialized.cast<T>()
       : null;
 

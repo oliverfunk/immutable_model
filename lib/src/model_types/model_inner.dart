@@ -1,16 +1,15 @@
 import 'package:built_collection/built_collection.dart';
 
-import '../model_type.dart';
-import '../model_selector.dart';
-
-import '../utils/log.dart';
-import '../exceptions.dart';
 import '../errors.dart';
+import '../exceptions.dart';
+import '../model_selector.dart';
+import '../model_type.dart';
+import '../utils/log.dart';
 
 /// A function that validates [modelMap].
 ///
 /// Note [modelMap] is read-only
-typedef bool ModelValidator(Map<String, ModelType> modelMap);
+typedef ModelValidator = bool Function(Map<String, ModelType> modelMap);
 
 /// A model for a validated map between field label Strings and other [ModelType] models.
 ///
@@ -64,11 +63,11 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// Throws a [ModelInitializationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
   factory ModelInner(
-    Map<String, ModelType> modelMap, [
+    Map<String, ModelType> modelMap, {
     ModelValidator modelValidator,
     bool strictUpdates = false,
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
 
   ModelInner._next(ModelInner last, this._current)
@@ -131,11 +130,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     if (strictUpdates && !_checkUpdateStrictly(update)) {
       return false;
     }
-    update.keys.forEach((fLabel) {
-      if (!hasModel(fLabel)) {
+    for (fieldLabel in update.keys) {
+      if (!hasModel(fieldLabel)) {
         return false;
       }
-    });
+    }
+
     return true;
   }
 
@@ -158,10 +158,10 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Both models [modelValidator] functions are AND'd together, if they exist.
   ModelInner join(
-    ModelInner otherModel, [
+    ModelInner otherModel, {
     bool strictUpdates = false,
     String fieldLabel,
-  ]) {
+  }) {
     // merge the two validators
     ModelValidator mergedValidator;
     if (modelValidator == null) {
@@ -184,7 +184,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
     final mergedModelMaps = _current.toMap()..addAll(otherModel._current.toMap());
 
-    return ModelInner(mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
+    return ModelInner._(mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
   }
 
   /// Merges [other] into this and returns the new next instance.
@@ -298,13 +298,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// Resets the models specified by [fieldLabels] to their [initial] instance.
   ModelInner resetFields(List<String> fieldLabels) => isInitial
       ? this
-      : ModelInner._next(this, _current.rebuild((mb) {
-          fieldLabels.forEach((field) {
-            hasModel(field)
-                ? mb.updateValue(field, (currentModel) => currentModel.initial)
-                : throw ModelAccessError(this, field);
-          });
-        }));
+      : ModelInner._next(
+          this,
+          _current.rebuild((mb) {
+            for (fieldLabel in fieldLabels) {
+              hasModel(fieldLabel)
+                  ? mb.updateValue(fieldLabel, (currentModel) => currentModel.initial)
+                  : throw ModelAccessError(this, fieldLabel);
+            }
+          }),
+        );
 
   /// Resets all models to their [initial] instance.
   ModelInner resetAll() => initial;

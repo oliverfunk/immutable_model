@@ -32,7 +32,7 @@ class CacheBuffer<T> {
     }
 
     T val;
-    for (int _ = 0; _ < point; _++) {
+    for (var _ = 0; _ < point; _++) {
       val = _buffer.removeLast();
     }
     return val;

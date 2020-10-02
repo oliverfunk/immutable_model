@@ -1,15 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-import 'utils/log.dart';
 import 'errors.dart';
 import 'exceptions.dart';
+import 'utils/log.dart';
 
 /// A function that validates the [value] passed to it.
-typedef bool ValueValidator<V>(V value);
+typedef ValueValidator<V> = bool Function(V value);
 
 /// A function that updates the value of a model based on its [currentValue].
-typedef dynamic ValueUpdater(dynamic currentValue);
+typedef ValueUpdater = dynamic Function(dynamic currentValue);
 
 /// An abstract base class that defines common model attributes and behaviors.
 ///
@@ -59,11 +59,11 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// [validator] will be run on the [initialValue].
   ///
   /// Throws a [ModelInitializationError] if [validator] returns false after being run on [initialValue].
-  ModelType.initial(
+  ModelType.initial([
     V initialValue,
     ValueValidator<V> validator,
     this.fieldLabel,
-  )   : _validator = validator,
+  ])  : _validator = validator,
         _initialModel = null {
     if (initialValue != null && !validate(initialValue)) {
       logException(ValidationException(this, value));
@@ -112,7 +112,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// indicating [serialized] could not be deserialized.
   @nonVirtual
   M nextFromSerialized(dynamic serialized) {
-    final V serializedValue = fromSerialized(serialized);
+    final serializedValue = fromSerialized(serialized);
     return serializedValue == null
         ? logExceptionAndReturn(this, DeserialisationException(this, serialized))
         : next(serializedValue);
@@ -134,7 +134,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// Determines whether [other] shares a history with this model.
   ///
   /// Commonly overwritten by [ValueType]s.
-  bool hasEqualityOfHistory(ModelType other) => identical(this.initial, other.initial);
+  bool hasEqualityOfHistory(ModelType other) => identical(initial, other.initial);
 
   // serialization methods
 
@@ -165,7 +165,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   // misc
 
   /// Debug toString method including the [fieldLabel], if it exists
-  String toLongString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}" + toString();
+  String toLongString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}${toString()}";
 
   /// Debug toString method excluding the model's value
   String toShortString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType";

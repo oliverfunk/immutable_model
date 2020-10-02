@@ -1,5 +1,4 @@
-import 'package:immutable_model/immutable_model.dart';
-
+import '../immutable_model.dart';
 import '../model_types.dart';
 import 'model_type.dart';
 

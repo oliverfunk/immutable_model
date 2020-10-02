@@ -13,8 +13,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   /// Converts [enumValues] to a list of Strings.
   ///
   /// [enumValues] should come from calling the static `.values` getter on the enum class.
-  static List<String> convertEnumList<E>(List<E> enumValues) =>
-      enumValues.map((en) => convertEnum(en)).toList(growable: false);
+  static List<String> convertEnumList<E>(List<E> enumValues) => enumValues.map(convertEnum).toList(growable: false);
 
   ModelEnum._(
     List<E> enumValues,
@@ -25,7 +24,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
         _current = initial,
         _enums = enumValues,
         super.initial(convertEnum(initial),
-            (String toValidate) => convertEnumList(enumValues).any((enStr) => enStr == toValidate), fieldLabel);
+            (toValidate) => convertEnumList(enumValues).any((enStr) => enStr == toValidate), fieldLabel);
 
   /// Constructs a [ModelType] of an enum class,
   /// with the value being the [String] representation of the current enum instance.
@@ -38,9 +37,9 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   /// This is not guaranteed, however.
   factory ModelEnum(
     List<E> enumValues,
-    E initial, [
+    E initial, {
     String fieldLabel,
-  ]) =>
+  }) =>
       ModelEnum._(enumValues, initial, fieldLabel);
 
   ModelEnum._next(ModelEnum<E> last, this._current)
