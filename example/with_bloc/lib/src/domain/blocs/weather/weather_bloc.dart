@@ -1,12 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../../../data/weather_repository.dart';
 import 'weather_state.dart';
-part 'weather_event.dart';
+import 'weather_event.dart';
 
 abstract class WeatherRepository {
   /// Throws [NetworkException].
@@ -27,7 +26,7 @@ class WeatherBloc extends Bloc<WeatherEvent, ImmutableModel<WeatherState>> {
         yield state.transitionToAndUpdate(
           const WeatherLoading(),
           {
-            event.cityName.fieldLabel: event.cityName,
+            CityName.label: event.cityName,
           },
         );
         final weatherModel = await _weatherRepository.fetchWeather(event.cityName.asSerializable());

@@ -1,17 +1,15 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/value_types.dart';
 
 import 'user_state.dart';
-part 'user_event.dart';
+import 'user_event.dart';
 
 class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
   UserBloc() : super(userStateModel);
 
-  // derried values
+  // derived values
   int listTotal() => state.select(UserState.listOfEvensSel).reduce((value, element) => value + element);
 
   @override
@@ -28,10 +26,24 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
       yield state.updateWithSelectorIfIn(event.selector, event.value, const UserAuthed());
     } else if (event is SortListAsc) {
       yield state.updateWithSelectorIfIn(
-          UserState.listOfEvensSel, (list) => list..sort((a, b) => a > b ? 1 : a == b ? 0 : -1), const UserAuthed());
+          UserState.listOfEvensSel,
+          (list) => list
+            ..sort((a, b) => a > b
+                ? 1
+                : a == b
+                    ? 0
+                    : -1),
+          const UserAuthed());
     } else if (event is SortListDec) {
       yield state.updateWithSelectorIfIn(
-          UserState.listOfEvensSel, (list) => list..sort((a, b) => a < b ? 1 : a == b ? 0 : -1), const UserAuthed());
+          UserState.listOfEvensSel,
+          (list) => list
+            ..sort((a, b) => a < b
+                ? 1
+                : a == b
+                    ? 0
+                    : -1),
+          const UserAuthed());
     }
   }
 }

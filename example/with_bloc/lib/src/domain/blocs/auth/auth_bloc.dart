@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/value_types.dart';
 
 import '../user/user_bloc.dart';
+import '../user/user_event.dart';
 import 'auth_state.dart';
-part 'auth_event.dart';
+import 'auth_event.dart';
 
 // fake auth'ing function
 Future<bool> _authUser(String email, String password) => Future.delayed(

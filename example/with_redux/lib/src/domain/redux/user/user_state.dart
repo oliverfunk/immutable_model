@@ -1,7 +1,7 @@
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
 
-enum Seasons { Spring, Summer, Winter, Autum }
+enum Seasons { Spring, Summer, Winter, Autumn }
 
 final userStateModel = ImmutableModel<UserState>(
   {

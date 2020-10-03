@@ -10,7 +10,7 @@ class WeatherReducer extends ReducerClass<ImmutableModel<WeatherState>> {
       return model.transitionToAndUpdate(
         const WeatherLoading(),
         {
-          action.cityName.fieldLabel: action.cityName,
+          CityName.label: action.cityName,
         },
       );
     } else if (action is FetchWeatherSuccess) {

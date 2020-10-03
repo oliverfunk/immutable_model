@@ -19,7 +19,7 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
       emit(state.transitionToAndUpdate(
         const WeatherLoading(),
         {
-          cityName.fieldLabel: cityName,
+          CityName.label: cityName,
         },
       ));
       final weatherModel = await _weatherRepository.fetchWeather(cityName.asSerializable());

@@ -1,4 +1,5 @@
-part of 'auth_bloc.dart';
+import 'package:flutter/foundation.dart';
+import 'package:immutable_model/value_types.dart';
 
 @immutable
 abstract class AuthEvent {

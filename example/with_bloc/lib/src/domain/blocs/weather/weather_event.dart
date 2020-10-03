@@ -1,4 +1,6 @@
-part of 'weather_bloc.dart';
+import 'package:flutter/foundation.dart';
+
+import 'weather_state.dart';
 
 @immutable
 abstract class WeatherEvent {

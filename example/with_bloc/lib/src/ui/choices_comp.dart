@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
 
+import '../domain/blocs/user/user_event.dart';
 import '../domain/blocs/user/user_bloc.dart';
 import '../domain/blocs/user/user_state.dart';
 
@@ -98,7 +100,7 @@ class ChoicesComp extends StatelessWidget {
       case Seasons.Winter:
         return Text("is coming.");
         break;
-      case Seasons.Autum:
+      case Seasons.Autumn:
         return Text("leaves on the trees.");
         break;
     }
@@ -208,7 +210,7 @@ class ChoicesComp extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700)),
               _formInput("Enter some text:", _inputWords(_userBloc(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Incriment/decriment (must be >= 0):", _inputValidatedNumber(_userBloc(context))),
+              _formInput("Increment/decrement (must be >= 0):", _inputValidatedNumber(_userBloc(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Enter a double:", _inputDouble(_userBloc(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),

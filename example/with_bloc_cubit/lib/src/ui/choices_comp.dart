@@ -98,7 +98,7 @@ class ChoicesComp extends StatelessWidget {
       case Seasons.Winter:
         return Text("is coming.");
         break;
-      case Seasons.Autum:
+      case Seasons.Autumn:
         return Text("leaves on the trees.");
         break;
     }
@@ -183,7 +183,7 @@ class ChoicesComp extends StatelessWidget {
                     onChanged: (value) {
                       userCubit.updateValues(
                         UserState.listOfEvensSel,
-                        // if you need a more effecient way of replacing, get the ModelList<> and use the replaceAt function
+                        // if you need a more efficient way of replacing, get the ModelList<> and use the replaceAt function
                         (list) {
                           list[entry.key] = int.parse(value);
                           return list;
@@ -208,7 +208,7 @@ class ChoicesComp extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700)),
               _formInput("Enter some text:", _inputWords(_userCubit(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Incriment/decriment (must be >= 0):", _inputValidatedNumber(_userCubit(context))),
+              _formInput("Increment/decrement (must be >= 0):", _inputValidatedNumber(_userCubit(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Enter a double:", _inputDouble(_userCubit(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),

@@ -1,4 +1,6 @@
-part of 'user_bloc.dart';
+import 'package:flutter/foundation.dart';
+import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/value_types.dart';
 
 @immutable
 abstract class UserEvent {

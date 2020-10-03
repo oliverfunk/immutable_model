@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/value_types.dart';
 
 import '../domain/blocs/auth/auth_bloc.dart';
+import '../domain/blocs/auth/auth_event.dart';
 
 class SignInComponent extends StatelessWidget {
   final _formKey = GlobalKey<FormState>();

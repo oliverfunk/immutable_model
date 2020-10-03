@@ -100,7 +100,7 @@ class ChoicesComp extends StatelessWidget {
       case Seasons.Winter:
         return Text("is coming.");
         break;
-      case Seasons.Autum:
+      case Seasons.Autumn:
         return Text("leaves on the trees.");
         break;
     }
@@ -186,7 +186,7 @@ class ChoicesComp extends StatelessWidget {
                     onChanged: (value) {
                       store.dispatch(UpdateValues(
                         UserState.listOfEvensSel,
-                        // if you need a more effecient way of replacing, get the ModelList<> and use the replaceAt function
+                        // if you need a more efficient way of replacing, get the ModelList<> and use the replaceAt function
                         (list) {
                           list[entry.key] = int.parse(value);
                           return list;
@@ -209,9 +209,9 @@ class ChoicesComp extends StatelessWidget {
             return Column(children: [
               Text("Signed in as - ${_store(context).state.userModel['email']}",
                   style: TextStyle(fontWeight: FontWeight.w700)),
-              _formInput("Enter slistTotalome text:", _inputWords(_store(context))),
+              _formInput("Enter some text:", _inputWords(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Incriment/decriment (must be >= 0):", _inputValidatedNumber(_store(context))),
+              _formInput("Increment/decrement (must be >= 0):", _inputValidatedNumber(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Enter a double:", _inputDouble(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),

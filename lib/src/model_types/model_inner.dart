@@ -121,7 +121,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Returns `true` if [update] is strict, `false` otherwise.
   bool _checkUpdateStrictly(Map<String, dynamic> update) =>
-      fieldLabels.every((field) => update.containsKey(field) && update[field] != null);
+      fieldLabels.every((fl) => update.containsKey(fl) && update[fl] != null);
 
   /// Checks [update] as if were used to update this [ModelInner].
   ///
@@ -130,8 +130,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     if (strictUpdates && !_checkUpdateStrictly(update)) {
       return false;
     }
-    for (fieldLabel in update.keys) {
-      if (!hasModel(fieldLabel)) {
+    for (var fl in update.keys) {
+      if (!hasModel(fl)) {
         return false;
       }
     }
@@ -262,8 +262,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
   Iterable<String> get fieldLabels => _current.keys;
 
-  /// Returns `true` if [fieldLabel] is in this model.
-  bool hasModel(String fieldLabel) => _current.containsKey(fieldLabel);
+  /// Returns `true` if [label] has an associated model.
+  bool hasModel(String label) => _current.containsKey(label);
 
   ModelType _select(Iterable<String> selectorStrings) {
     final fm = getModel(selectorStrings.first);
@@ -281,17 +281,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// Returns the value of the model selected by [selector].
   V selectValue<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
-  /// Returns the [ModelType] model specified by [fieldLabel].
-  ModelType getModel(String fieldLabel) =>
-      hasModel(fieldLabel) ? _current[fieldLabel] : throw ModelAccessError(this, fieldLabel);
+  /// Returns the [ModelType] model specified by [label].
+  ModelType getModel(String label) => hasModel(label) ? _current[label] : throw ModelAccessError(this, label);
 
-  /// Returns the value of the model specified by [fieldLabel].
-  dynamic get(String fieldLabel) => getModel(fieldLabel).value;
+  /// Returns the value of the model specified by [label].
+  dynamic get(String label) => getModel(label).value;
 
-  /// Returns the value of the model specified by [fieldLabel], except if the model is a [ModelInner], in which case
+  /// Returns the value of the model specified by [label], except if the model is a [ModelInner], in which case
   /// the [ModelInner] model will be returned, not its value.
-  dynamic operator [](String fieldLabel) {
-    final fm = getModel(fieldLabel);
+  dynamic operator [](String label) {
+    final fm = getModel(label);
     return fm is ModelInner ? fm : fm.value;
   }
 
@@ -301,10 +300,10 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       : ModelInner._next(
           this,
           _current.rebuild((mb) {
-            for (fieldLabel in fieldLabels) {
-              hasModel(fieldLabel)
-                  ? mb.updateValue(fieldLabel, (currentModel) => currentModel.initial)
-                  : throw ModelAccessError(this, fieldLabel);
+            for (var fl in fieldLabels) {
+              hasModel(fl)
+                  ? mb.updateValue(fl, (currentModel) => currentModel.initial)
+                  : throw ModelAccessError(this, fl);
             }
           }),
         );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/blocs/weather/weather_bloc.dart';
+import '../domain/blocs/weather/weather_event.dart';
 import '../domain/blocs/weather/weather_state.dart';
 
 WeatherBloc _weatherBloc(BuildContext context) => context.bloc<WeatherBloc>();
