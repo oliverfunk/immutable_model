@@ -18,10 +18,24 @@ class UserReducer extends ReducerClass<ImmutableModel<UserState>> {
       return model.updateWithSelectorIfIn(action.selector, action.value, const UserAuthed());
     } else if (action is SortListAsc) {
       return model.updateWithSelectorIfIn(
-          UserState.listOfEvensSel, (list) => list..sort((a, b) => a > b ? 1 : a == b ? 0 : -1), const UserAuthed());
+          UserState.listOfEvensSel,
+          (list) => list
+            ..sort((a, b) => a > b
+                ? 1
+                : a == b
+                    ? 0
+                    : -1),
+          const UserAuthed());
     } else if (action is SortListDec) {
       return model.updateWithSelectorIfIn(
-          UserState.listOfEvensSel, (list) => list..sort((a, b) => a < b ? 1 : a == b ? 0 : -1), const UserAuthed());
+          UserState.listOfEvensSel,
+          (list) => list
+            ..sort((a, b) => a < b
+                ? 1
+                : a == b
+                    ? 0
+                    : -1),
+          const UserAuthed());
     }
 
     return model;
