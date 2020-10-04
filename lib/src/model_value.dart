@@ -12,7 +12,8 @@ import 'model_type.dart';
 ///
 /// When extending this class with the intent to define a validated value type,
 /// the [ValueType] mixin should be used `with` the sub-class.
-abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> {
+abstract class ModelValue<M extends ModelType<M, V>, V>
+    extends ModelType<M, V> {
   /// The wrapped value
   final V _current;
 
@@ -55,7 +56,8 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
     ValueValidator<int> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>, fieldLabel);
+        super.initial(
+            initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
   /// A constructor for an object that models a [double].
   ///
@@ -77,7 +79,8 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
     ValueValidator<double> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>, fieldLabel);
+        super.initial(
+            initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
   /// A constructor for an object that models a [String].
   ///
@@ -130,7 +133,10 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
           initialValue as V,
           validator == null
               ? (str) => str != null && (str as String).isNotEmpty
-              : (str) => str != null && (str as String).isNotEmpty && validator(str as String),
+              : (str) =>
+                  str != null &&
+                  (str as String).isNotEmpty &&
+                  validator(str as String),
           fieldLabel,
         );
 
@@ -154,9 +160,11 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
     ValueValidator<DateTime> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>, fieldLabel);
+        super.initial(
+            initialValue as V, validator as ValueValidator<V>, fieldLabel);
 
-  ModelValue.constructNext(M previous, this._current) : super.fromPrevious(previous);
+  ModelValue.constructNext(M previous, this._current)
+      : super.fromPrevious(previous);
 }
 
 /// A mixin that provides the relevant overrides when defining a value type class that wraps its own validation.

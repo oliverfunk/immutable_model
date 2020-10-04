@@ -16,7 +16,8 @@ class SignInComponent extends StatelessWidget {
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',
         ),
-        validator: (value) => ModelEmail.validator(value) ? null : 'Enter a valid email',
+        validator: (value) =>
+            ModelEmail.validator(value) ? null : 'Enter a valid email',
       );
 
   Widget _passwordInput(BuildContext context) => TextFormField(

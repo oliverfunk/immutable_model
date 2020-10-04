@@ -51,7 +51,8 @@ class ImmutableModel<S> extends Equatable {
     bool strictUpdates = false,
     int cacheBufferSize,
   })  : assert(initialState is S, "The model's initialState must be set"),
-        _model = ModelInner(modelMap, modelValidator: modelValidator, strictUpdates: strictUpdates),
+        _model = ModelInner(modelMap,
+            modelValidator: modelValidator, strictUpdates: strictUpdates),
         _state = initialState ?? ModelState.Default as S,
         _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
 
@@ -59,7 +60,8 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model, [bool cacheOrPurge = true])
+  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model,
+      [bool cacheOrPurge = true])
       : _cache = last._cache {
     if (cacheOrPurge) {
       _cache?.cacheItem(last);
@@ -72,7 +74,8 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextModel(ImmutableModel<S> last, this._model, [bool cacheOrPurge = true])
+  ImmutableModel._nextModel(ImmutableModel<S> last, this._model,
+      [bool cacheOrPurge = true])
       : _state = last._state,
         _cache = last._cache {
     if (cacheOrPurge) {
@@ -86,7 +89,8 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextState(ImmutableModel<S> last, this._state, [bool cacheOrPurge = true])
+  ImmutableModel._nextState(ImmutableModel<S> last, this._state,
+      [bool cacheOrPurge = true])
       : _model = last._model,
         _cache = last._cache {
     if (cacheOrPurge) {
@@ -102,7 +106,8 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// Note: this feature is still experimental and unexpected results can occur.
   @experimental
-  ImmutableModel<S> restoreBy(int point) => _cache == null ? this : _cache.restoreBy(point);
+  ImmutableModel<S> restoreBy(int point) =>
+      _cache == null ? this : _cache.restoreBy(point);
 
   // value
 
@@ -119,7 +124,9 @@ class ImmutableModel<S> extends Equatable {
   // updating
 
   Map<String, dynamic> _assertNotEmpty(Map<String, dynamic> updateToCheck) =>
-      updateToCheck.isNotEmpty ? updateToCheck : throw AssertionError("Update can't be empty");
+      updateToCheck.isNotEmpty
+          ? updateToCheck
+          : throw AssertionError("Update can't be empty");
 
   /// Updates the current model values with those specified in [updates].
   ///
@@ -130,24 +137,31 @@ class ImmutableModel<S> extends Equatable {
       ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
 
   ImmutableModel<S> updateIfIn(Map<String, dynamic> updates, S inState) =>
-      currentState.runtimeType == inState.runtimeType ? update(updates) : throw ModelStateError(currentState, inState);
+      currentState.runtimeType == inState.runtimeType
+          ? update(updates)
+          : throw ModelStateError(currentState, inState);
 
   /// As [update] but the values must be [ValueUpdater] functions
-  ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) => update(updaters);
+  ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
+      update(updaters);
 
   /// As [update] but the values must be [ModelType]s.
-  ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) => update(updates);
+  ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
+      update(updates);
 
   /// Updates the field selected by [selector] with [update].
   ///
   /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
-  ImmutableModel<S> updateWithSelector<V>(ModelSelector<V> selector, dynamic update) =>
-      ImmutableModel<S>._nextModel(this, _model.nextWithSelector(selector, update));
+  ImmutableModel<S> updateWithSelector<V>(
+          ModelSelector<V> selector, dynamic update) =>
+      ImmutableModel<S>._nextModel(
+          this, _model.nextWithSelector(selector, update));
 
   /// Updates the field selected by [selector] with [update] if [currentState] is [inState].
   ///
   /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
-  ImmutableModel<S> updateWithSelectorIfIn<V>(ModelSelector<V> selector, V update, S inState) =>
+  ImmutableModel<S> updateWithSelectorIfIn<V>(
+          ModelSelector<V> selector, V update, S inState) =>
       currentState.runtimeType == inState.runtimeType
           ? updateWithSelector<V>(selector, update)
           : throw ModelStateError(currentState, inState);
@@ -166,23 +180,28 @@ class ImmutableModel<S> extends Equatable {
   /// Resets the models specified by [fieldLabels] to their [ModelType.initial] instance.
   ///
   /// [fieldLabels] cannot be empty.
-  ImmutableModel<S> resetFields(List<String> fieldLabels) => fieldLabels.isNotEmpty
-      ? ImmutableModel<S>._nextModel(this, _model.resetFields(fieldLabels))
-      : throw AssertionError("Fields can't be empty");
+  ImmutableModel<S> resetFields(List<String> fieldLabels) =>
+      fieldLabels.isNotEmpty
+          ? ImmutableModel<S>._nextModel(this, _model.resetFields(fieldLabels))
+          : throw AssertionError("Fields can't be empty");
 
   /// Resets all the models in this to their [ModelType.initial] instance.
-  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(this, _model.resetAll(), false);
+  ImmutableModel<S> resetAll() =>
+      ImmutableModel<S>._nextModel(this, _model.resetAll(), false);
 
   /// Sets the [currentState] to [nextState].
-  ImmutableModel<S> transitionTo(S nextState) => ImmutableModel<S>._nextState(this, nextState);
+  ImmutableModel<S> transitionTo(S nextState) =>
+      ImmutableModel<S>._nextState(this, nextState);
 
   /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
   ImmutableModel<S> resetAndTransitionTo(S nextState) =>
       ImmutableModel<S>._nextBoth(this, nextState, _model.resetAll(), false);
 
   /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
-  ImmutableModel<S> transitionToAndUpdate(S nextState, Map<String, dynamic> updates) =>
-      ImmutableModel<S>._nextBoth(this, nextState, _model.next(_assertNotEmpty(updates)));
+  ImmutableModel<S> transitionToAndUpdate(
+          S nextState, Map<String, dynamic> updates) =>
+      ImmutableModel<S>._nextBoth(
+          this, nextState, _model.next(_assertNotEmpty(updates)));
 
   // JSON
 
@@ -202,7 +221,8 @@ class ImmutableModel<S> extends Equatable {
   /// To avoid unexpected results, this should share a *direct* history with [other].
   ///
   /// This is useful if, for example, you want to serialize only the changes to a model to send to a remote.
-  Map<String, dynamic> toJsonDiff(ImmutableModel<S> other) => _model.asSerializableDelta(other._model);
+  Map<String, dynamic> toJsonDiff(ImmutableModel<S> other) =>
+      _model.asSerializableDelta(other._model);
 
   /// Deserializes the values in [jsonMap] and updates the current model values with them.
   ///
@@ -219,7 +239,8 @@ class ImmutableModel<S> extends Equatable {
   bool hasModel(String fieldLabel) => _model.hasModel(fieldLabel);
 
   /// Returns the [ModelType] model selected by [selector].
-  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) => _model.selectModel(selector);
+  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
+      _model.selectModel(selector);
 
   /// Returns the value of the model selected by [selector].
   V select<V>(ModelSelector<V> selector) => _model.selectValue(selector);

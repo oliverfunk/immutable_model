@@ -28,7 +28,8 @@ class CacheBuffer<T> {
     } else if (bufferSize == 0) {
       throw Exception('Cannot restore, buffer is size 0');
     } else if (point > numberCachedOfItems) {
-      throw Exception('Cannot restore to point $point, exceeds number of cached items: $numberCachedOfItems');
+      throw Exception(
+          'Cannot restore to point $point, exceeds number of cached items: $numberCachedOfItems');
     }
 
     T val;
@@ -44,7 +45,8 @@ class CacheBuffer<T> {
     } else if (bufferSize == 0) {
       throw Exception('Cannot peek, buffer is size 0');
     } else if (point > numberCachedOfItems) {
-      throw Exception('Cannot peek at point $point, exceeds number of cached items: $numberCachedOfItems');
+      throw Exception(
+          'Cannot peek at point $point, exceeds number of cached items: $numberCachedOfItems');
     }
 
     return _buffer.elementAt(point - 1);
@@ -55,5 +57,6 @@ class CacheBuffer<T> {
   }
 
   @override
-  String toString() => 'Cache Buffer [$numberCachedOfItems/$bufferSize]:\n$_buffer';
+  String toString() =>
+      'Cache Buffer [$numberCachedOfItems/$bufferSize]:\n$_buffer';
 }

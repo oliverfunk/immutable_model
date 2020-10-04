@@ -7,13 +7,16 @@ import '../domain/app_state.dart';
 import '../domain/redux/weather/weather_state.dart';
 import '../domain/redux/weather/weather_thunks.dart';
 
-Store<AppState> _store(BuildContext context) => StoreProvider.of<AppState>(context);
+Store<AppState> _store(BuildContext context) =>
+    StoreProvider.of<AppState>(context);
 
 class _CityInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
-        controller: TextEditingController()..text = WeatherState.cityName(_store(context).state.weatherModel),
-        onSubmitted: (cityNameStr) => _store(context).dispatch(fetchWeather(CityName(cityNameStr))),
+        controller: TextEditingController()
+          ..text = WeatherState.cityName(_store(context).state.weatherModel),
+        onSubmitted: (cityNameStr) =>
+            _store(context).dispatch(fetchWeather(CityName(cityNameStr))),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -36,7 +39,8 @@ class WeatherComponent extends StatelessWidget {
     );
   }
 
-  Column _buildShowWeather(String cityName, double temperatureCelsius, String weather) {
+  Column _buildShowWeather(
+      String cityName, double temperatureCelsius, String weather) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -79,8 +83,8 @@ class WeatherComponent extends StatelessWidget {
             } else if (currentState is WeatherLoading) {
               return _buildLoading();
             } else if (currentState is WeatherLoaded) {
-              return _buildShowWeather(
-                  WeatherState.cityName(model), WeatherState.temperature(model), WeatherState.weather(model));
+              return _buildShowWeather(WeatherState.cityName(model),
+                  WeatherState.temperature(model), WeatherState.weather(model));
             }
 
             return _buildInitialInput();

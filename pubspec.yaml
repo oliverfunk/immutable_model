@@ -1,6 +1,6 @@
 name: immutable_model
-description: immutable_model helps you write an authoritative and safe domain layer. Easily define valid, hierarchical immutable state models with an expressive API for updating state data and transitioning between states. Built on top of built_collection and uses Equatable.
-version: 0.5.2
+description: Define valid, hierarchical immutable state models with an expressive API for updating state data and transitioning between states.
+version: 0.5.3
 homepage: https://github.com/oliverfunk/immutable_model
 
 environment:

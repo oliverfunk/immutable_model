@@ -29,11 +29,13 @@ class WeatherBloc extends Bloc<WeatherEvent, ImmutableModel<WeatherState>> {
             CityName.label: event.cityName,
           },
         );
-        final weatherModel = await _weatherRepository.fetchWeather(event.cityName.asSerializable());
+        final weatherModel = await _weatherRepository
+            .fetchWeather(event.cityName.asSerializable());
         // the mergeFrom method ignores default values from the weatherModel passed back by the repo
         yield state.transitionTo(const WeatherLoaded()).mergeFrom(weatherModel);
       } on NetworkException {
-        yield state.transitionTo(const WeatherError("Couldn't fetch weather. Is the device online?"));
+        yield state.transitionTo(const WeatherError(
+            "Couldn't fetch weather. Is the device online?"));
       }
     }
   }

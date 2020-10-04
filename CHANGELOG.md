@@ -1,4 +1,4 @@
-## [0.5.0] - [0.5.2]
+## [0.5.0] - [0.5.3]
 
 - Entered Beta phase. Many, many things were added, changed or improved upon.
 - Selectors were added

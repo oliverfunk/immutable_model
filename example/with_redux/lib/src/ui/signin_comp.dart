@@ -12,12 +12,14 @@ class SignInComponent extends StatelessWidget {
 
   Widget _emailInput(BuildContext context) => TextFormField(
         key: _emailKey,
-        initialValue: StoreProvider.of<AppState>(context).state.authModel['email'],
+        initialValue:
+            StoreProvider.of<AppState>(context).state.authModel['email'],
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',
         ),
-        validator: (value) => ModelEmail.validator(value) ? null : 'Enter a valid email',
+        validator: (value) =>
+            ModelEmail.validator(value) ? null : 'Enter a valid email',
       );
 
   Widget _passwordInput(BuildContext context) => TextFormField(

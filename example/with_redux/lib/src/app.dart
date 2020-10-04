@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'ui/examples_page.dart';
 
 class App extends StatelessWidget {
-  static const String _title = "immutable_model example with Redux and Redux Thunk";
+  static const String _title =
+      "immutable_model example with Redux and Redux Thunk";
 
   @override
   Widget build(BuildContext context) {

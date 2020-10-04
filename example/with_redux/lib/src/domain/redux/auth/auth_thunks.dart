@@ -19,7 +19,8 @@ ThunkAction<AppState> signIn(ModelEmail email, ModelPassword password) {
   return (Store<AppState> store) async {
     store.dispatch(SignInBegin(email, password));
     // do some authorization using auth repo functions
-    final didAuth = await _authUser(email.asSerializable(), password.asSerializable());
+    final didAuth =
+        await _authUser(email.asSerializable(), password.asSerializable());
     if (didAuth) {
       store.dispatch(AuthUser(email));
       store.dispatch(SignInSuccess());

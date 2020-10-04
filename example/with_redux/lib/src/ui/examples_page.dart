@@ -26,10 +26,14 @@ class ExamplesPage extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
-                child: Center(child: Text("User sign in form:", style: TextStyle(fontSize: 30))),
+                child: Center(
+                    child: Text("User sign in form:",
+                        style: TextStyle(fontSize: 30))),
               ),
               Container(
-                decoration: BoxDecoration(border: Border.symmetric(vertical: BorderSide(color: Colors.grey.shade300))),
+                decoration: BoxDecoration(
+                    border: Border.symmetric(
+                        vertical: BorderSide(color: Colors.grey.shade300))),
                 child: Row(children: [
                   Expanded(
                     flex: 2,
@@ -44,10 +48,14 @@ class ExamplesPage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 50.0, bottom: 5.0),
-                child: Center(child: Text("User choices form:", style: TextStyle(fontSize: 30))),
+                child: Center(
+                    child: Text("User choices form:",
+                        style: TextStyle(fontSize: 30))),
               ),
               Container(
-                decoration: BoxDecoration(border: Border.symmetric(vertical: BorderSide(color: Colors.grey.shade300))),
+                decoration: BoxDecoration(
+                    border: Border.symmetric(
+                        vertical: BorderSide(color: Colors.grey.shade300))),
                 child: Row(children: [
                   Expanded(
                     flex: 2,
@@ -62,7 +70,9 @@ class ExamplesPage extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 50.0, bottom: 5.0),
-                child: Center(child: Text("Fake weather getter:", style: TextStyle(fontSize: 30))),
+                child: Center(
+                    child: Text("Fake weather getter:",
+                        style: TextStyle(fontSize: 30))),
               ),
               WeatherComponent(),
             ],

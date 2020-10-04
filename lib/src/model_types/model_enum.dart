@@ -8,23 +8,29 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   /// Returns [enumValue] as a [String].
   ///
   /// Only the name of the enum instance is returned, the class's name is stripped out.
-  static String convertEnum<E>(E enumValue) => enumValue.toString().split('.')[1];
+  static String convertEnum<E>(E enumValue) =>
+      enumValue.toString().split('.')[1];
 
   /// Converts [enumValues] to a list of Strings.
   ///
   /// [enumValues] should come from calling the static `.values` getter on the enum class.
-  static List<String> convertEnumList<E>(List<E> enumValues) => enumValues.map(convertEnum).toList(growable: false);
+  static List<String> convertEnumList<E>(List<E> enumValues) =>
+      enumValues.map(convertEnum).toList(growable: false);
 
   ModelEnum._(
     List<E> enumValues,
     E initial, [
     String fieldLabel,
-  ])  : assert(enumValues.isNotEmpty, "Provide an enum list using the static .values getter method on the enum class."),
+  ])  : assert(enumValues.isNotEmpty,
+            "Provide an enum list using the static .values getter method on the enum class."),
         assert(initial != null, "An initial enum instance must be provided"),
         _current = initial,
         _enums = enumValues,
-        super.initial(convertEnum(initial),
-            (toValidate) => convertEnumList(enumValues).any((enStr) => enStr == toValidate), fieldLabel);
+        super.initial(
+            convertEnum(initial),
+            (toValidate) =>
+                convertEnumList(enumValues).any((enStr) => enStr == toValidate),
+            fieldLabel);
 
   /// Constructs a [ModelType] of an enum class,
   /// with the value being the [String] representation of the current enum instance.
@@ -47,8 +53,8 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
         super.fromPrevious(last);
 
   @override
-  ModelEnum<E> buildNext(String nextEnumString) =>
-      ModelEnum._next(this, _enums.firstWhere((en) => nextEnumString == convertEnum(en)));
+  ModelEnum<E> buildNext(String nextEnumString) => ModelEnum._next(
+      this, _enums.firstWhere((en) => nextEnumString == convertEnum(en)));
 
   // public methods
 
@@ -69,8 +75,10 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   dynamic asSerializable() => value;
 
   @override
-  String fromSerialized(dynamic jsonValue) =>
-      jsonValue is String ? enumStrings.firstWhere((enStr) => enStr == jsonValue, orElse: () => null) : null;
+  String fromSerialized(dynamic jsonValue) => jsonValue is String
+      ? enumStrings.firstWhere((enStr) => enStr == jsonValue,
+          orElse: () => null)
+      : null;
 
   @override
   String toString() => "<$E>($value)";

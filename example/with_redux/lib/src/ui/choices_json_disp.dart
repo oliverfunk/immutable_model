@@ -15,8 +15,10 @@ Widget choicesJsonDisplay() => StoreConnector<AppState, UserState>(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Encoded JSON string:", style: TextStyle(fontWeight: FontWeight.w700)),
-            Text(JsonEncoder.withIndent('  ').convert(StoreProvider.of<AppState>(context).state.userModel.toJson())),
+            Text("Encoded JSON string:",
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(JsonEncoder.withIndent('  ').convert(
+                StoreProvider.of<AppState>(context).state.userModel.toJson())),
           ],
         );
       }

@@ -12,7 +12,8 @@ class ModelEmail extends ModelValue<ModelEmail, String> with ValueType {
     String fieldLabel = 'email',
   }) : super.text(email, validator, fieldLabel);
 
-  ModelEmail._next(ModelEmail previous, String value) : super.constructNext(previous, value);
+  ModelEmail._next(ModelEmail previous, String value)
+      : super.constructNext(previous, value);
 
   @override
   ModelEmail buildNext(String nextValue) => ModelEmail._next(this, nextValue);

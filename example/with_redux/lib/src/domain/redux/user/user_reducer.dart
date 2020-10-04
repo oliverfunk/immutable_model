@@ -15,7 +15,8 @@ class UserReducer extends ReducerClass<ImmutableModel<UserState>> {
     } else if (action is UnauthUser) {
       return model.resetAndTransitionTo(const UserUnauthed());
     } else if (action is UpdateValues) {
-      return model.updateWithSelectorIfIn(action.selector, action.value, const UserAuthed());
+      return model.updateWithSelectorIfIn(
+          action.selector, action.value, const UserAuthed());
     } else if (action is SortListAsc) {
       return model.updateWithSelectorIfIn(
           UserState.listOfEvensSel,

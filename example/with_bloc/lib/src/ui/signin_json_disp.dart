@@ -7,12 +7,14 @@ import 'package:immutable_model/immutable_model.dart';
 import '../domain/blocs/auth/auth_bloc.dart';
 import '../domain/blocs/auth/auth_state.dart';
 
-Widget signinJsonDisplay() => BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(builder: (context, model) {
+Widget signinJsonDisplay() =>
+    BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(builder: (context, model) {
       if (model.currentState is AuthLoading) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Encoded JSON string:", style: TextStyle(fontWeight: FontWeight.w700)),
+            Text("Encoded JSON string:",
+                style: TextStyle(fontWeight: FontWeight.w700)),
             Text(JsonEncoder.withIndent('  ').convert(model.toJson())),
             Center(
               child: CircularProgressIndicator(),
@@ -23,7 +25,8 @@ Widget signinJsonDisplay() => BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(b
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Encoded JSON string:", style: TextStyle(fontWeight: FontWeight.w700)),
+            Text("Encoded JSON string:",
+                style: TextStyle(fontWeight: FontWeight.w700)),
             Text(JsonEncoder.withIndent('  ').convert(model.toJson())),
             Center(
               child: Icon(
@@ -37,7 +40,8 @@ Widget signinJsonDisplay() => BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(b
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Sign in failed - try again", style: TextStyle(fontWeight: FontWeight.w700)),
+            Text("Sign in failed - try again",
+                style: TextStyle(fontWeight: FontWeight.w700)),
             Center(
               child: Icon(
                 Icons.clear,

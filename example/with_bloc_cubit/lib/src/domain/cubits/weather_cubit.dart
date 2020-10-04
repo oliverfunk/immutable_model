@@ -22,11 +22,13 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
           CityName.label: cityName,
         },
       ));
-      final weatherModel = await _weatherRepository.fetchWeather(cityName.asSerializable());
+      final weatherModel =
+          await _weatherRepository.fetchWeather(cityName.asSerializable());
       // the mergeFrom method ignores default values from the weatherModel passed back by the repo
       emit(state.transitionTo(const WeatherLoaded()).mergeFrom(weatherModel));
     } on NetworkException {
-      emit(state.transitionTo(const WeatherError("Couldn't fetch weather. Is the device online?")));
+      emit(state.transitionTo(
+          const WeatherError("Couldn't fetch weather. Is the device online?")));
     }
   }
 }

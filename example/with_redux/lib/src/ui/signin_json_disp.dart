@@ -13,8 +13,10 @@ Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Encoded JSON string:", style: TextStyle(fontWeight: FontWeight.w700)),
-            Text(JsonEncoder.withIndent('  ').convert(StoreProvider.of<AppState>(context).state.authModel.toJson())),
+            Text("Encoded JSON string:",
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(JsonEncoder.withIndent('  ').convert(
+                StoreProvider.of<AppState>(context).state.authModel.toJson())),
             Center(
               child: CircularProgressIndicator(),
             )
@@ -24,8 +26,10 @@ Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Encoded JSON string:", style: TextStyle(fontWeight: FontWeight.w700)),
-            Text(JsonEncoder.withIndent('  ').convert(StoreProvider.of<AppState>(context).state.authModel.toJson())),
+            Text("Encoded JSON string:",
+                style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(JsonEncoder.withIndent('  ').convert(
+                StoreProvider.of<AppState>(context).state.authModel.toJson())),
             Center(
               child: Icon(
                 Icons.check_circle_outline,
@@ -38,7 +42,8 @@ Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Sign in failed - try again", style: TextStyle(fontWeight: FontWeight.w700)),
+            Text("Sign in failed - try again",
+                style: TextStyle(fontWeight: FontWeight.w700)),
             Center(
               child: Icon(
                 Icons.clear,

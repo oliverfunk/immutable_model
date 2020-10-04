@@ -26,7 +26,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
           initialList,
           listItemValidator == null
               ? null
-              : (toValidate) => toValidate.every((listItem) => listItemValidator(listItem)),
+              : (toValidate) =>
+                  toValidate.every((listItem) => listItemValidator(listItem)),
           fieldLabel,
         );
 
@@ -79,7 +80,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
+      ModelList._(initialList as List<T>,
+          listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [double]s.
   ///
@@ -110,7 +112,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
+      ModelList._(initialList as List<T>,
+          listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [String]s.
   ///
@@ -141,7 +144,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
+      ModelList._(initialList as List<T>,
+          listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [DateTime]s.
   ///
@@ -172,7 +176,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList._(initialList as List<T>, listItemValidator as ListItemValidator<T>, append, fieldLabel);
+      ModelList._(initialList as List<T>,
+          listItemValidator as ListItemValidator<T>, append, fieldLabel);
 
   /// Constructs a [ModelType] of a list of [Map]s that are validated against a [ModelInner].
   ///
@@ -206,7 +211,10 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   }) {
     assert(model != null, "A model must be provided");
     return ModelList._(
-        initialList as List<T>, (mapItem) => model.checkUpdate(mapItem as Map<String, dynamic>), append, fieldLabel);
+        initialList as List<T>,
+        (mapItem) => model.checkUpdate(mapItem as Map<String, dynamic>),
+        append,
+        fieldLabel);
   }
 
   ModelList._next(ModelList<T> last, this._current)
@@ -214,8 +222,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
         super.fromPrevious(last);
 
   @override
-  ModelList<T> buildNext(List<T> next) =>
-      ModelList._next(this, _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
+  ModelList<T> buildNext(List<T> next) => ModelList._next(this,
+      _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
 
   // public methods
 
@@ -223,7 +231,9 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   List<T> get value => _current.toList();
 
   @override
-  dynamic asSerializable() => T == DateTime ? (value.map((dt) => (dt as DateTime).toIso8601String())) : value;
+  dynamic asSerializable() => T == DateTime
+      ? (value.map((dt) => (dt as DateTime).toIso8601String()))
+      : value;
 
   @override
   List<T> fromSerialized(dynamic serialized) => serialized is List
@@ -233,13 +243,15 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
       : null;
 
   /// Removes the value at [index], reducing [numberOfItems] by 1.
-  ModelList<T> removeAt(int index) => ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
+  ModelList<T> removeAt(int index) =>
+      ModelList._next(this, _current.rebuild((lb) => lb.removeAt(index)));
 
   /// Replaces the value at [index] with [item].
   ///
   /// If item does not [validate], a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
   /// and the value will not be replaced.
-  ModelList<T> replaceAt(int index, T item) => ModelList._next(this, _current.rebuild((lb) {
+  ModelList<T> replaceAt(int index, T item) =>
+      ModelList._next(this, _current.rebuild((lb) {
         if (validate([item])) {
           lb[index] = item;
         } else {
@@ -250,7 +262,8 @@ class ModelList<T> extends ModelType<ModelList<T>, List<T>> {
   /// Removes all objects from this list.
   ///
   /// As [List.clear].
-  ModelList<T> clear() => ModelList._next(this, _current.rebuild((lb) => lb.clear()));
+  ModelList<T> clear() =>
+      ModelList._next(this, _current.rebuild((lb) => lb.clear()));
 
   /// Returns the value at [index].
   T getElementAt(int index) => _current.elementAt(index);

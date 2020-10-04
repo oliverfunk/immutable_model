@@ -8,9 +8,12 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
   UserCubit() : super(userStateModel);
 
   // derived values
-  int listTotal() => state.select(UserState.listOfEvensSel).reduce((value, element) => value + element);
+  int listTotal() => state
+      .select(UserState.listOfEvensSel)
+      .reduce((value, element) => value + element);
 
-  void authUser(ModelEmail email) => emit(state.transitionToAndUpdate(const UserAuthed(), {
+  void authUser(ModelEmail email) =>
+      emit(state.transitionToAndUpdate(const UserAuthed(), {
         'email': email,
       }));
 

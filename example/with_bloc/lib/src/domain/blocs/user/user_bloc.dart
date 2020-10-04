@@ -10,7 +10,9 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
   UserBloc() : super(userStateModel);
 
   // derived values
-  int listTotal() => state.select(UserState.listOfEvensSel).reduce((value, element) => value + element);
+  int listTotal() => state
+      .select(UserState.listOfEvensSel)
+      .reduce((value, element) => value + element);
 
   @override
   Stream<ImmutableModel<UserState>> mapEventToState(
@@ -23,7 +25,8 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
     } else if (event is UnauthUser) {
       yield state.resetAndTransitionTo(const UserUnauthed());
     } else if (event is UpdateValues) {
-      yield state.updateWithSelectorIfIn(event.selector, event.value, const UserAuthed());
+      yield state.updateWithSelectorIfIn(
+          event.selector, event.value, const UserAuthed());
     } else if (event is SortListAsc) {
       yield state.updateWithSelectorIfIn(
           UserState.listOfEvensSel,

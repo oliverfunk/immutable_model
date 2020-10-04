@@ -5,13 +5,16 @@ import 'package:immutable_model/immutable_model.dart';
 import '../domain/cubits/weather_cubit.dart';
 import '../domain/models/weather_state.dart';
 
-WeatherCubit _weatherCubit(BuildContext context) => context.bloc<WeatherCubit>();
+WeatherCubit _weatherCubit(BuildContext context) =>
+    context.bloc<WeatherCubit>();
 
 class _CityInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) => TextField(
-        controller: TextEditingController()..text = WeatherState.cityName(_weatherCubit(context).state),
-        onSubmitted: (cityNameStr) => _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
+        controller: TextEditingController()
+          ..text = WeatherState.cityName(_weatherCubit(context).state),
+        onSubmitted: (cityNameStr) =>
+            _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -34,7 +37,8 @@ class WeatherComponent extends StatelessWidget {
     );
   }
 
-  Column _buildShowWeather(String cityName, double temperatureCelsius, String weather) {
+  Column _buildShowWeather(
+      String cityName, double temperatureCelsius, String weather) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
@@ -76,8 +80,8 @@ class WeatherComponent extends StatelessWidget {
             } else if (currentState is WeatherLoading) {
               return _buildLoading();
             } else if (currentState is WeatherLoaded) {
-              return _buildShowWeather(
-                  WeatherState.cityName(model), WeatherState.temperature(model), WeatherState.weather(model));
+              return _buildShowWeather(WeatherState.cityName(model),
+                  WeatherState.temperature(model), WeatherState.weather(model));
             }
 
             return _buildInitialInput();

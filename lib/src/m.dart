@@ -25,7 +25,10 @@ abstract class M {
     bool strictUpdates = false,
     String fieldLabel,
   }) =>
-      ModelInner(model, modelValidator: modelValidator, strictUpdates: strictUpdates, fieldLabel: fieldLabel);
+      ModelInner(model,
+          modelValidator: modelValidator,
+          strictUpdates: strictUpdates,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelEnum]
   static ModelEnum<E> enm<E>(
@@ -48,7 +51,10 @@ abstract class M {
     ValueValidator<int> validator,
     String fieldLabel,
   }) =>
-      ModelInt(initialValue: initialValue, validator: validator, fieldLabel: fieldLabel);
+      ModelInt(
+          initialValue: initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelDouble]
   static ModelDouble dbl({
@@ -56,7 +62,10 @@ abstract class M {
     ValueValidator<double> validator,
     String fieldLabel,
   }) =>
-      ModelDouble(initialValue: initialValue, validator: validator, fieldLabel: fieldLabel);
+      ModelDouble(
+          initialValue: initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelString]
   static ModelString str({
@@ -64,7 +73,10 @@ abstract class M {
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelString(initialValue: initialValue, validator: validator, fieldLabel: fieldLabel);
+      ModelString(
+          initialValue: initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelString]
   static ModelString txt({
@@ -72,7 +84,10 @@ abstract class M {
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelString.text(initialValue: initialValue, validator: validator, fieldLabel: fieldLabel);
+      ModelString.text(
+          initialValue: initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelDateTime]
   static ModelDateTime dt({
@@ -80,7 +95,10 @@ abstract class M {
     ValueValidator<DateTime> validator,
     String fieldLabel,
   }) =>
-      ModelDateTime(initialValue: initialValue, validator: validator, fieldLabel: fieldLabel);
+      ModelDateTime(
+          initialValue: initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.boolList]
   static ModelList<bool> blList({
@@ -88,7 +106,8 @@ abstract class M {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList.boolList(initialList: initialList, append: append, fieldLabel: fieldLabel);
+      ModelList.boolList(
+          initialList: initialList, append: append, fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.intList]
   static ModelList<int> ntList({
@@ -98,7 +117,10 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelList.intList(
-          initialList: initialList, listItemValidator: itemValidator, append: append, fieldLabel: fieldLabel);
+          initialList: initialList,
+          listItemValidator: itemValidator,
+          append: append,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.doubleList]
   static ModelList<double> dblList({
@@ -108,7 +130,10 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelList.doubleList(
-          initialList: initialList, listItemValidator: itemValidator, append: append, fieldLabel: fieldLabel);
+          initialList: initialList,
+          listItemValidator: itemValidator,
+          append: append,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.stringList]
   static ModelList<String> strList({
@@ -118,7 +143,10 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelList.stringList(
-          initialList: initialList, listItemValidator: itemValidator, append: append, fieldLabel: fieldLabel);
+          initialList: initialList,
+          listItemValidator: itemValidator,
+          append: append,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.dateTimeList]
   static ModelList<DateTime> dtList({
@@ -128,7 +156,10 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelList.dateTimeList(
-          initialList: initialList, listItemValidator: itemValidator, append: append, fieldLabel: fieldLabel);
+          initialList: initialList,
+          listItemValidator: itemValidator,
+          append: append,
+          fieldLabel: fieldLabel);
 
   /// Returns a [ModelList.modelValidatedList]
   static ModelList<Map<String, dynamic>> mvList(
@@ -137,7 +168,8 @@ abstract class M {
     bool append = true,
     String fieldLabel,
   }) =>
-      ModelList.modelValidatedList(model, initialList: initialList, append: append, fieldLabel: fieldLabel);
+      ModelList.modelValidatedList(model,
+          initialList: initialList, append: append, fieldLabel: fieldLabel);
 
   // value types
 

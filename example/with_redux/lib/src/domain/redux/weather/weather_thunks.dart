@@ -19,7 +19,8 @@ ThunkAction<AppState> fetchWeather(CityName cityName) {
   return (Store<AppState> store) async {
     store.dispatch(FetchWeatherBegin(cityName));
     try {
-      final weatherModel = await _weatherRepository.fetchWeather(cityName.asSerializable());
+      final weatherModel =
+          await _weatherRepository.fetchWeather(cityName.asSerializable());
       store.dispatch(FetchWeatherSuccess(weatherModel));
     } on NetworkException {
       store.dispatch(FetchWeatherFailure());

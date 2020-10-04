@@ -8,12 +8,16 @@ import 'package:with_redux/src/domain/redux/user/user_action.dart';
 import 'package:with_redux/src/domain/redux/user/user_reducer.dart';
 import 'package:with_redux/src/domain/redux/user/user_state.dart';
 
-Store<AppState> _store(BuildContext context) => StoreProvider.of<AppState>(context);
+Store<AppState> _store(BuildContext context) =>
+    StoreProvider.of<AppState>(context);
 
 class ChoicesComp extends StatelessWidget {
   Row _formInput(String label, Widget input) => Row(
         children: [
-          Container(padding: EdgeInsets.symmetric(horizontal: 10.0), width: 250.0, child: Text(label)),
+          Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.0),
+              width: 250.0,
+              child: Text(label)),
           Expanded(
             child: Align(
               alignment: Alignment.centerLeft,
@@ -26,7 +30,8 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputWords(Store<AppState> store) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
         initialValue: store.state.userModel.select(UserState.enteredTextSel),
-        onChanged: (value) => store.dispatch(UpdateValues(UserState.enteredTextSel, value)),
+        onChanged: (value) =>
+            store.dispatch(UpdateValues(UserState.enteredTextSel, value)),
       );
 
   Widget _inputValidatedNumber(Store<AppState> store) => Row(children: [
@@ -35,55 +40,74 @@ class ChoicesComp extends StatelessWidget {
             Icons.keyboard_arrow_down,
           ),
           tooltip: 'Decrement',
-          onPressed: () => store.dispatch(UpdateValues(UserState.validatedNumberSel, (n) => --n)),
+          onPressed: () => store
+              .dispatch(UpdateValues(UserState.validatedNumberSel, (n) => --n)),
         ),
         StoreConnector<AppState, int>(
-          converter: (store) => store.state.userModel.select(UserState.validatedNumberSel),
+          converter: (store) =>
+              store.state.userModel.select(UserState.validatedNumberSel),
           distinct: true,
           builder: (context, number) => Text(number.toString()),
         ),
         IconButton(
           icon: Icon(Icons.keyboard_arrow_up),
           tooltip: 'Increment',
-          onPressed: () => store.dispatch(UpdateValues(UserState.validatedNumberSel, (n) => ++n)),
+          onPressed: () => store
+              .dispatch(UpdateValues(UserState.validatedNumberSel, (n) => ++n)),
         ),
       ]);
 
   Widget _inputDouble(Store<AppState> store) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
-        initialValue: store.state.userModel.select(UserState.enteredDoubleSel).toStringAsFixed(3),
-        onChanged: (value) => store.dispatch(UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
+        initialValue: store.state.userModel
+            .select(UserState.enteredDoubleSel)
+            .toStringAsFixed(3),
+        onChanged: (value) => store.dispatch(
+            UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
       );
 
   Widget _inputBoolean(Store<AppState> store) => StoreConnector<AppState, bool>(
-        converter: (store) => store.state.userModel.select(UserState.chosenBoolSel),
+        converter: (store) =>
+            store.state.userModel.select(UserState.chosenBoolSel),
         distinct: true,
         builder: (context, b) => Container(
-          child: Checkbox(value: b, onChanged: (bl) => store.dispatch(UpdateValues(UserState.chosenBoolSel, bl))),
+          child: Checkbox(
+              value: b,
+              onChanged: (bl) =>
+                  store.dispatch(UpdateValues(UserState.chosenBoolSel, bl))),
         ),
       );
 
-  Widget _inputFavSeason(Store<AppState> store) => StoreConnector<AppState, String>(
-        converter: (store) => store.state.userModel.select(UserState.chosenEnumSel),
+  Widget _inputFavSeason(Store<AppState> store) =>
+      StoreConnector<AppState, String>(
+        converter: (store) =>
+            store.state.userModel.select(UserState.chosenEnumSel),
         distinct: true,
         builder: (context, seasonString) => Row(
           children: [
             DropdownButton<String>(
               underline: Container(),
               value: seasonString,
-              onChanged: (String enStr) => store.dispatch(UpdateValues(UserState.chosenEnumSel, enStr)),
-              items: (_store(context).state.userModel.selectModel(UserState.chosenEnumSel) as ModelEnum)
+              onChanged: (String enStr) =>
+                  store.dispatch(UpdateValues(UserState.chosenEnumSel, enStr)),
+              items: (_store(context)
+                      .state
+                      .userModel
+                      .selectModel(UserState.chosenEnumSel) as ModelEnum)
                   .enumStrings
-                  .map<DropdownMenuItem<String>>((String value) => DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      ))
+                  .map<DropdownMenuItem<String>>(
+                      (String value) => DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          ))
                   .toList(),
             ),
             Padding(padding: EdgeInsets.only(left: 2.0)),
-            _buildSeasonWords(
-                (_store(context).state.userModel.selectModel(UserState.chosenEnumSel) as ModelEnum<Seasons>)
-                    .valueAsEnum),
+            _buildSeasonWords((_store(context)
+                    .state
+                    .userModel
+                    .selectModel(UserState.chosenEnumSel) as ModelEnum<Seasons>)
+                .valueAsEnum),
           ],
         ),
       );
@@ -113,11 +137,13 @@ class ChoicesComp extends StatelessWidget {
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != current) _store(context).dispatch(UpdateValues(UserState.dateBeginSel, picked));
+    if (picked != null && picked != current)
+      _store(context).dispatch(UpdateValues(UserState.dateBeginSel, picked));
   }
 
   Widget _inputDateBegin() => StoreConnector<AppState, DateTime>(
-        converter: (store) => store.state.userModel.select(UserState.dateBeginSel),
+        converter: (store) =>
+            store.state.userModel.select(UserState.dateBeginSel),
         distinct: true,
         builder: (context, dtBegin) => Column(
           children: [
@@ -130,7 +156,8 @@ class ChoicesComp extends StatelessWidget {
               onPressed: () => _selectDateBegin(context, dtBegin),
               child: Text(
                 'Select date',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               color: Colors.greenAccent,
             ),
@@ -145,11 +172,13 @@ class ChoicesComp extends StatelessWidget {
       firstDate: DateTime(2000),
       lastDate: DateTime(2025),
     );
-    if (picked != null && picked != current) _store(context).dispatch(UpdateValues(UserState.dateEndSel, picked));
+    if (picked != null && picked != current)
+      _store(context).dispatch(UpdateValues(UserState.dateEndSel, picked));
   }
 
   Widget _inputDateEnd() => StoreConnector<AppState, DateTime>(
-        converter: (store) => store.state.userModel.select(UserState.dateEndSel),
+        converter: (store) =>
+            store.state.userModel.select(UserState.dateEndSel),
         distinct: true,
         builder: (context, dtEnd) => Column(
           children: [
@@ -162,7 +191,8 @@ class ChoicesComp extends StatelessWidget {
               onPressed: () => _selectDateEnd(context, dtEnd),
               child: Text(
                 'Select date',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
               ),
               color: Colors.greenAccent,
             ),
@@ -211,7 +241,8 @@ class ChoicesComp extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w700)),
               _formInput("Enter some text:", _inputWords(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Increment/decrement (must be >= 0):", _inputValidatedNumber(_store(context))),
+              _formInput("Increment/decrement (must be >= 0):",
+                  _inputValidatedNumber(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Enter a double:", _inputDouble(_store(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
@@ -223,7 +254,8 @@ class ChoicesComp extends StatelessWidget {
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Choose an end date:", _inputDateEnd()),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Change list of evens:", _inputEvensRow(_store(context))),
+              _formInput(
+                  "Change list of evens:", _inputEvensRow(_store(context))),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -232,9 +264,11 @@ class ChoicesComp extends StatelessWidget {
                   // RaisedButton(child: Text("Sort Dec"), onPressed: () => _store(context).dispatch(SortListDec())),
                   // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                   StoreConnector<AppState, List<int>>(
-                      converter: (store) => store.state.userModel.select(UserState.listOfEvensSel),
+                      converter: (store) => store.state.userModel
+                          .select(UserState.listOfEvensSel),
                       distinct: true,
-                      builder: (ctx, list) => Text("List total: ${listTotal(list)}")),
+                      builder: (ctx, list) =>
+                          Text("List total: ${listTotal(list)}")),
                 ],
               ),
             ]);

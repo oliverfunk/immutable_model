@@ -14,9 +14,12 @@ class WeatherReducer extends ReducerClass<ImmutableModel<WeatherState>> {
         },
       );
     } else if (action is FetchWeatherSuccess) {
-      return model.transitionTo(const WeatherLoaded()).mergeFrom(action.returnedModel);
+      return model
+          .transitionTo(const WeatherLoaded())
+          .mergeFrom(action.returnedModel);
     } else if (action is FetchWeatherFailure) {
-      return model.transitionTo(const WeatherError("Couldn't fetch weather. Is the device online?"));
+      return model.transitionTo(
+          const WeatherError("Couldn't fetch weather. Is the device online?"));
     }
 
     return model;

@@ -31,7 +31,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     this.modelValidator,
     this.strictUpdates = false,
     String fieldLabel,
-  ])  : assert(modelMap != null && modelMap.isNotEmpty, "The model cannot be null or empty"),
+  ])  : assert(modelMap != null && modelMap.isNotEmpty,
+            "The model cannot be null or empty"),
         _current = BuiltMap.of(modelMap),
         super.initial(
           modelMap,
@@ -76,13 +77,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
         super.fromPrevious(last);
 
   /// Validates [toValidate] using [modelValidator], if it's defined.
-  BuiltMap<String, ModelType> _validateModel(BuiltMap<String, ModelType> toValidate) =>
+  BuiltMap<String, ModelType> _validateModel(
+          BuiltMap<String, ModelType> toValidate) =>
       (modelValidator == null || modelValidator(toValidate.asMap()))
           ? toValidate
-          : logExceptionAndReturn(_current, ValidationException(this, toValidate));
+          : logExceptionAndReturn(
+              _current, ValidationException(this, toValidate));
 
   ModelInner _builder(
-    BuiltMap<String, ModelType> Function(Map<String, dynamic> update) mapBuilder,
+    BuiltMap<String, ModelType> Function(Map<String, dynamic> update)
+        mapBuilder,
     Map<String, dynamic> update,
   ) =>
       (strictUpdates && !_checkUpdateStrictly(update))
@@ -91,7 +95,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
               ? this
               : ModelInner._next(this, _validateModel(mapBuilder(update)));
 
-  BuiltMap<String, ModelType> _buildNext(Map<String, dynamic> next) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildNext(Map<String, dynamic> next) =>
+      _current.rebuild((mb) {
         next.forEach((field, nextValue) {
           hasModel(field)
               ? mb.updateValue(
@@ -102,7 +107,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
                           ? currentModel.nextFromModel(nextValue)
                           : nextValue is ValueUpdater // function update
                               ? currentModel.nextFromFunc(nextValue)
-                              : currentModel.nextFromDynamic(nextValue)) // normal value update
+                              : currentModel.nextFromDynamic(
+                                  nextValue)) // normal value update
               : throw ModelAccessError(this, field);
         });
       });
@@ -115,7 +121,9 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       next(_mapifySelectors(selector.selectors, update));
 
   Map<String, dynamic> _mapifySelectors(Iterable<String> list, dynamic value) =>
-      list.length == 1 ? {list.first: value} : {list.first: _mapifySelectors(list.skip(1), value)};
+      list.length == 1
+          ? {list.first: value}
+          : {list.first: _mapifySelectors(list.skip(1), value)};
 
   /// Checks if every field in the model is in [update] and has a value.
   ///
@@ -145,7 +153,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// meaning this could potentially be an expensive call if this model is large.
   /// Consider instead accessing only the required field values (using the [selectValue] or [get] methods).
   @override
-  Map<String, dynamic> get value => _current.toMap().map((field, model) => MapEntry(field, model.value));
+  Map<String, dynamic> get value =>
+      _current.toMap().map((field, model) => MapEntry(field, model.value));
 
   /// The map between field labels and the current [ModelType]s.
   ///
@@ -178,13 +187,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
         mergedValidator = modelValidator;
       } else {
         // both not null
-        mergedValidator = (map) => modelValidator(map) && otherModel.modelValidator(map);
+        mergedValidator =
+            (map) => modelValidator(map) && otherModel.modelValidator(map);
       }
     }
 
-    final mergedModelMaps = _current.toMap()..addAll(otherModel._current.toMap());
+    final mergedModelMaps = _current.toMap()
+      ..addAll(otherModel._current.toMap());
 
-    return ModelInner._(mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
+    return ModelInner._(
+        mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
   }
 
   /// Merges [other] into this and returns the new next instance.
@@ -197,7 +209,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       ? ModelInner._next(this, _buildMerge(other._current))
       : throw ModelHistoryEqualityError(this, other);
 
-  BuiltMap<String, ModelType> _buildMerge(BuiltMap<String, ModelType> other) => _current.rebuild((mb) {
+  BuiltMap<String, ModelType> _buildMerge(BuiltMap<String, ModelType> other) =>
+      _current.rebuild((mb) {
         other.forEach((otherField, otherModel) {
           mb.updateValue(
               otherField,
@@ -221,13 +234,19 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Note: this works deeply with nested [ModelInner]s.
   Map<String, dynamic> asSerializableDelta(ModelInner other) =>
-      hasEqualityOfHistory(other) ? _buildDelta(other._current) : throw ModelHistoryEqualityError(this, other);
+      hasEqualityOfHistory(other)
+          ? _buildDelta(other._current)
+          : throw ModelHistoryEqualityError(this, other);
 
   Map<String, dynamic> _buildDelta(BuiltMap<String, ModelType> other) =>
-      _current.toMap().map((currentField, currentModel) => currentModel == other[currentField]
+      _current.toMap().map((currentField, currentModel) => currentModel ==
+              other[currentField]
           ? MapEntry(currentField, null)
           : currentModel is ModelInner
-              ? MapEntry(currentField, currentModel.asSerializableDelta(other[currentField] as ModelInner))
+              ? MapEntry(
+                  currentField,
+                  currentModel
+                      .asSerializableDelta(other[currentField] as ModelInner))
               : MapEntry(currentField, currentModel.asSerializable()))
         ..removeWhere((field, model) => model == null);
 
@@ -240,7 +259,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// If this is the case, consider using [asSerializableDelta] on some pre-cached model to serialize only the changes.
   @override
   Map<String, dynamic> asSerializable() =>
-      _current.toMap().map((currentField, currentModel) => MapEntry(currentField, currentModel.asSerializable()));
+      _current.toMap().map((currentField, currentModel) =>
+          MapEntry(currentField, currentModel.asSerializable()));
 
   /// Converts [serialized] into a [Map] of [String]s and deserialized values.
   ///
@@ -249,12 +269,13 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Note: this works deeply with nested maps.
   @override
-  Map<String, dynamic> fromSerialized(dynamic serialized) => serialized is! Map<String, dynamic>
-      ? null
-      : serialized.map((serField, serValue) => hasModel(serField)
-          ? MapEntry(serField, getModel(serField).fromSerialized(serValue))
-          : MapEntry(serField, null))
-    ..removeWhere((field, value) => value == null);
+  Map<String, dynamic> fromSerialized(dynamic serialized) =>
+      serialized is! Map<String, dynamic>
+          ? null
+          : serialized.map((serField, serValue) => hasModel(serField)
+              ? MapEntry(serField, getModel(serField).fromSerialized(serValue))
+              : MapEntry(serField, null))
+        ..removeWhere((field, value) => value == null);
 
   // field ops
 
@@ -270,7 +291,9 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     if (selectorStrings.length == 1) {
       return fm;
     } else {
-      return fm is ModelInner ? fm._select(selectorStrings.skip(1)) : throw ModelSelectError(selectorStrings.first);
+      return fm is ModelInner
+          ? fm._select(selectorStrings.skip(1))
+          : throw ModelSelectError(selectorStrings.first);
     }
   }
 
@@ -282,7 +305,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   V selectValue<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
   /// Returns the [ModelType] model specified by [label].
-  ModelType getModel(String label) => hasModel(label) ? _current[label] : throw ModelAccessError(this, label);
+  ModelType getModel(String label) =>
+      hasModel(label) ? _current[label] : throw ModelAccessError(this, label);
 
   /// Returns the value of the model specified by [label].
   dynamic get(String label) => getModel(label).value;

@@ -100,7 +100,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   ///
   /// Throws a [ModelTypeError] if [nextValue] is not [V].
   @nonVirtual
-  M nextFromDynamic(dynamic nextValue) => nextValue is V ? next(nextValue) : throw ModelTypeError(this, nextValue);
+  M nextFromDynamic(dynamic nextValue) =>
+      nextValue is V ? next(nextValue) : throw ModelTypeError(this, nextValue);
 
   /// Calls [nextFromDynamic] after applying [updater] to the current model [value].
   @nonVirtual
@@ -114,7 +115,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   M nextFromSerialized(dynamic serialized) {
     final serializedValue = fromSerialized(serialized);
     return serializedValue == null
-        ? logExceptionAndReturn(this, DeserialisationException(this, serialized))
+        ? logExceptionAndReturn(
+            this, DeserialisationException(this, serialized))
         : next(serializedValue);
   }
 
@@ -122,8 +124,9 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   ///
   /// Throws a [ModelHistoryEqualityError] if it does not.
   @nonVirtual
-  M nextFromModel(ModelType other) =>
-      hasEqualityOfHistory(other) ? buildFromModel(other) : throw ModelHistoryEqualityError(this, other);
+  M nextFromModel(ModelType other) => hasEqualityOfHistory(other)
+      ? buildFromModel(other)
+      : throw ModelHistoryEqualityError(this, other);
 
   /// Returns an instance of this model based on [nextModel].
   ///
@@ -134,7 +137,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// Determines whether [other] shares a history with this model.
   ///
   /// Commonly overwritten by [ValueType]s.
-  bool hasEqualityOfHistory(ModelType other) => identical(initial, other.initial);
+  bool hasEqualityOfHistory(ModelType other) =>
+      identical(initial, other.initial);
 
   // serialization methods
 
@@ -165,10 +169,12 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   // misc
 
   /// Debug toString method including the [fieldLabel], if it exists
-  String toLongString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}${toString()}";
+  String toLongString() =>
+      "${fieldLabel == null ? "" : "'$fieldLabel' : "}${toString()}";
 
   /// Debug toString method excluding the model's value
-  String toShortString() => "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType";
+  String toShortString() =>
+      "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType";
 
   /// Debug toString method
   @override
