@@ -1,5 +1,6 @@
 # immutable_model
 
+[![Build Status](https://travis-ci.org/oliverfunk/immutable_model.svg?branch=master)](https://travis-ci.org/oliverfunk/immutable_model)
 [![pub package](https://img.shields.io/pub/v/immutable_model.svg)](https://pub.dev/packages/immutable_model)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://pub.dev/packages/effective_dart)

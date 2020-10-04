@@ -1,25 +1,31 @@
+import 'package:test/test.dart';
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
-import 'package:test/test.dart';
 
 void main() {
+  final mBool = M.bl(initialValue: false);
+  final mInt = M.nt(initialValue: 1);
+  final mDbl = M.dbl(initialValue: 0.1);
+  final mStr = M.str();
+  final mTxt = M.txt(initialValue: "Hello");
+  final mDt = M.dt(initialValue: DateTime.now());
+
+  final model = ImmutableModel({
+    "bool": mBool,
+    "int": mInt,
+    "double": mDbl,
+    "string": mStr,
+    "text": mTxt,
+    "date_time": mDt,
+  });
   group("ModelType object tests", () {
     test("Value Equalities", () {
-      final mBool = ModelBool(initialValue: false);
-      final mInt = ModelInt(initialValue: 1);
-
-      expect(mBool, ModelBool(initialValue: false));
+      expect(model.getModel('outer_bool'), ModelBool(initialValue: false));
       expect(mInt, ModelInt(initialValue: 1));
     });
   });
 
-  group("model definition with M", () {
-    final model = ImmutableModel({
-      "outer_bool": M.bl(initialValue: false),
-      "outer_int": M.nt(initialValue: 1),
-      "outer_double": M.dbl(initialValue: 0.1),
-    });
-  });
+  group("model definition with M", () {});
 
   group("model updates and resets", () {});
 

@@ -5,3 +5,6 @@ dart:
 dart_task:
   - test: --platform vm
   - test: --platform chrome
+cache:
+  directories:
+    - $HOME/.pub-cache
