@@ -1,10 +1,11 @@
-## [0.5.0]
+## [0.5.0] - [0.5.1]
 
 - Entered Beta phase. Many, many things were added, changed or improved upon.
 - Selectors were added
 - ImmutableModel now wraps a state
 - The library was almost entirely refactored to add value type support. See the example projects for more.
-- Many more...
+- Fixed many bugs
+- Adn much more...
 
 ## [0.2.0] - [0.2.4]
 
