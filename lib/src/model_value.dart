@@ -99,7 +99,11 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
     ValueValidator<String> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>, fieldLabel);
+        super.initial(
+          initialValue as V,
+          validator as ValueValidator<V>,
+          fieldLabel,
+        );
 
   /// A constructor for an object that models a [String], where the String cannot be null or empty.
   /// Additional validations may be specified.
@@ -122,8 +126,13 @@ abstract class ModelValue<M extends ModelType<M, V>, V> extends ModelType<M, V> 
     ValueValidator<String> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
-        super.initial(initialValue as V,
-            (str) => str != null && (str as String).isNotEmpty && validator(str as dynamic), fieldLabel);
+        super.initial(
+          initialValue as V,
+          validator == null
+              ? (str) => str != null && (str as String).isNotEmpty
+              : (str) => str != null && (str as String).isNotEmpty && validator(str as String),
+          fieldLabel,
+        );
 
   /// A constructor for an object that models a [DateTime].
   ///
