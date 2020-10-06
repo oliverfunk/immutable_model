@@ -2,7 +2,7 @@ language: dart
 dart:
   - stable
   - beta
-script:
+before_script:
   - pub global activate coverage
 dart_task:
   - test: --platform vm --coverage=coverage
