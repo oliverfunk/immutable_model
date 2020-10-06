@@ -5,6 +5,9 @@ dart:
 dart_task:
   - test: --platform vm --coverage=coverage
   - test: --platform chrome
+  - dartanalyzer: --fatal-warnings lib
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage/test/immutable_model_test.dart.vm.json
 cache:
   directories:
     - $HOME/.pub-cache
