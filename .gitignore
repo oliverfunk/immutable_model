@@ -76,3 +76,4 @@ build/
 pubspec.lock
 
 todo.md
+coverage/test
