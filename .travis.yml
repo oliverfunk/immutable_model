@@ -2,12 +2,17 @@ language: dart
 dart:
   - stable
   - beta
+script:
+  - pub global activate coverage
 dart_task:
   - test: --platform vm --coverage=coverage
   - test: --platform chrome
   - dartanalyzer: --fatal-warnings lib
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -f coverage/test/immutable_model_test.dart.vm.json
+  - pub global run coverage:format_coverage --packages=.packages -i coverage/test/immutable_model_test.dart.vm.json --report-on lib --lcov --out coverage/lcov.txt
+  - bash <(curl -s https://codecov.io/bash) -f coverage/lcov.txt
 cache:
   directories:
     - $HOME/.pub-cache
+branches:
+  only: [master]

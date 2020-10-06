@@ -1,4 +1,4 @@
-# immutable_model
+<img src="./doc/assets/banner.svg">
 
 [![Build Status](https://travis-ci.org/oliverfunk/immutable_model.svg?branch=master)](https://travis-ci.org/oliverfunk/immutable_model)
 [![pub package](https://img.shields.io/pub/v/immutable_model.svg)](https://pub.dev/packages/immutable_model)
