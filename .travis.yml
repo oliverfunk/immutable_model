@@ -3,7 +3,7 @@ dart:
   - stable
   - beta
 dart_task:
-  - test: --platform vm
+  - test: --platform vm --coverage=coverage
   - test: --platform chrome
 cache:
   directories:

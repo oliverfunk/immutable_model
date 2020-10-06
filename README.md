@@ -65,7 +65,7 @@ Where `authUser` is a data layer function, with the following signature:
 bool authUser(String email, String password)
 ```
 
-By parameterizing the `signIn` function with the `ModelEmail` and `ModelPassword` types, you can write the necessary logic without needing to worry about the validity of the data passed in. Code that calls the function (from the UI, for example) is forced to comply and instantiate the types **before** calling the function, which is only possible with valid data. It also clarifies
+By parameterizing the `signIn` function with the `ModelEmail` and `ModelPassword` types, you can write the necessary logic without needing to worry about the validity of the data passed in. Code that calls the function (from the UI, for example) is forced to comply and instantiate the types **before** calling the function, which is only possible with valid data.
 
 If instead the function was defined as `signIn(String email, String password)`, each string would need to be validated inside the function and then react accordingly if they weren't. Even if you trust the values that are passed in, it is still _possible_ that the values could be invalid.
 
