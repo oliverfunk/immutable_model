@@ -12,7 +12,7 @@ import 'model_type.dart';
 ///
 /// When extending this class with the intent to define a validated value type,
 /// the [ValueType] mixin should be used `with` the sub-class.
-abstract class ModelValue<M extends ModelType<M, V>, V>
+abstract class ModelValue<M extends ModelValue<M, V>, V>
     extends ModelType<M, V> {
   /// The wrapped value
   final V _current;
@@ -174,7 +174,7 @@ abstract class ModelValue<M extends ModelType<M, V>, V>
 ///
 /// This may be done because the class that uses this mixin wraps its own validation,
 /// therefore all instances of it will hold an equally valid value and thus all "share a history" in an abstract sense.
-mixin ValueType<M extends ModelType<M, V>, V> on ModelValue<M, V> {
+mixin ValueType<M extends ModelValue<M, V>, V> on ModelValue<M, V> {
   @override
   M buildFromModel(M previous) => buildNext(previous.value);
 

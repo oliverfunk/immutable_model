@@ -2,18 +2,32 @@ import '../immutable_model.dart';
 import '../model_types.dart';
 import 'model_type.dart';
 
-/// An [Error] that occurs when a model is being initialized with a value that does not validated.
+/// An [Error] that occurs during the initialization of a model.
 class ModelInitializationError extends Error {
-  final ModelType thisModel;
-  final dynamic receivedValue;
+  final Type modelType;
+  final String message;
 
-  ModelInitializationError(this.thisModel, this.receivedValue);
+  ModelInitializationError(this.modelType, this.message);
 
   @override
   String toString() => "ModelInitializationError\n"
-      "Attempting to initialize model <${thisModel.modelType}> with invalid data.\n"
-      " This model:     ${thisModel.toLongString()}\n"
-      " Invalid data:   $receivedValue";
+      "An error occurred during the initialization of a model:\n"
+      " Model:  $modelType\n"
+      " Reason: $message";
+}
+
+/// An [Error] that occurs when a model is being initialized with a value that does not validated.
+class ModelInitialValidationError extends Error {
+  final Type modelType;
+  final dynamic receivedValue;
+
+  ModelInitialValidationError(this.modelType, this.receivedValue);
+
+  @override
+  String toString() => "ModelInitializationError\n"
+      "Attempting to initialize a model with invalid data:\n"
+      " Model:    $modelType\n"
+      " Received: $receivedValue";
 }
 
 /// An [Error] that occurs when a model is being updated with a value that does not match the model's [ModelType.valueType].
@@ -48,15 +62,15 @@ class ModelHistoryEqualityError extends Error {
 
 /// An [Error] that occurs when an attempt is made to access a model that does not exist in a [ModelInner].
 class ModelAccessError extends Error {
-  final ModelInner model;
+  final Iterable<String> fieldLabels;
   final String field;
 
-  ModelAccessError(this.model, this.field);
+  ModelAccessError(this.fieldLabels, this.field);
 
   @override
   String toString() => "ModelAccessError\n"
-      "Requested field '$field' not in model.\n"
-      " Available fields are: ${model.fieldLabels}";
+      "'$field' not in model.\n"
+      " Available fields are: $fieldLabels";
 }
 
 /// An [Error] that occurs when an attempt is made to traverse a level of a state tree's hierarchy,

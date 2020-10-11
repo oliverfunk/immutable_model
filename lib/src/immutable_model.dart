@@ -17,6 +17,9 @@ class ImmutableModel<S> extends Equatable {
   /// The internal [ModelInner] used by this class.
   final ModelInner _model;
 
+  /// The underlying [ModelInner].
+  ModelInner get inner => _model;
+
   /// The model's current state.
   final S _state;
 
@@ -42,17 +45,20 @@ class ImmutableModel<S> extends Equatable {
   /// and every field value cannot be null and must be valid. If it's false, updates can
   /// contain a sub-set of the fields.
   ///
-  /// Throws a [ModelInitializationError] if [modelValidator] returns `false` after being run on [modelMap],
+  /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
   ImmutableModel(
     Map<String, ModelType> modelMap, {
-    ModelValidator modelValidator,
+    ModelMapValidator modelValidator,
     S initialState,
     bool strictUpdates = false,
     int cacheBufferSize,
   })  : assert(initialState is S, "The model's initialState must be set"),
-        _model = ModelInner(modelMap,
-            modelValidator: modelValidator, strictUpdates: strictUpdates),
+        _model = ModelInner(
+          modelMap,
+          modelValidator: modelValidator,
+          strictUpdates: strictUpdates,
+        ),
         _state = initialState ?? ModelState.Default as S,
         _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
 
@@ -166,7 +172,7 @@ class ImmutableModel<S> extends Equatable {
           ? updateWithSelector<V>(selector, update)
           : throw ModelStateError(currentState, inState);
 
-  /// Sets all models to those in [other],
+  /// All models are set to those in [other],
   /// only if the underlying [ModelInner] in this [ImmutableModel] share a history with the one in [other].
   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
       ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));

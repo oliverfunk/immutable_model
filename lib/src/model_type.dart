@@ -58,16 +58,17 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// If the supplied [initialValue] and [validator] are not null,
   /// [validator] will be run on the [initialValue].
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns false after being run on [initialValue].
+  /// Throws a [ModelInitialValidationError] if [validator] returns false after being run on [initialValue].
   ModelType.initial([
     V initialValue,
     ValueValidator<V> validator,
     this.fieldLabel,
   ])  : _validator = validator,
         _initialModel = null {
-    if (initialValue != null && !validate(initialValue)) {
-      logException(ValidationException(this, value));
-      throw ModelInitializationError(this, value);
+    // if only there was some way to do this before the instance was initialized...
+    if (initialValue != null && validator != null && !validator(initialValue)) {
+      logException(ValidationException(M, initialValue, fieldLabel));
+      throw ModelInitialValidationError(M, value);
     }
   }
 
@@ -94,7 +95,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
       ? this
       : validate(nextValue)
           ? buildNext(nextValue)
-          : logExceptionAndReturn(this, ValidationException(this, nextValue));
+          : logExceptionAndReturn(
+              this, ValidationException(M, nextValue, fieldLabel));
 
   /// Calls [next] with [nextValue] after checking it is the value type [V] of this model.
   ///
@@ -116,7 +118,9 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
     final serializedValue = fromSerialized(serialized);
     return serializedValue == null
         ? logExceptionAndReturn(
-            this, DeserialisationException(this, serialized))
+            this,
+            DeserialisationException(M, serialized, fieldLabel),
+          )
         : next(serializedValue);
   }
 

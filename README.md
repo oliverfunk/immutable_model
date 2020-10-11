@@ -1,6 +1,7 @@
 <img src="./doc/assets/banner.svg">
 
 [![Build Status](https://travis-ci.org/oliverfunk/immutable_model.svg?branch=master)](https://travis-ci.org/oliverfunk/immutable_model)
+[![codecov](https://codecov.io/gh/oliverfunk/immutable_model/branch/master/graph/badge.svg)](https://codecov.io/gh/oliverfunk/immutable_model)
 [![pub package](https://img.shields.io/pub/v/immutable_model.svg)](https://pub.dev/packages/immutable_model)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://pub.dev/packages/effective_dart)
@@ -103,23 +104,24 @@ aModelWithAnInner["the_inner"]["another_string"]; // "World"
 Updates use a map between field label Strings and values or functions:
 
 ```dart
-aModelWithAnInner.update({
+final updatedModel = aModelWithAnInner.update({
   "some_int": (n) => ++n,
   "the_inner": {
     "another_string": "New World".
   }
   });
-aModelWithAnInner["some_int"]; // 1
-aModelWithAnInner["the_inner"]["another_string"];  // New World
+updatedModel["some_int"]; // 1
+updatedModel["the_inner"]["another_string"];  // New World
 ```
 
 As shown in the above `signIn` function, `ModelType` models can also be used in the update map (see the [Theory](#Theory) section for an explanation).
 
 ### Using `ModelSelector`
 
-A `ModelSelector<V>` can be defined and used with an `ImmutableModel` (or `ModelInner`) to update or access a `ModelType` or its value.
+A `ModelSelector<V>` can be defined and used to update or access a `ModelType` or its value in an `ImmutableModel` (or `ModelInner`).
 
 A `ModelSelector` is defined using a "selector string" which uses a '.' for accessing nested models.
+`V` is the value type of the model being selected.
 
 The following selectors can be defined:
 

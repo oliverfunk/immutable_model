@@ -1,35 +1,56 @@
 import '../model_types.dart';
 
-/// The abstract [Exception] used
-abstract class ImmutableModelException implements Exception {
-  final ModelType model;
+/// The abstract [Exception] used for model exceptions
+abstract class ModelException implements Exception {
+  final Type modelType;
   final String reason;
+  final String fieldLabel;
 
-  ImmutableModelException(this.model, this.reason);
+  ModelException(
+    this.modelType,
+    this.reason, [
+    this.fieldLabel,
+  ]);
 
   @override
-  String toString() =>
-      "$runtimeType occurred for ${model.toShortString()}:\n$reason";
+  String toString() => "$runtimeType occurred for $modelType:\n"
+      " $reason\n"
+      " ${fieldLabel == null ? '' : 'For: $fieldLabel\n'}";
 }
 
 /// An [Exception] that occurs when a model is updated with an invalid value.
-class ValidationException extends ImmutableModelException {
-  ValidationException(ModelType model, dynamic receivedValue)
-      : super(model, "Validation failed on value '$receivedValue'");
+class ValidationException extends ModelException {
+  ValidationException(
+    Type modelType,
+    dynamic receivedValue, [
+    String fieldLabel,
+  ]) : super(
+          modelType,
+          "Validation failed on value '$receivedValue'",
+        );
 }
 
-/// An [Exception] that occurs when a [ModelInner] is updated with a map that fails the [ModelInner.strictUpdates] check.
-class StrictUpdateException extends ImmutableModelException {
-  StrictUpdateException(ModelInner model, Map<String, dynamic> update)
+/// An [Exception] that occurs when a [ModelInner] is updated with a map that fails a [ModelInner.strictUpdates] check.
+class StrictUpdateException extends ModelException {
+  StrictUpdateException(ModelInner currentModel, Map<String, dynamic> update)
       : super(
-            model,
-            "The update did not contain all fields in the model or some values were null\n"
-            "  Fields in model:   ${model.fieldLabels}\n"
-            "  Fields in update:  ${update.keys}");
+          ModelInner,
+          "The update did not contain all fields in the model or some values were null\n"
+          "  Fields in model:   ${currentModel.fieldLabels}\n"
+          "  Fields in update:  ${update.keys}",
+          currentModel.fieldLabel,
+        );
 }
 
 /// An [Exception] that occurs when a value cannot be deserialized using a model's [ModelType.fromSerialized] method.
-class DeserialisationException extends ImmutableModelException {
-  DeserialisationException(ModelType model, dynamic receivedValue)
-      : super(model, "Could not deserialize value '$receivedValue'");
+class DeserialisationException extends ModelException {
+  DeserialisationException(
+    Type modelType,
+    dynamic receivedValue, [
+    String fieldLabel,
+  ]) : super(
+          modelType,
+          "Could not deserialize value '$receivedValue'",
+          fieldLabel,
+        );
 }

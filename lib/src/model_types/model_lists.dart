@@ -1,0 +1,382 @@
+import 'package:built_collection/built_collection.dart';
+import 'package:meta/meta.dart';
+
+import '../errors.dart';
+import '../exceptions.dart';
+import '../model_type.dart';
+import '../utils/log.dart';
+import 'model_inner.dart';
+
+/// A function that validates an item from a list
+typedef ListItemValidator<V> = bool Function(V list);
+
+/// An abstract class for a model for a validated list of items.
+abstract class _ModelList<M extends _ModelList<M, T>, T>
+    extends ModelType<M, List<T>> {
+  final BuiltList<T> _current;
+  final bool _append;
+
+  _ModelList._([
+    List<T> initialList,
+    ListItemValidator<T> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ])  : _current = BuiltList<T>.of(initialList ?? <T>[]),
+        _append = append,
+        super.initial(
+          initialList,
+          listItemValidator == null
+              ? null
+              : (toValidate) =>
+                  toValidate.every((listItem) => listItemValidator(listItem)),
+          fieldLabel,
+        );
+
+  _ModelList._constructNext(M previous, this._current)
+      : _append = previous._append,
+        super.fromPrevious(previous);
+
+  @protected
+  M _buildNextInternal(BuiltList<T> next);
+
+  @override
+  M buildNext(List<T> next) => _buildNextInternal(
+      _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
+
+  // public methods
+
+  @override
+  List<T> get value => _current.toList();
+
+  @override
+  dynamic asSerializable() => value;
+
+  @override
+  List<T> fromSerialized(dynamic serialized) =>
+      serialized is List ? serialized.cast<T>() : null;
+
+  /// Removes the value at [index], reducing [numberOfItems] by 1.
+  M removeAt(int index) =>
+      _buildNextInternal(_current.rebuild((lb) => lb.removeAt(index)));
+
+  /// Replaces the value at [index] with [item].
+  ///
+  /// If item does not [validate], a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
+  /// and the value will not be replaced.
+  M replaceAt(int index, T item) => _buildNextInternal(_current.rebuild((lb) {
+        if (validate([item])) {
+          lb[index] = item;
+        } else {
+          logException(ValidationException(M, item, fieldLabel));
+        }
+      }));
+
+  /// Removes all objects from this list.
+  ///
+  /// As [List.clear].
+  M clear() => _buildNextInternal(_current.rebuild((lb) => lb.clear()));
+
+  /// Returns the value at [index].
+  T getElementAt(int index) => _current.elementAt(index);
+
+  /// Returns the value at [index].
+  T operator [](int index) => getElementAt(index);
+
+  /// Returns the number of items in the list
+  int get numberOfItems => _current.length;
+
+  @override
+  List<Object> get props => [_current];
+}
+
+class ModelBoolList extends _ModelList<ModelBoolList, bool> {
+  ModelBoolList._([
+    List<bool> initialList,
+    bool append = true,
+    String fieldLabel,
+  ]) : super._(initialList, null, append, fieldLabel);
+
+  ModelBoolList._next(ModelBoolList previous, BuiltList<bool> nextList)
+      : super._constructNext(previous, nextList);
+
+  /// Constructs a [ModelType] of a list of [bool]s.
+  ///
+  /// [initial] defines the first (or default) list.
+  /// This can be accessed using the [initial] instance, useful when resetting.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  ///
+  /// This model needs no validation.
+  ///
+  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+  /// If `false`, the list passed into the updating function will replace the current list.
+  ///
+  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+  /// This is not guaranteed, however.
+  factory ModelBoolList({
+    List<bool> initial,
+    bool append = true,
+    String fieldLabel,
+  }) =>
+      ModelBoolList._(initial, append, fieldLabel);
+
+  @override
+  ModelBoolList _buildNextInternal(BuiltList<bool> next) =>
+      ModelBoolList._next(this, next);
+}
+
+class ModelIntList extends _ModelList<ModelIntList, int> {
+  ModelIntList._([
+    List<int> initialList,
+    ListItemValidator<int> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+
+  ModelIntList._next(ModelIntList previous, BuiltList<int> nextList)
+      : super._constructNext(previous, nextList);
+
+  /// Constructs a [ModelType] of a list of [int]s.
+  ///
+  /// [initial] defines the first (or default) list.
+  /// This can be accessed using the [initial] instance, useful when resetting.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  ///
+  /// [listItemValidator] is a function that must return `true` if the [int] list item passed to it is valid
+  /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
+  ///
+  /// [listItemValidator] will be run on every update ([next] etc.) to this model.
+  /// If it returns `true` on every list element, the update will be applied. Otherwise a [ValidationException]
+  /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
+  /// (without the updated applied).
+  ///
+  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+  /// If `false`, the list passed into the updating function will replace the current list.
+  ///
+  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+  /// This is not guaranteed, however.
+  ///
+  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  ///
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
+  factory ModelIntList({
+    List<int> initial,
+    ListItemValidator<int> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  }) =>
+      ModelIntList._(initial, itemValidator, append, fieldLabel);
+
+  @override
+  ModelIntList _buildNextInternal(BuiltList<int> next) =>
+      ModelIntList._next(this, next);
+}
+
+/// A model for a validated list of doubles.
+class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
+  ModelDoubleList._([
+    List<double> initialList,
+    ListItemValidator<double> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+
+  ModelDoubleList._next(ModelDoubleList previous, BuiltList<double> nextList)
+      : super._constructNext(previous, nextList);
+
+  /// Constructs a [ModelType] of a list of [double]s.
+  ///
+  /// [initial] defines the first (or default) list.
+  /// This can be accessed using the [initial] instance, useful when resetting.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  ///
+  /// [listItemValidator] is a function that must return `true` if the [double] list item passed to it is valid
+  /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
+  ///
+  /// [listItemValidator] will be run on every update ([next] etc.) to this model.
+  /// If it returns `true` on every list element, the update will be applied. Otherwise a [ValidationException]
+  /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
+  /// (without the updated applied).
+  ///
+  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+  /// If `false`, the list passed into the updating function will replace the current list.
+  ///
+  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+  /// This is not guaranteed, however.
+  ///
+  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  ///
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
+  factory ModelDoubleList({
+    List<double> initial,
+    ListItemValidator<double> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  }) =>
+      ModelDoubleList._(initial, itemValidator, append, fieldLabel);
+
+  @override
+  ModelDoubleList _buildNextInternal(BuiltList<double> next) =>
+      ModelDoubleList._next(this, next);
+}
+
+/// A model for a validated list of Strings.
+class ModelStringList extends _ModelList<ModelStringList, String> {
+  ModelStringList._([
+    List<String> initialList,
+    ListItemValidator<String> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+
+  ModelStringList._next(ModelStringList previous, BuiltList<String> nextList)
+      : super._constructNext(previous, nextList);
+
+  /// Constructs a [ModelType] of a list of [String]s.
+  ///
+  /// [initial] defines the first (or default) list.
+  /// This can be accessed using the [initial] instance, useful when resetting.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  ///
+  /// [listItemValidator] is a function that must return `true` if the [String] list item passed to it is valid
+  /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
+  ///
+  /// [listItemValidator] will be run on every update ([next] etc.) to this model.
+  /// If it returns `true` on every list element, the update will be applied. Otherwise a [ValidationException]
+  /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
+  /// (without the updated applied).
+  ///
+  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+  /// If `false`, the list passed into the updating function will replace the current list.
+  ///
+  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+  /// This is not guaranteed, however.
+  ///
+  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  ///
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
+  factory ModelStringList({
+    List<String> initial,
+    ListItemValidator<String> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  }) =>
+      ModelStringList._(initial, itemValidator, append, fieldLabel);
+
+  @override
+  ModelStringList _buildNextInternal(BuiltList<String> next) =>
+      ModelStringList._next(this, next);
+}
+
+/// A model for a validated list of DateTimes.
+class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
+  ModelDateTimeList._([
+    List<DateTime> initial,
+    ListItemValidator<DateTime> listItemValidator,
+    bool append = true,
+    String fieldLabel,
+  ]) : super._(initial, listItemValidator, append, fieldLabel);
+
+  ModelDateTimeList._next(
+      ModelDateTimeList previous, BuiltList<DateTime> nextList)
+      : super._constructNext(previous, nextList);
+
+  /// Constructs a [ModelType] of a list of [DateTime]s.
+  ///
+  /// [initial] defines the first (or default) list.
+  /// This can be accessed using the [initial] instance, useful when resetting.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  ///
+  /// [listItemValidator] is a function that must return `true` if the [DateTime] list item passed to it is valid
+  /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
+  ///
+  /// [listItemValidator] will be run on every update ([next] etc.) to this model.
+  /// If it returns `true` on every list element, the update will be applied. Otherwise a [ValidationException]
+  /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
+  /// (without the updated applied).
+  ///
+  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+  /// If `false`, the list passed into the updating function will replace the current list.
+  ///
+  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+  /// This is not guaranteed, however.
+  ///
+  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  ///
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
+  factory ModelDateTimeList({
+    List<DateTime> initial,
+    ListItemValidator<DateTime> itemValidator,
+    bool append = true,
+    String fieldLabel,
+  }) =>
+      ModelDateTimeList._(initial, itemValidator, append, fieldLabel);
+
+  @override
+  ModelDateTimeList _buildNextInternal(BuiltList<DateTime> next) =>
+      ModelDateTimeList._next(this, next);
+
+  @override
+  dynamic asSerializable() => value.map((dt) => dt.toIso8601String());
+
+  @override
+  List<DateTime> fromSerialized(dynamic serialized) =>
+      serialized is List ? serialized.cast<String>().map(DateTime.parse) : null;
+}
+
+// /// A model for a list of Maps validated against a model.
+// class ModelValidatedList
+//     extends _ModelList<ModelValidatedList, Map<String, dynamic>> {
+//   ModelValidatedList._([
+//     List<Map<String, dynamic>> initialList,
+//     ListItemValidator<Map<String, dynamic>> listItemValidator,
+//     bool append = true,
+//     String fieldLabel,
+//   ]) : super._(initialList, listItemValidator, append, fieldLabel);
+
+//   ModelValidatedList._next(
+//       ModelValidatedList previous, BuiltList<Map<String, dynamic>> nextList)
+//       : super._constructNext(previous, nextList);
+
+//   /// Constructs a [ModelType] of a list of [Map]s that are validated against a [ModelInner].
+//   ///
+//   /// [initialList] defines the first (or default) list.
+//   /// This can be accessed using the [initial] instance, useful when resetting.
+//   /// [initialList] can be `null` indicating this model has no initial (or default) value.
+//   ///
+//   /// If [ModelInner.strictUpdates] is set `true` for [model],
+//   /// every map in the underlying list must contain all fields defined in [model],
+//   /// otherwise they can contain a sub-set of the fields.
+//   /// All map values will be validated against [model] too.
+//   ///
+//   /// If the list is updated with a map that does not validate (using [ModelInner.checkUpdate]),
+//   /// a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
+//   /// and the current instance returned (without the updated applied).
+//   ///
+//   /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
+//   /// If `false`, the list passed into the updating function will replace the current list.
+//   ///
+//   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
+//   /// This is not guaranteed, however.
+//   ///
+//   /// [initialList] will be validated against the model if it is not null.
+//   ///
+//   /// Throws a [ModelInitializationError] if [model] is `null`.
+//   /// Throws a [ModelInitialValidationError] if [initialList] contains an invalid map.
+//   factory ModelValidatedList(
+//     ModelInner model, {
+//     List<Map<String, dynamic>> initialList,
+//     bool append = true,
+//     String fieldLabel,
+//   }) {
+//     if (model == null) {
+//       throw ModelInitializationError(
+//           ModelValidatedList, "A model must be provided");
+//     }
+//     return ModelValidatedList._(initialList,
+//         (mapItem) => model.checkUpdate(mapItem), append, fieldLabel);
+//   }
+
+//   @override
+//   ModelValidatedList _buildNextInternal(BuiltList<Map<String, dynamic>> next) =>
+//       ModelValidatedList._next(this, next);
+// }

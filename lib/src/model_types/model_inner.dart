@@ -8,8 +8,8 @@ import '../utils/log.dart';
 
 /// A function that validates [modelMap].
 ///
-/// Note [modelMap] is read-only
-typedef ModelValidator = bool Function(Map<String, ModelType> modelMap);
+/// Note [modelMap] is read-only.
+typedef ModelMapValidator = bool Function(Map<String, ModelType> modelMap);
 
 /// A model for a validated map between field label Strings and other [ModelType] models.
 ///
@@ -18,7 +18,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   final BuiltMap<String, ModelType> _current;
 
   /// The validation function applied to the resulting map after every update.
-  final ModelValidator modelValidator;
+  final ModelMapValidator modelValidator;
 
   /// Controls whether updates are applied strictly or not.
   ///
@@ -31,19 +31,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     this.modelValidator,
     this.strictUpdates = false,
     String fieldLabel,
-  ])  : assert(modelMap != null && modelMap.isNotEmpty,
-            "The model cannot be null or empty"),
-        _current = BuiltMap.of(modelMap),
+  ])  : _current = BuiltMap.of(modelMap),
         super.initial(
           modelMap,
           (_) => true, // this class manages it's own validation
           fieldLabel,
-        ) {
-    if (modelValidator != null && !modelValidator(modelMap)) {
-      logException(ValidationException(this, value));
-      throw ModelInitializationError(this, value);
-    }
-  }
+        );
 
   /// Constructs a [ModelType] of map between field label [String]s and other [ModelType] models.
   ///
@@ -57,19 +50,28 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// If [strictUpdates] is true, every update must contain all fields defined in [modelMap]
-  /// and every field value cannot be null and must be valid. If it's false, updates can
-  /// contain a sub-set of the fields.
+  /// If [strictUpdates] is `true`, every update must contain all fields defined in [modelMap]
+  /// and every field value cannot be null and must be valid. If it's `false`, updates can
+  /// contain a sub-set of the fields and `null` field values will be ignored.
   ///
-  /// Throws a [ModelInitializationError] if [modelValidator] returns `false` after being run on [modelMap],
+  /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
   factory ModelInner(
     Map<String, ModelType> modelMap, {
-    ModelValidator modelValidator,
+    ModelMapValidator modelValidator,
     bool strictUpdates = false,
     String fieldLabel,
-  }) =>
-      ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
+  }) {
+    if (modelMap == null || modelMap.isEmpty) {
+      throw ModelInitializationError(
+          ModelInner, "The model cannot be null or empty");
+    }
+    if (modelValidator != null && !modelValidator(modelMap)) {
+      logException(ValidationException(ModelInner, modelMap, fieldLabel));
+      throw ModelInitialValidationError(ModelInner, modelMap);
+    }
+    return ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
+  }
 
   ModelInner._next(ModelInner last, this._current)
       : modelValidator = last.modelValidator,
@@ -82,7 +84,9 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
       (modelValidator == null || modelValidator(toValidate.asMap()))
           ? toValidate
           : logExceptionAndReturn(
-              _current, ValidationException(this, toValidate));
+              _current,
+              ValidationException(ModelInner, toValidate, fieldLabel),
+            );
 
   ModelInner _builder(
     BuiltMap<String, ModelType> Function(Map<String, dynamic> update)
@@ -109,43 +113,22 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
                               ? currentModel.nextFromFunc(nextValue)
                               : currentModel.nextFromDynamic(
                                   nextValue)) // normal value update
-              : throw ModelAccessError(this, field);
+              : throw ModelAccessError(fieldLabels, field);
         });
       });
 
   @override
   ModelInner buildNext(Map<String, dynamic> next) => _builder(_buildNext, next);
 
-  /// Updates the field selected by [selector] with [update] and returns the new instance.
+  /// Updates the model selected by [selector] with [update].
   ModelInner nextWithSelector<V>(ModelSelector<V> selector, dynamic update) =>
-      next(_mapifySelectors(selector.selectors, update));
-
-  Map<String, dynamic> _mapifySelectors(Iterable<String> list, dynamic value) =>
-      list.length == 1
-          ? {list.first: value}
-          : {list.first: _mapifySelectors(list.skip(1), value)};
+      selector.updateInner(this, update);
 
   /// Checks if every field in the model is in [update] and has a value.
   ///
   /// Returns `true` if [update] is strict, `false` otherwise.
   bool _checkUpdateStrictly(Map<String, dynamic> update) =>
       fieldLabels.every((fl) => update.containsKey(fl) && update[fl] != null);
-
-  /// Checks [update] as if were used to update this [ModelInner].
-  ///
-  /// Returns `true` if [update] would be valid, `false` otherwise.
-  bool checkUpdate(Map<String, dynamic> update) {
-    if (strictUpdates && !_checkUpdateStrictly(update)) {
-      return false;
-    }
-    for (var fl in update.keys) {
-      if (!hasModel(fl)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
 
   /// The map between field labels and the current [ModelType] values.
   ///
@@ -172,7 +155,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
     String fieldLabel,
   }) {
     // merge the two validators
-    ModelValidator mergedValidator;
+    ModelMapValidator mergedValidator;
     if (modelValidator == null) {
       if (otherModel.modelValidator == null) {
         // both null
@@ -264,7 +247,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
 
   /// Converts [serialized] into a [Map] of [String]s and deserialized values.
   ///
-  /// The values are deserialized using the [fromSerialized] method on the corresponding model in this [ModelInner].
+  /// The values are deserialized using the [fromSerialized] method on the corresponding model.
   /// If the model doesn't exist, the entry is removed.
   ///
   /// Note: this works deeply with nested maps.
@@ -286,27 +269,17 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   /// Returns `true` if [label] has an associated model.
   bool hasModel(String label) => _current.containsKey(label);
 
-  ModelType _select(Iterable<String> selectorStrings) {
-    final fm = getModel(selectorStrings.first);
-    if (selectorStrings.length == 1) {
-      return fm;
-    } else {
-      return fm is ModelInner
-          ? fm._select(selectorStrings.skip(1))
-          : throw ModelSelectError(selectorStrings.first);
-    }
-  }
-
   /// Returns the [ModelType] model selected by [selector].
   ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
-      _select(selector.selectors) as ModelType<dynamic, V>;
+      selector.modelFromInner(this);
 
   /// Returns the value of the model selected by [selector].
   V selectValue<V>(ModelSelector<V> selector) => selectModel(selector).value;
 
   /// Returns the [ModelType] model specified by [label].
-  ModelType getModel(String label) =>
-      hasModel(label) ? _current[label] : throw ModelAccessError(this, label);
+  ModelType getModel(String label) => hasModel(label)
+      ? _current[label]
+      : throw ModelAccessError(fieldLabels, label);
 
   /// Returns the value of the model specified by [label].
   dynamic get(String label) => getModel(label).value;
@@ -327,7 +300,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
             for (var fl in fieldLabels) {
               hasModel(fl)
                   ? mb.updateValue(fl, (currentModel) => currentModel.initial)
-                  : throw ModelAccessError(this, fl);
+                  : throw ModelAccessError(fieldLabels, fl);
             }
           }),
         );

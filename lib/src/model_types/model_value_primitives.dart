@@ -8,24 +8,24 @@ class ModelBool extends ModelValue<ModelBool, bool> {
     String fieldLabel,
   ]) : super.bool(initialValue, fieldLabel);
 
+  ModelBool._next(ModelBool previous, bool value)
+      : super.constructNext(previous, value);
+
   /// Constructs a [ModelValue] of a [bool].
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// This model needs no validation.
   ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   factory ModelBool({
-    bool initialValue,
+    bool initial,
     String fieldLabel,
   }) =>
-      ModelBool._(initialValue, fieldLabel);
-
-  ModelBool._next(ModelBool previous, bool value)
-      : super.constructNext(previous, value);
+      ModelBool._(initial, fieldLabel);
 
   @override
   ModelBool buildNext(bool nextValue) => ModelBool._next(this, nextValue);
@@ -39,11 +39,14 @@ class ModelInt extends ModelValue<ModelInt, int> {
     String fieldLabel,
   ]) : super.int(initialValue, validator, fieldLabel);
 
+  ModelInt._next(ModelInt previous, int value)
+      : super.constructNext(previous, value);
+
   /// Constructs a [ModelValue] of an [int].
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [validator] is a function that must return `true` if the [int] value passed to it is valid and `false` otherwise.
   /// [validator] can be `null` indicating this model has no validation.
@@ -56,18 +59,15 @@ class ModelInt extends ModelValue<ModelInt, int> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [validator] will be run on [initialValue] if they are both not null.
+  /// [validator] will be run on [initial] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initial].
   factory ModelInt({
-    int initialValue,
+    int initial,
     ValueValidator<int> validator,
     String fieldLabel,
   }) =>
-      ModelInt._(initialValue, validator, fieldLabel);
-
-  ModelInt._next(ModelInt previous, int value)
-      : super.constructNext(previous, value);
+      ModelInt._(initial, validator, fieldLabel);
 
   @override
   ModelInt buildNext(int nextValue) => ModelInt._next(this, nextValue);
@@ -81,11 +81,14 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
     String fieldLabel,
   ]) : super.double(initialValue, validator, fieldLabel);
 
+  ModelDouble._next(ModelDouble previous, double value)
+      : super.constructNext(previous, value);
+
   /// Constructs a [ModelValue] of a [double].
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [validator] is a function that must return `true` if the [double] value passed to it is valid and `false` otherwise.
   ///
@@ -97,18 +100,15 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [validator] will be run on [initialValue] if they are both not null.
+  /// [validator] will be run on [initial] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initial].
   factory ModelDouble({
-    double initialValue,
+    double initial,
     ValueValidator<double> validator,
     String fieldLabel,
   }) =>
-      ModelDouble._(initialValue, validator, fieldLabel);
-
-  ModelDouble._next(ModelDouble previous, double value)
-      : super.constructNext(previous, value);
+      ModelDouble._(initial, validator, fieldLabel);
 
   @override
   ModelDouble buildNext(double nextValue) => ModelDouble._next(this, nextValue);
@@ -128,11 +128,14 @@ class ModelString extends ModelValue<ModelString, String> {
     String fieldLabel,
   ]) : super.text(initialValue, validator, fieldLabel);
 
+  ModelString._next(ModelString previous, String value)
+      : super.constructNext(previous, value);
+
   /// Constructs a [ModelValue] of a [String].
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [validator] is a function that must return `true` if the [String] value passed to it is valid and `false` otherwise.
   ///
@@ -144,22 +147,22 @@ class ModelString extends ModelValue<ModelString, String> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [validator] will be run on [initialValue] if they are both not null.
+  /// [validator] will be run on [initial] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initial].
   factory ModelString({
-    String initialValue,
+    String initial,
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelString._(initialValue, validator, fieldLabel);
+      ModelString._(initial, validator, fieldLabel);
 
   /// Constructs a [ModelValue] of a [String], where the underlying [String] cannot be null or empty.
   /// Additional validations may be specified.
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [validator] is a function that must return `true` if the [String] value passed to it is valid and `false` otherwise.
   ///
@@ -171,18 +174,15 @@ class ModelString extends ModelValue<ModelString, String> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [validator] will be run on [initialValue] if they are both not null.
+  /// [validator] will be run on [initial] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initial].
   factory ModelString.text({
-    String initialValue,
+    String initial,
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelString._text(initialValue, validator, fieldLabel);
-
-  ModelString._next(ModelString previous, String value)
-      : super.constructNext(previous, value);
+      ModelString._text(initial, validator, fieldLabel);
 
   @override
   ModelString buildNext(String nextValue) => ModelString._next(this, nextValue);
@@ -196,14 +196,17 @@ class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
     String fieldLabel,
   ]) : super.datetime(initialValue, validator, fieldLabel);
 
+  ModelDateTime._next(ModelDateTime previous, DateTime value)
+      : super.constructNext(previous, value);
+
   /// Constructs a [ModelValue] of a [DateTime].
   ///
   /// The underlying [DateTime] object is serialized using [DateTime.toIso8601String]
   /// and deserialized using [DateTime.parse].
   ///
-  /// [initialValue] defines the first (or default) value.
+  /// [initial] defines the first (or default) value.
   /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initial] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [validator] is a function that must return `true` if the [DateTime] value passed to it is valid and `false` otherwise.
   ///
@@ -215,18 +218,15 @@ class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [validator] will be run on [initialValue] if they are both not null.
+  /// [validator] will be run on [initial] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initial].
   factory ModelDateTime({
-    DateTime initialValue,
+    DateTime initial,
     ValueValidator<DateTime> validator,
     String fieldLabel,
   }) =>
-      ModelDateTime._(initialValue, validator, fieldLabel);
-
-  ModelDateTime._next(ModelDateTime previous, DateTime value)
-      : super.constructNext(previous, value);
+      ModelDateTime._(initial, validator, fieldLabel);
 
   @override
   ModelDateTime buildNext(DateTime nextValue) =>

@@ -1,5 +1,4 @@
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/model_types.dart';
 
 enum Seasons { Spring, Summer, Winter, Autumn }
 
@@ -7,24 +6,20 @@ final userStateModel = ImmutableModel<UserState>(
   {
     "email": M.email(),
     "chosen_values": M.inner({
-      "entered_text": M.str(initialValue: "Hello M!"),
-      "validated_number": M.nt(initialValue: 0, validator: (n) => n >= 0),
-      "entered_double": M.dbl(initialValue: 13 / 7),
-      "chosen_bool": M.bl(initialValue: true),
+      "entered_text": M.str(initial: "Hello M!"),
+      "validated_number": M.nt(initial: 0, validator: (n) => n >= 0),
+      "entered_double": M.dbl(initial: 13 / 7),
+      "chosen_bool": M.bl(initial: true),
       "chosen_enum": M.enm(Seasons.values, Seasons.Spring),
-      "date_begin": M.dt(initialValue: DateTime.now()),
-      "date_end": M.dt(initialValue: DateTime.now().add(Duration(days: 1))),
+      "date_begin": M.dt(initial: DateTime.now()),
+      "date_end": M.dt(initial: DateTime.now().add(Duration(days: 1))),
       'list_of_evens': M.ntList(
-          initialList: [2, 4, 6, 8],
-          itemValidator: (n) => n.isEven,
-          append: false),
+          initial: [2, 4, 6, 8], itemValidator: (n) => n.isEven, append: false),
     }),
   },
-  modelValidator: (modelMap) {
-    final chosenValuesInner = modelMap['chosen_values'] as ModelInner;
-    return (chosenValuesInner['date_begin'] as DateTime)
-        .isBefore(chosenValuesInner['date_end'] as DateTime);
-  },
+  modelValidator: (modelMap) => UserState.dateBeginSel
+      .valueFromModelMap(modelMap)
+      .isBefore(UserState.dateEndSel.valueFromModelMap(modelMap)),
   initialState: const UserUnauthed(),
 );
 

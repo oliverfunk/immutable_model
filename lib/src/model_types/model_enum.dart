@@ -1,3 +1,4 @@
+import '../errors.dart';
 import '../model_type.dart';
 
 /// A model for an enum.
@@ -21,10 +22,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
     List<E> enumValues,
     E initial, [
     String fieldLabel,
-  ])  : assert(enumValues.isNotEmpty,
-            "Provide an enum list using the static .values getter method on the enum class."),
-        assert(initial != null, "An initial enum instance must be provided"),
-        _current = initial,
+  ])  : _current = initial,
         _enums = enumValues,
         super.initial(
             convertEnum(initial),
@@ -45,8 +43,21 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
     List<E> enumValues,
     E initial, {
     String fieldLabel,
-  }) =>
-      ModelEnum._(enumValues, initial, fieldLabel);
+  }) {
+    if (enumValues.isEmpty) {
+      throw ModelInitializationError(
+        ModelEnum,
+        "The enum values list must be provided. Use the static .values getter method on the enum class.",
+      );
+    }
+    if (initial == null) {
+      throw ModelInitializationError(
+        ModelEnum,
+        "An initial enum instance must be provided",
+      );
+    }
+    return ModelEnum._(enumValues, initial, fieldLabel);
+  }
 
   ModelEnum._next(ModelEnum<E> last, this._current)
       : _enums = last._enums,
