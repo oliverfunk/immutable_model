@@ -23,6 +23,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   @override
   dynamic asSerializable() => value;
 
+  @override
+  V fromSerialized(dynamic serialized) => serialized is V ? serialized : null;
+
   /// A constructor for an object that models an [bool].
   ///
   /// [initialValue] defines the initial value for this model.

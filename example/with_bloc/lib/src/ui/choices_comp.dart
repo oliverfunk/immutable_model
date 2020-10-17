@@ -212,13 +212,11 @@ class ChoicesComp extends StatelessWidget {
                     textAlign: TextAlign.center,
                     initialValue: entry.value.toString(),
                     onChanged: (value) {
+                      final ModelIntList listModel =
+                          userBloc.state.selectModel(UserState.listOfEvensSel);
                       userBloc.add(UpdateValues(
                         UserState.listOfEvensSel,
-                        // if you need a more effecient way of replacing, get the ModelList<> and use the replaceAt function
-                        (list) {
-                          list[entry.key] = int.parse(value);
-                          return list;
-                        },
+                        listModel.replaceAt(entry.key, (_) => int.parse(value)),
                       ));
                     },
                   ),

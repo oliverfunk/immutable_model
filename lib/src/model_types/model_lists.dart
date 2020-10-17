@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:meta/meta.dart';
 
@@ -14,15 +15,12 @@ typedef ListItemValidator<V> = bool Function(V list);
 abstract class _ModelList<M extends _ModelList<M, T>, T>
     extends ModelType<M, List<T>> {
   final BuiltList<T> _current;
-  final bool _append;
 
   _ModelList._([
     List<T> initialList,
     ListItemValidator<T> listItemValidator,
-    bool append = true,
     String fieldLabel,
   ])  : _current = BuiltList<T>.of(initialList ?? <T>[]),
-        _append = append,
         super.initial(
           initialList,
           listItemValidator == null
@@ -33,15 +31,19 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
         );
 
   _ModelList._constructNext(M previous, this._current)
-      : _append = previous._append,
-        super.fromPrevious(previous);
+      : super.fromPrevious(previous);
 
   @protected
   M _buildNextInternal(BuiltList<T> next);
 
   @override
   M buildNext(List<T> next) => _buildNextInternal(
-      _current.rebuild((lb) => _append ? lb.addAll(next) : lb.replace(next)));
+        _current.rebuild((lb) => lb.replace(next)),
+      );
+
+  /// Checks if [next] is element-wise equal to the current list
+  @override
+  bool shouldBuild(List<T> next) => !(const ListEquality().equals(value, next));
 
   // public methods
 
@@ -52,34 +54,53 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
   dynamic asSerializable() => value;
 
   @override
-  List<T> fromSerialized(dynamic serialized) =>
-      serialized is List ? serialized.cast<T>() : null;
+  List<T> fromSerialized(dynamic serialized) {
+    if (serialized is List) {
+      try {
+        return serialized.cast<T>();
+      } catch (_) {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 
-  /// Removes the value at [index], reducing [numberOfItems] by 1.
+  /// Append the items in [list] to the end of the current underlying list.
+  ///
+  /// If [list] does not [validate], a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
+  /// and the current instance returned with no update applied.
+  M append(List<T> list) => validate(list)
+      ? _buildNextInternal(_current.rebuild((lb) => lb.addAll(list)))
+      : logExceptionAndReturn(this, ValidationException(M, list, fieldLabel));
+
+  /// Replaces the item at [index] with [item].
+  ///
+  /// If [item] does not [validate], a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
+  /// and the current instance returned with no update applied.
+  M replaceAt(int index, T Function(T current) updater) {
+    final update = updater(this[index]);
+    return validate([update])
+        ? _buildNextInternal(_current.rebuild((lb) => lb[index] = update))
+        : logExceptionAndReturn(
+            this,
+            ValidationException(M, update, fieldLabel),
+          );
+  }
+
+  /// Removes the item at [index], reducing [numberOfItems] by 1.
   M removeAt(int index) =>
       _buildNextInternal(_current.rebuild((lb) => lb.removeAt(index)));
 
-  /// Replaces the value at [index] with [item].
-  ///
-  /// If item does not [validate], a [ValidationException] will be logged as a *WARNING* message (instead of being thrown)
-  /// and the value will not be replaced.
-  M replaceAt(int index, T item) => _buildNextInternal(_current.rebuild((lb) {
-        if (validate([item])) {
-          lb[index] = item;
-        } else {
-          logException(ValidationException(M, item, fieldLabel));
-        }
-      }));
-
-  /// Removes all objects from this list.
+  /// Removes all elements from this list.
   ///
   /// As [List.clear].
   M clear() => _buildNextInternal(_current.rebuild((lb) => lb.clear()));
 
-  /// Returns the value at [index].
+  /// Returns the item at [index].
   T getElementAt(int index) => _current.elementAt(index);
 
-  /// Returns the value at [index].
+  /// Returns the item at [index].
   T operator [](int index) => getElementAt(index);
 
   /// Returns the number of items in the list
@@ -92,14 +113,15 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
 class ModelBoolList extends _ModelList<ModelBoolList, bool> {
   ModelBoolList._([
     List<bool> initialList,
-    bool append = true,
     String fieldLabel,
-  ]) : super._(initialList, null, append, fieldLabel);
+  ]) : super._(initialList, null, fieldLabel);
 
   ModelBoolList._next(ModelBoolList previous, BuiltList<bool> nextList)
       : super._constructNext(previous, nextList);
 
   /// Constructs a [ModelType] of a list of [bool]s.
+  ///
+  /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
   /// [initial] defines the first (or default) list.
   /// This can be accessed using the [initial] instance, useful when resetting.
@@ -107,17 +129,13 @@ class ModelBoolList extends _ModelList<ModelBoolList, bool> {
   ///
   /// This model needs no validation.
   ///
-  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
-  /// If `false`, the list passed into the updating function will replace the current list.
-  ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   factory ModelBoolList({
     List<bool> initial,
-    bool append = true,
     String fieldLabel,
   }) =>
-      ModelBoolList._(initial, append, fieldLabel);
+      ModelBoolList._(initial, fieldLabel);
 
   @override
   ModelBoolList _buildNextInternal(BuiltList<bool> next) =>
@@ -128,14 +146,15 @@ class ModelIntList extends _ModelList<ModelIntList, int> {
   ModelIntList._([
     List<int> initialList,
     ListItemValidator<int> listItemValidator,
-    bool append = true,
     String fieldLabel,
-  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+  ]) : super._(initialList, listItemValidator, fieldLabel);
 
   ModelIntList._next(ModelIntList previous, BuiltList<int> nextList)
       : super._constructNext(previous, nextList);
 
   /// Constructs a [ModelType] of a list of [int]s.
+  ///
+  /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
   /// [initial] defines the first (or default) list.
   /// This can be accessed using the [initial] instance, useful when resetting.
@@ -149,9 +168,6 @@ class ModelIntList extends _ModelList<ModelIntList, int> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
-  /// If `false`, the list passed into the updating function will replace the current list.
-  ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
@@ -161,10 +177,9 @@ class ModelIntList extends _ModelList<ModelIntList, int> {
   factory ModelIntList({
     List<int> initial,
     ListItemValidator<int> itemValidator,
-    bool append = true,
     String fieldLabel,
   }) =>
-      ModelIntList._(initial, itemValidator, append, fieldLabel);
+      ModelIntList._(initial, itemValidator, fieldLabel);
 
   @override
   ModelIntList _buildNextInternal(BuiltList<int> next) =>
@@ -176,14 +191,15 @@ class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
   ModelDoubleList._([
     List<double> initialList,
     ListItemValidator<double> listItemValidator,
-    bool append = true,
     String fieldLabel,
-  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+  ]) : super._(initialList, listItemValidator, fieldLabel);
 
   ModelDoubleList._next(ModelDoubleList previous, BuiltList<double> nextList)
       : super._constructNext(previous, nextList);
 
   /// Constructs a [ModelType] of a list of [double]s.
+  ///
+  /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
   /// [initial] defines the first (or default) list.
   /// This can be accessed using the [initial] instance, useful when resetting.
@@ -197,9 +213,6 @@ class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
-  /// If `false`, the list passed into the updating function will replace the current list.
-  ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
@@ -209,10 +222,9 @@ class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
   factory ModelDoubleList({
     List<double> initial,
     ListItemValidator<double> itemValidator,
-    bool append = true,
     String fieldLabel,
   }) =>
-      ModelDoubleList._(initial, itemValidator, append, fieldLabel);
+      ModelDoubleList._(initial, itemValidator, fieldLabel);
 
   @override
   ModelDoubleList _buildNextInternal(BuiltList<double> next) =>
@@ -224,14 +236,15 @@ class ModelStringList extends _ModelList<ModelStringList, String> {
   ModelStringList._([
     List<String> initialList,
     ListItemValidator<String> listItemValidator,
-    bool append = true,
     String fieldLabel,
-  ]) : super._(initialList, listItemValidator, append, fieldLabel);
+  ]) : super._(initialList, listItemValidator, fieldLabel);
 
   ModelStringList._next(ModelStringList previous, BuiltList<String> nextList)
       : super._constructNext(previous, nextList);
 
   /// Constructs a [ModelType] of a list of [String]s.
+  ///
+  /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
   /// [initial] defines the first (or default) list.
   /// This can be accessed using the [initial] instance, useful when resetting.
@@ -245,9 +258,6 @@ class ModelStringList extends _ModelList<ModelStringList, String> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
-  /// If `false`, the list passed into the updating function will replace the current list.
-  ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
@@ -257,10 +267,9 @@ class ModelStringList extends _ModelList<ModelStringList, String> {
   factory ModelStringList({
     List<String> initial,
     ListItemValidator<String> itemValidator,
-    bool append = true,
     String fieldLabel,
   }) =>
-      ModelStringList._(initial, itemValidator, append, fieldLabel);
+      ModelStringList._(initial, itemValidator, fieldLabel);
 
   @override
   ModelStringList _buildNextInternal(BuiltList<String> next) =>
@@ -272,15 +281,16 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
   ModelDateTimeList._([
     List<DateTime> initial,
     ListItemValidator<DateTime> listItemValidator,
-    bool append = true,
     String fieldLabel,
-  ]) : super._(initial, listItemValidator, append, fieldLabel);
+  ]) : super._(initial, listItemValidator, fieldLabel);
 
   ModelDateTimeList._next(
       ModelDateTimeList previous, BuiltList<DateTime> nextList)
       : super._constructNext(previous, nextList);
 
   /// Constructs a [ModelType] of a list of [DateTime]s.
+  ///
+  /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
   /// [initial] defines the first (or default) list.
   /// This can be accessed using the [initial] instance, useful when resetting.
@@ -294,9 +304,6 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// If [append] is `true`, updates (using [next] etc.) will be appended to the end of the current list.
-  /// If `false`, the list passed into the updating function will replace the current list.
-  ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
@@ -306,10 +313,9 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
   factory ModelDateTimeList({
     List<DateTime> initial,
     ListItemValidator<DateTime> itemValidator,
-    bool append = true,
     String fieldLabel,
   }) =>
-      ModelDateTimeList._(initial, itemValidator, append, fieldLabel);
+      ModelDateTimeList._(initial, itemValidator, fieldLabel);
 
   @override
   ModelDateTimeList _buildNextInternal(BuiltList<DateTime> next) =>
@@ -319,8 +325,17 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
   dynamic asSerializable() => value.map((dt) => dt.toIso8601String());
 
   @override
-  List<DateTime> fromSerialized(dynamic serialized) =>
-      serialized is List ? serialized.cast<String>().map(DateTime.parse) : null;
+  List<DateTime> fromSerialized(dynamic serialized) {
+    if (serialized is List) {
+      try {
+        return serialized.cast<String>().map(DateTime.parse).toList();
+      } catch (_) {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
 }
 
 // /// A model for a list of Maps validated against a model.

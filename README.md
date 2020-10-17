@@ -1,4 +1,4 @@
-<img src="./doc/assets/banner.svg">
+<img src="https://raw.githubusercontent.com/oliverfunk/immutable_model/master/doc/assets/banner.svg" width="100%" alt="banner">
 
 [![Build Status](https://travis-ci.org/oliverfunk/immutable_model.svg?branch=master)](https://travis-ci.org/oliverfunk/immutable_model)
 [![codecov](https://codecov.io/gh/oliverfunk/immutable_model/branch/master/graph/badge.svg)](https://codecov.io/gh/oliverfunk/immutable_model)
@@ -266,12 +266,15 @@ For example:
 ```dart
 class CityName extends ModelValue<CityName, String> with ValueType {
   // checks if every word is capitalized
-  static final validator = (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
+  static final validator =
+      (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
   static const label = "city_name";
 
-  CityName([String defaultCityName]) : super.text(defaultCityName.trim(), validator, label);
+  CityName([String defaultCityName])
+      : super.text(defaultCityName.trim(), validator, label);
 
-  CityName._next(CityName previous, String value) : super.constructNext(previous, value.trim());
+  CityName._next(CityName previous, String value)
+      : super.constructNext(previous, value.trim());
 
   @override
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);
@@ -317,12 +320,11 @@ These are all the `ModelTypes` defined in this package:
 
 **Lists:**
 
-- `ModelList<bool>`
-- `ModelList<int>`
-- `ModelList<double>`
-- `ModelList<String>`
-- `ModelList<DateTime>`
-- `ModelList<Map<String, dynamic>`: Called a "Model Validated List" because each Map item is validated against a `ModelInner`
+- `ModelBoolList`
+- `ModelIntList`
+- `ModelDoubleList`
+- `ModelStringList`
+- `ModelDateTimeList`
 
 **Enums:**
 

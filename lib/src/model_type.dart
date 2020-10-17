@@ -24,7 +24,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// The initial instance of this model.
   ///
-  /// Can be null.
+  /// Can be `null`.
   final M _initialModel;
 
   /// The initial instance of this model.
@@ -55,7 +55,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// Constructor for the first instance of this [ModelType].
   ///
-  /// If the supplied [initialValue] and [validator] are not null,
+  /// If the supplied [initialValue] and [validator] are not `null`,
   /// [validator] will be run on the [initialValue].
   ///
   /// Throws a [ModelInitialValidationError] if [validator] returns false after being run on [initialValue].
@@ -82,55 +82,76 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// Returns a new instance of this model given [nextValue].
   ///
-  /// Used to hook in the constructor of a sub-class.
+  /// Used to hook in the constructor of the sub-class that extends this.
   @protected
   M buildNext(V nextValue);
 
-  /// Returns an new instance of this model if [nextValue] is valid.
+  /// Determines whether the model should build on [nextValue].
   ///
-  /// Logs a [ValidationException] as a *WARNING* message (instead of throwing it) if [nextValue] is not valid
-  /// and returns the current instance (with no update applied).
-  @nonVirtual
-  M next(V nextValue) => nextValue == null
-      ? this
-      : validate(nextValue)
-          ? buildNext(nextValue)
-          : logExceptionAndReturn(
-              this, ValidationException(M, nextValue, fieldLabel));
+  /// This should not be an expensive call.
+  ///
+  /// [nextValue] cannot be `null`.
+  @protected
+  bool shouldBuild(V nextValue) => nextValue != value;
 
-  /// Calls [next] with [nextValue] after checking it is the value type [V] of this model.
+  /// Returns a new instance whose [value] is set to [nextValue],
+  /// if [nextValue] is valid.
+  ///
+  /// If [nextValue] is not valid or is equal to the current [value],
+  /// the current instance is returned (with no update applied)
+  ///
+  /// Logs a [ValidationException] as a *WARNING* message
+  /// (instead of throwing it) if [nextValue] is not valid.
+  @nonVirtual
+  M next(V nextValue) => nextValue != null
+      ? shouldBuild(nextValue)
+          ? validate(nextValue)
+              ? buildNext(nextValue)
+              : logExceptionAndReturn(
+                  this,
+                  ValidationException(M, nextValue, fieldLabel),
+                )
+          : this
+      : this;
+
+  /// Calls [next] with [nextValue]
+  /// after checking it is the value type [V] of this model.
   ///
   /// Throws a [ModelTypeError] if [nextValue] is not [V].
   @nonVirtual
   M nextFromDynamic(dynamic nextValue) =>
       nextValue is V ? next(nextValue) : throw ModelTypeError(this, nextValue);
 
-  /// Calls [nextFromDynamic] after applying [updater] to the current model [value].
+  /// Calls [nextFromDynamic]
+  /// after applying [updater] to the current model [value].
   @nonVirtual
   M nextFromFunc(ValueUpdater updater) => nextFromDynamic(updater(value));
 
   /// Calls [next] with [serialized] after applying [fromSerialized] to it.
   ///
-  /// Logs a [DeserialisationException] as a *WARNING* message (instead of throwing it) if [fromSerialized] returns null,
+  /// Logs a [DeserialisationException] as a *WARNING* message
+  /// (instead of throwing it) if [fromSerialized] returns `null`,
   /// indicating [serialized] could not be deserialized.
   @nonVirtual
   M nextFromSerialized(dynamic serialized) {
     final serializedValue = fromSerialized(serialized);
-    return serializedValue == null
-        ? logExceptionAndReturn(
+    return serializedValue != null
+        ? next(serializedValue)
+        : logExceptionAndReturn(
             this,
             DeserialisationException(M, serialized, fieldLabel),
-          )
-        : next(serializedValue);
+          );
   }
 
   /// Returns an instance of this model from [other] if [other] shares a history with this model.
   ///
   /// Throws a [ModelHistoryEqualityError] if it does not.
   @nonVirtual
-  M nextFromModel(ModelType other) => hasEqualityOfHistory(other)
-      ? buildFromModel(other)
-      : throw ModelHistoryEqualityError(this, other);
+  M nextFromModel(ModelType other) => this != other
+      ? hasEqualityOfHistory(other)
+          ? buildFromModel(other)
+          : throw ModelHistoryEqualityError(this, other)
+      : this;
 
   /// Returns an instance of this model based on [nextModel].
   ///
@@ -157,7 +178,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// [serialized] will normally be the value returned by [asSerializable].
   ///
   /// This method is commonly overwritten by sub-classes
-  V fromSerialized(dynamic serialized) => serialized is V ? serialized : null;
+  V fromSerialized(dynamic serialized);
 
   @override
   List<Object> get props => [value];
@@ -172,15 +193,15 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   // misc
 
-  /// Debug toString method including the [fieldLabel], if it exists
+  /// Debug toString method including the [fieldLabel], if it exists, the [modelType] and model [value].
   String toLongString() =>
       "${fieldLabel == null ? "" : "'$fieldLabel' : "}${toString()}";
 
-  /// Debug toString method excluding the model's value
+  /// Debug toString method including the [fieldLabel], if it exists, and the [modelType].
   String toShortString() =>
       "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType";
 
-  /// Debug toString method
+  /// Debug toString method including the [modelType] and model [value].
   @override
   String toString() => "<$modelType>($value)";
 }

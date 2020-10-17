@@ -4,6 +4,7 @@
 - Refactored parameter fields into a more uniform style across the library
 - Improved the ModelValidatedList
 - Expanded ModelSelector to include selecting from different source
+- Added the shouldBuild function to ModelType
 - Added more tests
 
 ## [0.5.0] - [0.5.3]

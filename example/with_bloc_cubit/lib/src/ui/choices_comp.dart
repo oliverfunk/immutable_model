@@ -210,13 +210,11 @@ class ChoicesComp extends StatelessWidget {
                     textAlign: TextAlign.center,
                     initialValue: entry.value.toString(),
                     onChanged: (value) {
+                      final ModelIntList listModel =
+                          userCubit.state.selectModel(UserState.listOfEvensSel);
                       userCubit.updateValues(
                         UserState.listOfEvensSel,
-                        // if you need a more efficient way of replacing, get the ModelList<> and use the replaceAt function
-                        (list) {
-                          list[entry.key] = int.parse(value);
-                          return list;
-                        },
+                        listModel.replaceAt(entry.key, (_) => int.parse(value)),
                       );
                     },
                   ),
@@ -247,7 +245,9 @@ class ChoicesComp extends StatelessWidget {
               _formInput("Choose a bool:", _inputBoolean(_userCubit(context))),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
-                  "Choose an enum:", _inputFavSeason(_userCubit(context))),
+                "Choose an enum:",
+                _inputFavSeason(_userCubit(context)),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput("Choose a beginning date:", _inputDateBegin()),
               Padding(padding: EdgeInsets.only(top: 10.0)),

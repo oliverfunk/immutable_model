@@ -13,8 +13,8 @@ final userStateModel = ImmutableModel<UserState>(
       "chosen_enum": M.enm(Seasons.values, Seasons.Spring),
       "date_begin": M.dt(initial: DateTime.now()),
       "date_end": M.dt(initial: DateTime.now().add(Duration(days: 1))),
-      'list_of_evens': M.ntList(
-          initial: [2, 4, 6, 8], itemValidator: (n) => n.isEven, append: false),
+      'list_of_evens':
+          M.ntList(initial: [2, 4, 6, 8], itemValidator: (n) => n.isEven),
     }),
   },
   modelValidator: (modelMap) => UserState.dateBeginSel

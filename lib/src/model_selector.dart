@@ -43,7 +43,7 @@ class ModelSelector<V> {
   ModelType<dynamic, V> modelFromModelMap(Map<String, ModelType> modelMap) =>
       _select(modelMap, _selectors) as ModelType<dynamic, V>;
 
-  /// Returns the value of the selected [ModelType] model from [modelMap].
+  /// Returns the selected [ModelType.value] from [modelMap].
   V valueFromModelMap(Map<String, ModelType> modelMap) =>
       modelFromModelMap(modelMap).value;
 
@@ -51,14 +51,14 @@ class ModelSelector<V> {
   ModelType<dynamic, V> modelFromInner(ModelInner inner) =>
       modelFromModelMap(inner.asModelMap);
 
-  /// Returns the value of the selected [ModelType] model from [inner].
+  /// Returns the selected [ModelType.value] from [inner].
   V valueFromInner(ModelInner inner) => valueFromModelMap(inner.asModelMap);
 
   /// Returns the selected [ModelType] model from [im].
   ModelType<dynamic, V> modelFromImmutableModel(ImmutableModel im) =>
       modelFromInner(im.inner);
 
-  /// Returns the value of the selected [ModelType] model from [im].
+  /// Returns the selected [ModelType.value] from [im].
   V valueFromImmutableModel(ImmutableModel im) => valueFromInner(im.inner);
 
   /// Updates the model selected by [selector] in [inner] with [update].
