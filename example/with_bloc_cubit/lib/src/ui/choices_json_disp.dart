@@ -9,8 +9,10 @@ import '../domain/models/user_state.dart';
 
 Widget choicesJsonDisplay() =>
     BlocBuilder<UserCubit, ImmutableModel<UserState>>(
-        builder: (context, state) {
-      if (state.currentState is UserUnauthed) {
+        builder: (context, model) {
+      print("PRINTING USER STATE model");
+      print(model);
+      if (model.currentState is UserUnauthed) {
         return Center(child: Text('No user json data'));
       } else {
         return Column(
@@ -18,7 +20,7 @@ Widget choicesJsonDisplay() =>
           children: [
             Text("Encoded JSON string:",
                 style: TextStyle(fontWeight: FontWeight.w700)),
-            Text(JsonEncoder.withIndent('  ').convert(state.toJson())),
+            Text(JsonEncoder.withIndent('  ').convert(model.toJson())),
           ],
         );
       }

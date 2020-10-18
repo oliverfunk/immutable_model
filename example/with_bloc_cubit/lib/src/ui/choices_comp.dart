@@ -82,28 +82,30 @@ class ChoicesComp extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.select(UserState.chosenEnumSel) !=
             current.select(UserState.chosenEnumSel),
-        builder: (context, model) => Row(
-          children: [
-            DropdownButton<String>(
-              underline: Container(),
-              value: model.select(UserState.chosenEnumSel),
-              onChanged: (String enStr) =>
-                  userCubit.updateValues(UserState.chosenEnumSel, enStr),
-              items: (model.selectModel(UserState.chosenEnumSel) as ModelEnum)
-                  .enumStrings
-                  .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
-                  .toList(),
-            ),
-            Padding(padding: EdgeInsets.only(left: 2.0)),
-            _buildSeasonWords((model.selectModel(UserState.chosenEnumSel)
-                    as ModelEnum<Seasons>)
-                .valueAsEnum),
-          ],
-        ),
+        builder: (context, model) {
+          final ModelEnum currentSeasonModel =
+              model.selectModel(UserState.chosenEnumSel);
+          return Row(
+            children: [
+              DropdownButton<String>(
+                  underline: Container(),
+                  value: currentSeasonModel.asString,
+                  onChanged: (String enStr) => userCubit.updateValues(
+                        UserState.chosenEnumSel,
+                        currentSeasonModel.nextFromString(enStr),
+                      ),
+                  items: currentSeasonModel.enumStrings
+                      .map<DropdownMenuItem<String>>(
+                          (String value) => DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              ))
+                      .toList()),
+              Padding(padding: EdgeInsets.only(left: 2.0)),
+              _buildSeasonWords(currentSeasonModel.value),
+            ],
+          );
+        },
       );
 
   // ignore: missing_return
@@ -210,11 +212,12 @@ class ChoicesComp extends StatelessWidget {
                     textAlign: TextAlign.center,
                     initialValue: entry.value.toString(),
                     onChanged: (value) {
-                      final ModelIntList listModel =
+                      final ModelIntList evensListModel =
                           userCubit.state.selectModel(UserState.listOfEvensSel);
                       userCubit.updateValues(
                         UserState.listOfEvensSel,
-                        listModel.replaceAt(entry.key, (_) => int.parse(value)),
+                        evensListModel.replaceAt(
+                            entry.key, (_) => int.parse(value)),
                       );
                     },
                   ),
@@ -232,29 +235,49 @@ class ChoicesComp extends StatelessWidget {
           if (state.currentState is UserUnauthed) {
             return Center(child: Text('User not signed in yet'));
           } else {
+            final userCubit = _userCubit(context);
             return Column(children: [
-              Text("Signed in as - ${_userCubit(context).state['email']}",
+              Text("Signed in as - ${userCubit.state['email']}",
                   style: TextStyle(fontWeight: FontWeight.w700)),
-              _formInput("Enter some text:", _inputWords(_userCubit(context))),
+              _formInput(
+                "Enter some text:",
+                _inputWords(userCubit),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Increment/decrement (must be >= 0):",
-                  _inputValidatedNumber(_userCubit(context))),
+              _formInput(
+                "Increment/decrement (must be >= 0):",
+                _inputValidatedNumber(userCubit),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Enter a double:", _inputDouble(_userCubit(context))),
+              _formInput(
+                "Enter a double:",
+                _inputDouble(userCubit),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a bool:", _inputBoolean(_userCubit(context))),
+              _formInput(
+                "Choose a bool:",
+                _inputBoolean(userCubit),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
                 "Choose an enum:",
-                _inputFavSeason(_userCubit(context)),
+                _inputFavSeason(userCubit),
               ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a beginning date:", _inputDateBegin()),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose an end date:", _inputDateEnd()),
+              _formInput(
+                "Choose a beginning date:",
+                _inputDateBegin(),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
-                  "Change list of evens:", _inputEvensRow(_userCubit(context))),
+                "Choose an end date:",
+                _inputDateEnd(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Change list of evens:",
+                _inputEvensRow(userCubit),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -266,8 +289,8 @@ class ChoicesComp extends StatelessWidget {
                       buildWhen: (previous, current) =>
                           previous.select(UserState.listOfEvensSel) !=
                           current.select(UserState.listOfEvensSel),
-                      builder: (ctx, model) => Text(
-                          "List total: ${_userCubit(context).listTotal()}")),
+                      builder: (ctx, model) =>
+                          Text("List total: ${userCubit.listTotal()}")),
                 ],
               ),
             ]);

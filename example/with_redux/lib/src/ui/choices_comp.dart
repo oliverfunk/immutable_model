@@ -3,10 +3,10 @@ import 'package:redux/redux.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:immutable_model/model_types.dart';
 
-import 'package:with_redux/src/domain/app_state.dart';
-import 'package:with_redux/src/domain/redux/user/user_action.dart';
-import 'package:with_redux/src/domain/redux/user/user_reducer.dart';
-import 'package:with_redux/src/domain/redux/user/user_state.dart';
+import '../domain/app_state.dart';
+import '../domain/redux/user/user_action.dart';
+import '../domain/redux/user/user_reducer.dart';
+import '../domain/redux/user/user_state.dart';
 
 Store<AppState> _store(BuildContext context) =>
     StoreProvider.of<AppState>(context);
@@ -66,48 +66,41 @@ class ChoicesComp extends StatelessWidget {
             UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
       );
 
-  Widget _inputBoolean(Store<AppState> store) => StoreConnector<AppState, bool>(
+  Widget _inputBoolean() => StoreConnector<AppState, bool>(
         converter: (store) =>
             store.state.userModel.select(UserState.chosenBoolSel),
         distinct: true,
-        builder: (context, b) => Container(
+        builder: (context, bl) => Container(
           child: Checkbox(
-              value: b,
-              onChanged: (bl) =>
-                  store.dispatch(UpdateValues(UserState.chosenBoolSel, bl))),
+              value: bl,
+              onChanged: (chosen) => _store(context)
+                  .dispatch(UpdateValues(UserState.chosenBoolSel, chosen))),
         ),
       );
 
-  Widget _inputFavSeason(Store<AppState> store) =>
-      StoreConnector<AppState, String>(
+  Widget _inputFavSeason() => StoreConnector<AppState, ModelEnum>(
         converter: (store) =>
-            store.state.userModel.select(UserState.chosenEnumSel),
+            store.state.userModel.selectModel(UserState.chosenEnumSel),
         distinct: true,
-        builder: (context, seasonString) => Row(
+        builder: (context, currentSeasonModel) => Row(
           children: [
             DropdownButton<String>(
-              underline: Container(),
-              value: seasonString,
-              onChanged: (String enStr) =>
-                  store.dispatch(UpdateValues(UserState.chosenEnumSel, enStr)),
-              items: (_store(context)
-                      .state
-                      .userModel
-                      .selectModel(UserState.chosenEnumSel) as ModelEnum)
-                  .enumStrings
-                  .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
-                  .toList(),
-            ),
+                underline: Container(),
+                value: currentSeasonModel.asString,
+                onChanged: (String enStr) =>
+                    _store(context).dispatch(UpdateValues(
+                      UserState.chosenEnumSel,
+                      currentSeasonModel.nextFromString(enStr),
+                    )),
+                items: currentSeasonModel.enumStrings
+                    .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                    .toList()),
             Padding(padding: EdgeInsets.only(left: 2.0)),
-            _buildSeasonWords((_store(context)
-                    .state
-                    .userModel
-                    .selectModel(UserState.chosenEnumSel) as ModelEnum<Seasons>)
-                .valueAsEnum),
+            _buildSeasonWords(currentSeasonModel.value),
           ],
         ),
       );
@@ -214,11 +207,12 @@ class ChoicesComp extends StatelessWidget {
                     textAlign: TextAlign.center,
                     initialValue: entry.value.toString(),
                     onChanged: (value) {
-                      final ModelIntList listModel = store.state.userModel
+                      final ModelIntList intListModel = store.state.userModel
                           .selectModel(UserState.listOfEvensSel);
                       store.dispatch(UpdateValues(
                         UserState.listOfEvensSel,
-                        listModel.replaceAt(entry.key, (_) => int.parse(value)),
+                        intListModel.replaceAt(
+                            entry.key, (_) => int.parse(value)),
                       ));
                     },
                   ),
@@ -234,41 +228,64 @@ class ChoicesComp extends StatelessWidget {
           if (state is UserUnauthed) {
             return Center(child: Text('User not signed in yet'));
           } else {
+            final store = _store(context);
             return Column(children: [
-              Text("Signed in as - ${_store(context).state.userModel['email']}",
-                  style: TextStyle(fontWeight: FontWeight.w700)),
-              _formInput("Enter some text:", _inputWords(_store(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Increment/decrement (must be >= 0):",
-                  _inputValidatedNumber(_store(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Enter a double:", _inputDouble(_store(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a bool:", _inputBoolean(_store(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose an enum:", _inputFavSeason(_store(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a beginning date:", _inputDateBegin()),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose an end date:", _inputDateEnd()),
+              Text(
+                "Signed in as - ${store.state.userModel['email']}",
+                style: TextStyle(fontWeight: FontWeight.w700),
+              ),
+              _formInput(
+                "Enter some text:",
+                _inputWords(store),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
-                  "Change list of evens:", _inputEvensRow(_store(context))),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // RaisedButton(child: Text("Sort Asc"), onPressed: () => _store(context).dispatch(SortListAsc())),
-                  // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                  // RaisedButton(child: Text("Sort Dec"), onPressed: () => _store(context).dispatch(SortListDec())),
-                  // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                  StoreConnector<AppState, List<int>>(
-                      converter: (store) => store.state.userModel
-                          .select(UserState.listOfEvensSel),
-                      distinct: true,
-                      builder: (ctx, list) =>
-                          Text("List total: ${listTotal(list)}")),
-                ],
+                "Increment/decrement (must be >= 0):",
+                _inputValidatedNumber(store),
               ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Enter a double:",
+                _inputDouble(store),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose a bool:",
+                _inputBoolean(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose an enum:",
+                _inputFavSeason(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose a beginning date:",
+                _inputDateBegin(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose an end date:",
+                _inputDateEnd(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Change list of evens:",
+                _inputEvensRow(store),
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                // RaisedButton(child: Text("Sort Asc"), onPressed: () => _store(context).dispatch(SortListAsc())),
+                // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
+                // RaisedButton(child: Text("Sort Dec"), onPressed: () => _store(context).dispatch(SortListDec())),
+                // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
+                StoreConnector<AppState, List<int>>(
+                  converter: (store) =>
+                      store.state.userModel.select(UserState.listOfEvensSel),
+                  distinct: true,
+                  builder: (ctx, list) =>
+                      Text("List total: ${listTotal(list)}"),
+                ),
+              ]),
             ]);
           }
         },

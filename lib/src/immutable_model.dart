@@ -245,7 +245,7 @@ class ImmutableModel<S> extends Equatable {
   bool hasModel(String fieldLabel) => _model.hasModel(fieldLabel);
 
   /// Returns the [ModelType] model selected by [selector].
-  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
+  ModelType selectModel<V>(ModelSelector<V> selector) =>
       _model.selectModel(selector);
 
   /// Returns the value of the model selected by [selector].

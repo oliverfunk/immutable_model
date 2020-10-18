@@ -34,7 +34,7 @@ abstract class UserState {
   static const chosenBoolSel =
       ModelSelector<bool>(_chosenValues + ".chosen_bool");
   static const chosenEnumSel =
-      ModelSelector<String>(_chosenValues + ".chosen_enum");
+      ModelSelector<Seasons>(_chosenValues + ".chosen_enum");
   static const dateBeginSel =
       ModelSelector<DateTime>(_chosenValues + ".date_begin");
   static const dateEndSel =

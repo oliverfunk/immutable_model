@@ -222,15 +222,23 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
           : throw ModelHistoryEqualityError(this, other);
 
   Map<String, dynamic> _buildDelta(BuiltMap<String, ModelType> other) =>
-      _current.toMap().map((currentField, currentModel) => currentModel ==
-              other[currentField]
-          ? MapEntry(currentField, null)
-          : currentModel is ModelInner
-              ? MapEntry(
-                  currentField,
-                  currentModel
-                      .asSerializableDelta(other[currentField] as ModelInner))
-              : MapEntry(currentField, currentModel.asSerializable()))
+      _current.toMap().map((thisField, thisModel) {
+        final otherModel = other[thisField];
+
+        if (thisModel == otherModel) {
+          return MapEntry(thisField, null);
+        } else {
+          if (thisModel is ModelInner) {
+            // safe to assume otherModel is also ModelInner
+            return MapEntry(
+              thisField,
+              thisModel.asSerializableDelta(otherModel as ModelInner),
+            );
+          } else {
+            return MapEntry(thisField, thisModel.asSerializable());
+          }
+        }
+      })
         ..removeWhere((field, model) => model == null);
 
   /// Returns a [Map] between the field labels and the current, serialized model values (using [asSerializable]).
@@ -252,13 +260,16 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   ///
   /// Note: this works deeply with nested maps.
   @override
-  Map<String, dynamic> fromSerialized(dynamic serialized) =>
-      serialized is! Map<String, dynamic>
-          ? null
-          : serialized.map((serField, serValue) => hasModel(serField)
-              ? MapEntry(serField, getModel(serField).fromSerialized(serValue))
-              : MapEntry(serField, null))
+  Map<String, dynamic> fromSerialized(dynamic serialized) {
+    if (serialized is Map<String, dynamic>) {
+      return serialized.map((serField, serValue) => hasModel(serField)
+          ? MapEntry(serField, getModel(serField).fromSerialized(serValue))
+          : MapEntry(serField, null))
         ..removeWhere((field, value) => value == null);
+    } else {
+      return null;
+    }
+  }
 
   // field ops
 
@@ -270,7 +281,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, dynamic>> {
   bool hasModel(String label) => _current.containsKey(label);
 
   /// Returns the [ModelType] model selected by [selector].
-  ModelType<dynamic, V> selectModel<V>(ModelSelector<V> selector) =>
+  ModelType selectModel<V>(ModelSelector<V> selector) =>
       selector.modelFromInner(this);
 
   /// Returns the value of the model selected by [selector].

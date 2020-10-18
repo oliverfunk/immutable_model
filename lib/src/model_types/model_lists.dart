@@ -9,7 +9,7 @@ import '../utils/log.dart';
 import 'model_inner.dart';
 
 /// A function that validates an item from a list
-typedef ListItemValidator<V> = bool Function(V list);
+typedef ListItemValidator<V> = bool Function(V listItem);
 
 /// An abstract class for a model for a validated list of items.
 abstract class _ModelList<M extends _ModelList<M, T>, T>
@@ -55,9 +55,9 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
 
   @override
   List<T> fromSerialized(dynamic serialized) {
-    if (serialized is List) {
+    if (serialized is Iterable) {
       try {
-        return serialized.cast<T>();
+        return serialized.cast<T>().toList();
       } catch (_) {
         return null;
       }
@@ -326,7 +326,7 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
 
   @override
   List<DateTime> fromSerialized(dynamic serialized) {
-    if (serialized is List) {
+    if (serialized is Iterable) {
       try {
         return serialized.cast<String>().map(DateTime.parse).toList();
       } catch (_) {

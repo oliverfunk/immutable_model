@@ -44,6 +44,21 @@ class ModelTypeError extends Error {
       " Received value: $receivedValue";
 }
 
+/// An [Error] that occurs when an [EnumModel] is updated
+/// with a string that does not match any of the internal enums.
+class ModelEnumError extends Error {
+  final ModelEnum modelEnum;
+  final String receivedValue;
+
+  ModelEnumError(this.modelEnum, this.receivedValue);
+
+  @override
+  String toString() => "ModelEnumError\n"
+      "$receivedValue does not match an enum in the model\n"
+      " Model:            ${modelEnum.toLongString()}\n"
+      " Available enums:  ${modelEnum.enumStrings}\n";
+}
+
 /// An [Error] that occurs when a model is being updated with another model that does not share a history with it.
 ///
 /// See [ModelType.hasEqualityOfHistory].

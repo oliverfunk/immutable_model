@@ -195,7 +195,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// Debug toString method including the [fieldLabel], if it exists, the [modelType] and model [value].
   String toLongString() =>
-      "${fieldLabel == null ? "" : "'$fieldLabel' : "}${toString()}";
+      "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType<$valueType>($value)";
 
   /// Debug toString method including the [fieldLabel], if it exists, and the [modelType].
   String toShortString() =>

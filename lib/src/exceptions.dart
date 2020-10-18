@@ -26,7 +26,7 @@ class ValidationException extends ModelException {
     String fieldLabel,
   ]) : super(
           modelType,
-          "Validation failed on value '$receivedValue'",
+          "Validation failed on '$receivedValue'",
         );
 }
 

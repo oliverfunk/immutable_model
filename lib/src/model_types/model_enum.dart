@@ -2,7 +2,7 @@ import '../errors.dart';
 import '../model_type.dart';
 
 /// A model for an enum.
-class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
+class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
   final E _current;
   final List<E> _enums;
 
@@ -25,10 +25,10 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
   ])  : _current = initial,
         _enums = enumValues,
         super.initial(
-            convertEnum(initial),
-            (toValidate) =>
-                convertEnumList(enumValues).any((enStr) => enStr == toValidate),
-            fieldLabel);
+          initial,
+          null, // updates have to be of type E, so they're auto valid
+          fieldLabel,
+        );
 
   /// Constructs a [ModelType] of an enum class,
   /// with the value being the [String] representation of the current enum instance.
@@ -64,33 +64,47 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, String> {
         super.fromPrevious(last);
 
   @override
-  ModelEnum<E> buildNext(String nextEnumString) => ModelEnum._next(
-      this, _enums.firstWhere((en) => nextEnumString == convertEnum(en)));
+  ModelEnum<E> buildNext(E nextEnum) => ModelEnum._next(
+        this,
+        nextEnum,
+      );
+
+  ModelEnum<E> nextFromString(String nextEnumString) {
+    final en = fromString(nextEnumString);
+    return en != null ? next(en) : throw ModelEnumError(this, nextEnumString);
+  }
 
   // public methods
 
   @override
-  String get value => convertEnum(_current);
+  E get value => _current;
 
-  /// The current enum instance.
-  E get valueAsEnum => _current;
+  /// Returns the enum corresponding to [enumString].
+  ///
+  /// If [enumString] is not one of the enums held,
+  /// `null` is returned.
+  E fromString(String enumString) => _enums.firstWhere(
+        (en) => enumString == convertEnum(en),
+        orElse: () => null,
+      );
+
+  /// The current enum instance as a String.
+  String get asString => convertEnum(_current);
+
+  /// The list of all enums in the class.
+  List<E> get enums => _enums;
 
   /// The list of all enums in the class as Strings
   /// (converted using [convertEnumList]).
   List<String> get enumStrings => convertEnumList(_enums);
 
-  /// The list of all enums in the class.
-  List<E> get enums => _enums;
+  @override
+  dynamic asSerializable() => asString;
 
   @override
-  dynamic asSerializable() => value;
+  E fromSerialized(dynamic jsonValue) =>
+      jsonValue is String ? fromString(jsonValue) : null;
 
   @override
-  String fromSerialized(dynamic jsonValue) => jsonValue is String
-      ? enumStrings.firstWhere((enStr) => enStr == jsonValue,
-          orElse: () => null)
-      : null;
-
-  @override
-  String toString() => "<$E>($value)";
+  String toString() => "<ModelEnum<$E>>($value)";
 }

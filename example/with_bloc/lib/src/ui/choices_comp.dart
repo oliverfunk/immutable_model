@@ -84,28 +84,31 @@ class ChoicesComp extends StatelessWidget {
         buildWhen: (previous, current) =>
             previous.select(UserState.chosenEnumSel) !=
             current.select(UserState.chosenEnumSel),
-        builder: (context, model) => Row(
-          children: [
-            DropdownButton<String>(
-              underline: Container(),
-              value: model.select(UserState.chosenEnumSel),
-              onChanged: (String enStr) =>
-                  userBloc.add(UpdateValues(UserState.chosenEnumSel, enStr)),
-              items: (model.selectModel(UserState.chosenEnumSel) as ModelEnum)
-                  .enumStrings
-                  .map<DropdownMenuItem<String>>(
-                      (String value) => DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          ))
-                  .toList(),
-            ),
-            Padding(padding: EdgeInsets.only(left: 2.0)),
-            _buildSeasonWords((model.selectModel(UserState.chosenEnumSel)
-                    as ModelEnum<Seasons>)
-                .valueAsEnum),
-          ],
-        ),
+        builder: (context, model) {
+          final ModelEnum currentSeasonModel =
+              model.selectModel(UserState.chosenEnumSel);
+          return Row(
+            children: [
+              DropdownButton<String>(
+                underline: Container(),
+                value: currentSeasonModel.asString,
+                onChanged: (String enStr) => userBloc.add(UpdateValues(
+                  UserState.chosenEnumSel,
+                  currentSeasonModel.nextFromString(enStr),
+                )),
+                items: currentSeasonModel.enumStrings
+                    .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ))
+                    .toList(),
+              ),
+              Padding(padding: EdgeInsets.only(left: 2.0)),
+              _buildSeasonWords(currentSeasonModel.value),
+            ],
+          );
+        },
       );
 
   // ignore: missing_return
@@ -198,31 +201,34 @@ class ChoicesComp extends StatelessWidget {
         ),
       );
 
-  Widget _inputEvensRow(UserBloc userBloc) => Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: userBloc.state
-            .select(UserState.listOfEvensSel)
-            .asMap()
-            .entries
-            .map((entry) => Flexible(
-                  fit: FlexFit.loose,
-                  child: TextFormField(
-                    decoration: InputDecoration(border: InputBorder.none),
-                    textAlign: TextAlign.center,
-                    initialValue: entry.value.toString(),
-                    onChanged: (value) {
-                      final ModelIntList listModel =
-                          userBloc.state.selectModel(UserState.listOfEvensSel);
-                      userBloc.add(UpdateValues(
-                        UserState.listOfEvensSel,
-                        listModel.replaceAt(entry.key, (_) => int.parse(value)),
-                      ));
-                    },
-                  ),
-                ))
-            .toList(growable: false),
-      );
+  Widget _inputEvensRow(UserBloc userBloc) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: userBloc.state
+          .select(UserState.listOfEvensSel)
+          .asMap()
+          .entries
+          .map((entry) => Flexible(
+                fit: FlexFit.loose,
+                child: TextFormField(
+                  decoration: InputDecoration(border: InputBorder.none),
+                  textAlign: TextAlign.center,
+                  initialValue: entry.value.toString(),
+                  onChanged: (value) {
+                    final ModelIntList evensListModel =
+                        userBloc.state.selectModel(UserState.listOfEvensSel);
+                    userBloc.add(UpdateValues(
+                      UserState.listOfEvensSel,
+                      evensListModel.replaceAt(
+                          entry.key, (_) => int.parse(value)),
+                    ));
+                  },
+                ),
+              ))
+          .toList(growable: false),
+    );
+  }
 
   @override
   Widget build(BuildContext context) =>
@@ -234,27 +240,49 @@ class ChoicesComp extends StatelessWidget {
           if (state.currentState is UserUnauthed) {
             return Center(child: Text('User not signed in yet'));
           } else {
+            final userBloc = _userBloc(context);
             return Column(children: [
-              Text("Signed in as - ${_userBloc(context).state['email']}",
+              Text("Signed in as - ${userBloc.state['email']}",
                   style: TextStyle(fontWeight: FontWeight.w700)),
-              _formInput("Enter some text:", _inputWords(_userBloc(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Increment/decrement (must be >= 0):",
-                  _inputValidatedNumber(_userBloc(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Enter a double:", _inputDouble(_userBloc(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a bool:", _inputBoolean(_userBloc(context))),
+              _formInput(
+                "Enter some text:",
+                _inputWords(userBloc),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
-                  "Choose an enum:", _inputFavSeason(_userBloc(context))),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose a beginning date:", _inputDateBegin()),
-              Padding(padding: EdgeInsets.only(top: 10.0)),
-              _formInput("Choose an end date:", _inputDateEnd()),
+                "Increment/decrement (must be >= 0):",
+                _inputValidatedNumber(userBloc),
+              ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
-                  "Change list of evens:", _inputEvensRow(_userBloc(context))),
+                "Enter a double:",
+                _inputDouble(userBloc),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose a bool:",
+                _inputBoolean(userBloc),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose an enum:",
+                _inputFavSeason(userBloc),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose a beginning date:",
+                _inputDateBegin(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Choose an end date:",
+                _inputDateEnd(),
+              ),
+              Padding(padding: EdgeInsets.only(top: 10.0)),
+              _formInput(
+                "Change list of evens:",
+                _inputEvensRow(userBloc),
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -266,8 +294,8 @@ class ChoicesComp extends StatelessWidget {
                       buildWhen: (previous, current) =>
                           previous.select(UserState.listOfEvensSel) !=
                           current.select(UserState.listOfEvensSel),
-                      builder: (ctx, model) => Text(
-                          "List total: ${_userBloc(context).listTotal()}")),
+                      builder: (ctx, model) =>
+                          Text("List total: ${userBloc.listTotal()}")),
                 ],
               ),
             ]);

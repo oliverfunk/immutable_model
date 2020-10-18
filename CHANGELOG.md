@@ -5,6 +5,8 @@
 - Improved the ModelValidatedList
 - Expanded ModelSelector to include selecting from different source
 - Added the shouldBuild function to ModelType
+- Updated ModelEnum
+- Updated the examples
 - Added more tests
 
 ## [0.5.0] - [0.5.3]
