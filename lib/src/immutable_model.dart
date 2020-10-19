@@ -120,12 +120,16 @@ class ImmutableModel<S> extends Equatable {
   /// The current state
   S get currentState => _state;
 
-  /// The map between field labels and the current [ModelType] values.
+  /// The map between field labels and the current [ModelType] models.
   ///
-  /// Note: this returns a copy of all components and nested-components of the underlying map,
-  /// meaning this could potentially be an expensive call if this model is large.
-  /// Consider instead accessing only the required field values (using the [select] or [get] methods).
-  Map<String, dynamic> toMap() => _model.value;
+  /// Note: this map is unmodifiable (i.e. read-only)
+  Map<String, ModelType> asMap() => _model.value;
+
+  /// The map between field labels and the current [ModelType] models.
+  ///
+  /// Note: this map is copy-on-write protected.
+  /// When modified, a new instance will be created.
+  Map<String, ModelType> toMap() => _model.modelMap;
 
   // updating
 
@@ -140,7 +144,8 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
   ImmutableModel<S> update(Map<String, dynamic> updates) =>
-      ImmutableModel<S>._nextModel(this, _model.next(_assertNotEmpty(updates)));
+      ImmutableModel<S>._nextModel(
+          this, _model.nextWithUpdates(_assertNotEmpty(updates)));
 
   ImmutableModel<S> updateIfIn(Map<String, dynamic> updates, S inState) =>
       currentState.runtimeType == inState.runtimeType
@@ -207,7 +212,7 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> transitionToAndUpdate(
           S nextState, Map<String, dynamic> updates) =>
       ImmutableModel<S>._nextBoth(
-          this, nextState, _model.next(_assertNotEmpty(updates)));
+          this, nextState, _model.nextWithUpdates(_assertNotEmpty(updates)));
 
   // JSON
 
@@ -278,7 +283,7 @@ class ImmutableModel<S> extends Equatable {
   }) {
     final joinedInner = _model.join(other._model, strictUpdates: strictUpdates);
     return ImmutableModel<S>(
-      joinedInner.asModelMap,
+      joinedInner.value,
       modelValidator: joinedInner.modelValidator,
       initialState: _state,
       strictUpdates: strictUpdates,

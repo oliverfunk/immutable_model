@@ -59,6 +59,16 @@ class ModelEnumError extends Error {
       " Available enums:  ${modelEnum.enumStrings}\n";
 }
 
+/// An [Error] that occurs when an attempt is made to update a [ModelInner]
+/// with a selector when that [ModelInner] can only be updated strictly.
+class ModelInnerStrictUpdateError extends Error {
+  ModelInnerStrictUpdateError();
+
+  @override
+  String toString() => "ModelInnerStrictUpdateError\n"
+      " Cannot update this ModelInner with a selector when strictUpdates are enabled.";
+}
+
 /// An [Error] that occurs when a model is being updated with another model that does not share a history with it.
 ///
 /// See [ModelType.hasEqualityOfHistory].

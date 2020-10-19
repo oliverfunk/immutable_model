@@ -11,6 +11,8 @@ import 'model_inner.dart';
 /// A function that validates an item from a list
 typedef ListItemValidator<V> = bool Function(V listItem);
 
+// todo: maybe the value should be imm. If they want to replace/appened they must the correct functions
+
 /// An abstract class for a model for a validated list of items.
 abstract class _ModelList<M extends _ModelList<M, T>, T>
     extends ModelType<M, List<T>> {
@@ -47,8 +49,17 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
 
   // public methods
 
+  /// The underlying list of values.
+  ///
+  /// Note: this list is unmodifiable (i.e. read-only)
   @override
-  List<T> get value => _current.toList();
+  List<T> get value => _current.asList();
+
+  /// The underlying list of values.
+  ///
+  /// Note: this list is copy-on-write protected.
+  /// When modified, a new instance will be created.
+  List<T> get toList => _current.toList();
 
   @override
   dynamic asSerializable() => value;

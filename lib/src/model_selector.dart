@@ -30,11 +30,12 @@ class ModelSelector<V> {
     final selectedModel = modelMap.containsKey(selectedField)
         ? modelMap[selectedField]
         : throw ModelAccessError(modelMap.keys, selectedField);
+
     if (selectorStrings.length == 1) {
       return selectedModel;
     } else {
       return selectedModel is ModelInner
-          ? _select(selectedModel.asModelMap, selectorStrings.skip(1))
+          ? _select(selectedModel.value, selectorStrings.skip(1))
           : throw ModelSelectError(selectorStrings.first);
     }
   }
@@ -48,11 +49,10 @@ class ModelSelector<V> {
       modelFromModelMap(modelMap).value;
 
   /// Returns the selected [ModelType] model from [inner].
-  ModelType modelFromInner(ModelInner inner) =>
-      modelFromModelMap(inner.asModelMap);
+  ModelType modelFromInner(ModelInner inner) => modelFromModelMap(inner.value);
 
   /// Returns the selected [ModelType.value] from [inner].
-  V valueFromInner(ModelInner inner) => valueFromModelMap(inner.asModelMap);
+  V valueFromInner(ModelInner inner) => valueFromModelMap(inner.value);
 
   /// Returns the selected [ModelType] model from [im].
   ModelType modelFromImmutableModel(ImmutableModel im) =>
@@ -63,7 +63,7 @@ class ModelSelector<V> {
 
   /// Updates the model selected by [selector] in [inner] with [update].
   ModelInner updateInner(ModelInner inner, dynamic update) =>
-      inner.next(_mapifySelectors(_selectors, update));
+      inner.nextWithUpdates(_mapifySelectors(_selectors, update));
 
   @override
   String toString() => 'ModelSelector: $selectorString';

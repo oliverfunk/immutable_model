@@ -554,7 +554,7 @@ void main() {
         expect(mBoolL, equals(mBoolL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.value;
+        final vl = updated.toList;
         vl[1] = false;
         expect(vl, equals([false, false]));
         expect(updated.value, equals([false, true]));
@@ -688,7 +688,7 @@ void main() {
         expect(mIntL, equals(mIntL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.value;
+        final vl = updated.toList;
         vl[1] = 12;
         expect(vl, equals([5, 12]));
         expect(updated.value, equals([5, 6]));
@@ -823,7 +823,7 @@ void main() {
         expect(mDblL, equals(mDblL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.value;
+        final vl = updated.toList;
         vl[1] = -12;
         expect(vl, equals([0.5, -12]));
         expect(updated.value, equals([0.5, 0.6]));
@@ -962,7 +962,7 @@ void main() {
         expect(mStrL, equals(mStrL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.value;
+        final vl = updated.toList;
         vl[1] = 'new';
         expect(vl, equals(['Foo', 'new']));
         expect(updated.value, equals(['Foo', 'Bar']));
@@ -1115,7 +1115,7 @@ void main() {
         expect(mDtL.nextFromSerialized("wrong"), equals(mDtL));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.value;
+        final vl = updated.toList;
         vl[1] = DateTime(1995);
         expect(vl, equals([DateTime(2023), DateTime(1995)]));
         expect(updated.value, equals([DateTime(2023), DateTime(2024)]));

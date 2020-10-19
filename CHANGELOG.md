@@ -1,11 +1,13 @@
-## [0.6.0] - [0.6.1]
+## [0.7.0] - [0.7.1]
+
+- Reparameterized ModelInner and ModelEnum
+
+## [0.6.0] - [0.6.2]
 
 - Refactored ModelLists into their own model types
 - Refactored parameter fields into a more uniform style across the library
-- Improved the ModelValidatedList
 - Expanded ModelSelector to include selecting from different source
 - Added the shouldBuild function to ModelType
-- Updated ModelEnum
 - Updated the examples
 - Added more tests
 
