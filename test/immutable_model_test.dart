@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:test/test.dart';
 
 import 'package:immutable_model/immutable_model.dart';
@@ -5,6 +7,18 @@ import 'package:immutable_model/model_types.dart';
 import 'package:immutable_model/value_types.dart';
 
 enum TestEnum { en1, en2, en3 }
+
+abstract class SomeState {
+  const SomeState();
+}
+
+class SomeAState extends SomeState {
+  const SomeAState();
+}
+
+class SomeBState extends SomeState {
+  const SomeBState();
+}
 
 // todo: invalid init's
 // todo: updates/dserialiastions with null
@@ -455,6 +469,19 @@ void main() {
         expect(updated, equals(mDt.nextFromSerialized(serialized)));
       });
     });
+    // model value types
+    // group(
+    //   "ModelEmail:",
+    //   () {
+    //     final mEmil = M.email(defaultEmail: "example@gmail.com");
+    //   },
+    // );
+    // group(
+    //   "ModelPassword:",
+    //   () {
+    //     final mPass = M.password();
+    //   },
+    // );
     // model lists
     group("ModelBoolList:", () {
       final mBoolL = M.blList(
@@ -554,7 +581,7 @@ void main() {
         expect(mBoolL, equals(mBoolL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.toList;
+        final vl = updated.list;
         vl[1] = false;
         expect(vl, equals([false, false]));
         expect(updated.value, equals([false, true]));
@@ -688,7 +715,7 @@ void main() {
         expect(mIntL, equals(mIntL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.toList;
+        final vl = updated.list;
         vl[1] = 12;
         expect(vl, equals([5, 12]));
         expect(updated.value, equals([5, 6]));
@@ -823,7 +850,7 @@ void main() {
         expect(mDblL, equals(mDblL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.toList;
+        final vl = updated.list;
         vl[1] = -12;
         expect(vl, equals([0.5, -12]));
         expect(updated.value, equals([0.5, 0.6]));
@@ -962,7 +989,7 @@ void main() {
         expect(mStrL, equals(mStrL.nextFromSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.toList;
+        final vl = updated.list;
         vl[1] = 'new';
         expect(vl, equals(['Foo', 'new']));
         expect(updated.value, equals(['Foo', 'Bar']));
@@ -1115,7 +1142,7 @@ void main() {
         expect(mDtL.nextFromSerialized("wrong"), equals(mDtL));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.toList;
+        final vl = updated.list;
         vl[1] = DateTime(1995);
         expect(vl, equals([DateTime(2023), DateTime(1995)]));
         expect(updated.value, equals([DateTime(2023), DateTime(2024)]));
@@ -1143,6 +1170,7 @@ void main() {
         expect(removed, equals(ModelDateTimeList(initial: [DateTime(2023)])));
       });
     });
+    // model enum
     group("ModelEnum:", () {
       final mEnm = M.enm(TestEnum.values, TestEnum.en1);
       // update the model with another model of equivalent value
@@ -1252,34 +1280,289 @@ void main() {
         expect(mEnm.enumStrings, equals(['en1', 'en2', 'en3']));
       });
     });
-    // model value types
-    // group(
-    //   "ModelEmail:",
-    //   () {
-    //     final mEmil = M.email(defaultEmail: "example@gmail.com");
-    //   },
-    // );
-    // group(
-    //   "ModelPassword:",
-    //   () {
-    //     final mPass = M.password();
-    //   },
-    // );
     // group("Model errors:", () {
     // invalid model dyanmic updates
     //   // todo: invalid enum invputs
     // invalid enum from string
     // });
-  }
-      // group("ImmutableModel", () {
-      //   final model = ImmutableModel({
-      //     "bool": M.bl(initial: false),
-      //     "int": M.nt(initial: 1, validator: (n) => n <= 10),
-      //     "double": mDbl,
-      //     "string": mStr,
-      //     "text": mTxt,
-      //     "date_time": mDt,
-      //   });
-      // });
+  });
+  group("ImmutableModel tests:", () {
+    final model = ImmutableModel<SomeState>(
+      {
+        "prim_bool": M.bl(initial: false),
+        "prim_int": M.nt(initial: 1, validator: (n) => n <= 10),
+        "prim_double": M.dbl(initial: 0.1, validator: (n) => n >= 0.1),
+        "prim_str": M.str(),
+        "list_bool": M.blList(initial: [true, false]),
+        "list_int": M.ntList(initial: [1, 2], itemValidator: (n) => n <= 10),
+        "list_double": M.dblList(initial: [0.1, 0.2]),
+        "list_str": M.strList(itemValidator: (s) => s[0] == s[0].toUpperCase()),
+        "list_date_time": M.dtList(initial: [DateTime(2020), DateTime(2020)]),
+        "enum": M.enm(TestEnum.values, TestEnum.en1),
+        "inner": M.inner(
+          {
+            "prim_int": M.nt(initial: 1, validator: (n) => n <= 10),
+            "prim_double": M.dbl(initial: 0.1, validator: (n) => n >= 0.1),
+            "prim_str": M.str(),
+          },
+          strictUpdates: true,
+        ),
+      },
+      modelValidator: (modelMap) =>
+          modelMap['prim_int'].value > modelMap['prim_double'].value,
+      initialState: const SomeAState(),
+    );
+    // simple model updates
+    final updated = model.update({
+      "prim_int": 5,
+      "prim_double": (d) => d + 0.1,
+      "prim_str": "Hello",
+      "list_int": [3, 4],
+      "enum": TestEnum.en2,
+      "inner": {
+        "prim_int": 5,
+        "prim_double": (d) => d + 0.1,
+        "prim_str": "Hello"
+      }
+    });
+    // some invalid updates
+    final updatedWithInv = updated.update({
+      "prim_int": 9,
+      "prim_double": (d) => d - 1.1,
+      "list_int": [9, 12],
+      "list_double": [0.4, 0.5]
+    });
+    // update the model with invalid values at the map level
+    // i.e. between prim_int and prim_double
+    final updatedWithInvBtwFields = updated.update({
+      "prim_double": 6.1,
+    });
+    // attempt to update the inner without all fields
+    final updatedWithStrictNotAllFields = updated.update({
+      "inner": {
+        "prim_int": 5,
+        "prim_str": "Hello",
+      },
+    });
+    // attempt to update the inner with some invalid fields
+    final updatedWithStrictInv = updated.update({
+      "inner": {
+        "prim_int": 5,
+        "prim_double": (d) => d - 1.1,
+        "prim_str": "Hello"
+      },
+    });
+
+    test("Checking update", () {
+      expect(
+        updated["prim_bool"],
+        equals(false),
       );
+      expect(
+        updated["prim_int"],
+        equals(5),
+      );
+      expect(
+        updated["prim_double"],
+        equals(0.2),
+      );
+      expect(
+        updated["prim_str"],
+        equals("Hello"),
+      );
+      expect(
+        updated["list_int"],
+        equals([3, 4]),
+      );
+      expect(
+        updated["enum"],
+        equals(TestEnum.en2),
+      );
+      expect(
+        updated["inner"]['prim_int'],
+        equals(5),
+      );
+      expect(
+        updated["inner"]['prim_double'],
+        equals(0.2),
+      );
+      expect(
+        updated["inner"]['prim_str'],
+        equals("Hello"),
+      );
+    });
+    test("Checking update with inv. values", () {
+      expect(
+        updatedWithInv['prim_int'],
+        equals(9),
+      );
+      expect(
+        updatedWithInv['prim_double'],
+        equals(0.2),
+      );
+      expect(
+        updatedWithInv['list_int'],
+        equals([3, 4]),
+      );
+      expect(
+        updatedWithInv['list_double'],
+        equals([0.4, 0.5]),
+      );
+    });
+    test("Checking update with inv. values between fields", () {
+      expect(
+        updatedWithInvBtwFields,
+        equals(updated),
+      );
+    });
+    test("Checking strict updates", () {
+      expect(
+        updatedWithStrictNotAllFields,
+        equals(updated),
+      );
+      expect(
+        updatedWithStrictInv,
+        equals(updated),
+      );
+    });
+    test("Checking updateIfIn", () {
+      expect(
+        updated.updateIfIn(
+          {
+            "prim_int": 3,
+          },
+          const SomeAState(),
+        ),
+        equals(updated.update(
+          {
+            "prim_int": 3,
+          },
+        )),
+      );
+      expect(
+        () => updated.updateIfIn(
+          {
+            "prim_int": 3,
+          },
+          const SomeBState(),
+        ),
+        throwsA(TypeMatcher<ModelStateError>()),
+      );
+    });
+    test(
+      "Checking updateWithSelector",
+      () {
+        expect(
+          updated.updateWithSelector(ModelSelector("list_int"), [6, 7]),
+          equals(updated.update({
+            "list_int": [6, 7]
+          })),
+        );
+      },
+    );
+    test(
+      "Checking updateWithSelectorIfIn",
+      () {
+        expect(
+          updated.updateWithSelectorIfIn(
+            ModelSelector("list_int"),
+            [6, 7],
+            const SomeAState(),
+          ),
+          updated.update({
+            "list_int": [6, 7]
+          }),
+        );
+        expect(
+          () => updated.updateWithSelectorIfIn(
+            ModelSelector("list_int"),
+            [6, 7],
+            const SomeBState(),
+          ),
+          throwsA(TypeMatcher<ModelStateError>()),
+        );
+      },
+    );
+    test("Checking mergeFrom", () {
+      final toMerge = model.update({
+        "list_int": [8, 9],
+      });
+      final merged = updated.mergeFrom(toMerge);
+      expect(
+        merged["prim_bool"],
+        equals(false),
+      );
+      expect(
+        merged["prim_int"],
+        equals(5),
+      );
+      expect(
+        merged["prim_double"],
+        equals(0.2),
+      );
+      expect(
+        merged["list_int"],
+        equals([8, 9]),
+      );
+    });
+    test("Checking resetFields", () {
+      final reset =
+          updated.resetFields(['prim_str', 'list_int', 'inner', 'enum']);
+      expect(
+        reset['prim_int'],
+        equals(5),
+      );
+      expect(
+        reset["prim_str"],
+        equals(null),
+      );
+      expect(
+        reset["list_int"],
+        equals([1, 2]),
+      );
+      expect(
+        reset["enum"],
+        equals(TestEnum.en1),
+      );
+      expect(
+        reset["inner"],
+        equals(model["inner"]),
+      );
+    });
+    test("Checking resetAll", () {
+      expect(updated.resetAll(), equals(model));
+    });
+    test("Checking transitionTo", () {
+      expect(
+        updated.transitionTo(const SomeBState()).currentState,
+        equals(const SomeBState()),
+      );
+    });
+    test("Checking resetAndTransitionTo", () {
+      final reset = updated.resetAndTransitionTo(const SomeBState());
+      expect(
+        reset.inner,
+        equals(model.inner),
+      );
+      expect(
+        reset.currentState,
+        equals(const SomeBState()),
+      );
+    });
+    test("Checking transitionToAndUpdate and updateTo", () {
+      final toUpdate = updated.transitionToAndUpdate(
+        const SomeBState(),
+        {
+          "prim_str": "Goodbye",
+        },
+      );
+      expect(updated.updateTo(toUpdate), equals(toUpdate));
+    });
+    test("Checking toJSON/fromJSON", () {
+      expect(
+        model.fromJson(jsonDecode(jsonEncode(model.toJson()))),
+        equals(model),
+      );
+    });
+  });
 }

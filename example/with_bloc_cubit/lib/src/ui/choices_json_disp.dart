@@ -10,8 +10,6 @@ import '../domain/models/user_state.dart';
 Widget choicesJsonDisplay() =>
     BlocBuilder<UserCubit, ImmutableModel<UserState>>(
         builder: (context, model) {
-      print("PRINTING USER STATE model");
-      print(model);
       if (model.currentState is UserUnauthed) {
         return Center(child: Text('No user json data'));
       } else {

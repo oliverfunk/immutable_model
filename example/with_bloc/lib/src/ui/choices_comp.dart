@@ -28,7 +28,7 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputWords(UserBloc userBloc) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
-        initialValue: userBloc.state.select(UserState.enteredTextSel),
+        initialValue: userBloc.state.selectValue(UserState.enteredTextSel),
         onChanged: (value) =>
             userBloc.add(UpdateValues(UserState.enteredTextSel, value)),
       );
@@ -44,10 +44,10 @@ class ChoicesComp extends StatelessWidget {
         ),
         BlocBuilder<UserBloc, ImmutableModel<UserState>>(
           buildWhen: (previous, current) =>
-              previous.select(UserState.validatedNumberSel) !=
-              current.select(UserState.validatedNumberSel),
+              previous.selectValue(UserState.validatedNumberSel) !=
+              current.selectValue(UserState.validatedNumberSel),
           builder: (context, model) =>
-              Text(model.select(UserState.validatedNumberSel).toString()),
+              Text(model.selectValue(UserState.validatedNumberSel).toString()),
         ),
         IconButton(
           icon: Icon(Icons.keyboard_arrow_up),
@@ -60,7 +60,7 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputDouble(UserBloc userBloc) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
         initialValue: userBloc.state
-            .select(UserState.enteredDoubleSel)
+            .selectValue(UserState.enteredDoubleSel)
             .toStringAsFixed(3),
         onChanged: (value) => userBloc
             .add(UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
@@ -69,11 +69,11 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputBoolean(UserBloc userBloc) =>
       BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.select(UserState.chosenBoolSel) !=
-            current.select(UserState.chosenBoolSel),
+            previous.selectValue(UserState.chosenBoolSel) !=
+            current.selectValue(UserState.chosenBoolSel),
         builder: (context, model) => Container(
           child: Checkbox(
-              value: model.select(UserState.chosenBoolSel),
+              value: model.selectValue(UserState.chosenBoolSel),
               onChanged: (bl) =>
                   userBloc.add(UpdateValues(UserState.chosenBoolSel, bl))),
         ),
@@ -82,8 +82,8 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputFavSeason(UserBloc userBloc) =>
       BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.select(UserState.chosenEnumSel) !=
-            current.select(UserState.chosenEnumSel),
+            previous.selectValue(UserState.chosenEnumSel) !=
+            current.selectValue(UserState.chosenEnumSel),
         builder: (context, model) {
           final ModelEnum currentSeasonModel =
               model.selectModel(UserState.chosenEnumSel);
@@ -142,18 +142,19 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateBegin() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.select(UserState.dateBeginSel) !=
-            current.select(UserState.dateBeginSel),
+            previous.selectValue(UserState.dateBeginSel) !=
+            current.selectValue(UserState.dateBeginSel),
         builder: (context, model) => Column(
           children: [
             Text(
-              "${model.select(UserState.dateBeginSel).toLocal()}".split(' ')[0],
+              "${model.selectValue(UserState.dateBeginSel).toLocal()}"
+                  .split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             RaisedButton(
               padding: EdgeInsets.all(10.0),
               onPressed: () => _selectDateBegin(
-                  context, model.select(UserState.dateBeginSel)),
+                  context, model.selectValue(UserState.dateBeginSel)),
               child: Text(
                 'Select date',
                 style:
@@ -178,18 +179,19 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateEnd() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.select(UserState.dateEndSel) !=
-            current.select(UserState.dateEndSel),
+            previous.selectValue(UserState.dateEndSel) !=
+            current.selectValue(UserState.dateEndSel),
         builder: (context, model) => Column(
           children: [
             Text(
-              "${model.select(UserState.dateEndSel).toLocal()}".split(' ')[0],
+              "${model.selectValue(UserState.dateEndSel).toLocal()}"
+                  .split(' ')[0],
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             RaisedButton(
               padding: EdgeInsets.all(10.0),
-              onPressed: () =>
-                  _selectDateEnd(context, model.select(UserState.dateEndSel)),
+              onPressed: () => _selectDateEnd(
+                  context, model.selectValue(UserState.dateEndSel)),
               child: Text(
                 'Select date',
                 style:
@@ -206,7 +208,7 @@ class ChoicesComp extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: userBloc.state
-          .select(UserState.listOfEvensSel)
+          .selectValue(UserState.listOfEvensSel)
           .asMap()
           .entries
           .map((entry) => Flexible(
@@ -292,8 +294,8 @@ class ChoicesComp extends StatelessWidget {
                   // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                   BlocBuilder<UserBloc, ImmutableModel<UserState>>(
                       buildWhen: (previous, current) =>
-                          previous.select(UserState.listOfEvensSel) !=
-                          current.select(UserState.listOfEvensSel),
+                          previous.selectValue(UserState.listOfEvensSel) !=
+                          current.selectValue(UserState.listOfEvensSel),
                       builder: (ctx, model) =>
                           Text("List total: ${userBloc.listTotal()}")),
                 ],

@@ -29,7 +29,8 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputWords(Store<AppState> store) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
-        initialValue: store.state.userModel.select(UserState.enteredTextSel),
+        initialValue:
+            store.state.userModel.selectValue(UserState.enteredTextSel),
         onChanged: (value) =>
             store.dispatch(UpdateValues(UserState.enteredTextSel, value)),
       );
@@ -45,7 +46,7 @@ class ChoicesComp extends StatelessWidget {
         ),
         StoreConnector<AppState, int>(
           converter: (store) =>
-              store.state.userModel.select(UserState.validatedNumberSel),
+              store.state.userModel.selectValue(UserState.validatedNumberSel),
           distinct: true,
           builder: (context, number) => Text(number.toString()),
         ),
@@ -60,7 +61,7 @@ class ChoicesComp extends StatelessWidget {
   Widget _inputDouble(Store<AppState> store) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
         initialValue: store.state.userModel
-            .select(UserState.enteredDoubleSel)
+            .selectValue(UserState.enteredDoubleSel)
             .toStringAsFixed(3),
         onChanged: (value) => store.dispatch(
             UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
@@ -68,7 +69,7 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputBoolean() => StoreConnector<AppState, bool>(
         converter: (store) =>
-            store.state.userModel.select(UserState.chosenBoolSel),
+            store.state.userModel.selectValue(UserState.chosenBoolSel),
         distinct: true,
         builder: (context, bl) => Container(
           child: Checkbox(
@@ -136,7 +137,7 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateBegin() => StoreConnector<AppState, DateTime>(
         converter: (store) =>
-            store.state.userModel.select(UserState.dateBeginSel),
+            store.state.userModel.selectValue(UserState.dateBeginSel),
         distinct: true,
         builder: (context, dtBegin) => Column(
           children: [
@@ -171,7 +172,7 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateEnd() => StoreConnector<AppState, DateTime>(
         converter: (store) =>
-            store.state.userModel.select(UserState.dateEndSel),
+            store.state.userModel.selectValue(UserState.dateEndSel),
         distinct: true,
         builder: (context, dtEnd) => Column(
           children: [
@@ -197,7 +198,7 @@ class ChoicesComp extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: store.state.userModel
-            .select(UserState.listOfEvensSel)
+            .selectValue(UserState.listOfEvensSel)
             .asMap()
             .entries
             .map((entry) => Flexible(
@@ -279,8 +280,8 @@ class ChoicesComp extends StatelessWidget {
                 // RaisedButton(child: Text("Sort Dec"), onPressed: () => _store(context).dispatch(SortListDec())),
                 // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
                 StoreConnector<AppState, List<int>>(
-                  converter: (store) =>
-                      store.state.userModel.select(UserState.listOfEvensSel),
+                  converter: (store) => store.state.userModel
+                      .selectValue(UserState.listOfEvensSel),
                   distinct: true,
                   builder: (ctx, list) =>
                       Text("List total: ${listTotal(list)}"),

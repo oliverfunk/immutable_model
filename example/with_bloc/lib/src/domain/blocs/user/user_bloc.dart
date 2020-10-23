@@ -11,7 +11,7 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
 
   // derived values
   int listTotal() => state
-      .select(UserState.listOfEvensSel)
+      .selectValue(UserState.listOfEvensSel)
       .reduce((value, element) => value + element);
 
   @override

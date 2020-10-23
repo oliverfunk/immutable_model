@@ -1,11 +1,11 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:immutable_model/model_types.dart';
 
 import '../errors.dart';
 import '../exceptions.dart';
 import '../model_selector.dart';
 import '../model_type.dart';
 import '../utils/log.dart';
+import './model_lists.dart';
 
 /// A function that validates [modelMap].
 ///
@@ -81,76 +81,73 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
         strictUpdates = last.strictUpdates,
         super.fromPrevious(last);
 
-  /// Validates [toValidate] using [modelValidator], if it's defined.
-  BuiltMap<String, ModelType> _validateModel(
-          BuiltMap<String, ModelType> toValidate) =>
-      (modelValidator == null || modelValidator(toValidate.asMap()))
-          ? toValidate
-          : logExceptionAndReturn(
-              _current,
-              ValidationException(ModelInner, toValidate, fieldLabel),
-            );
+  /// Validates [updated] using [modelValidator], if it's defined.
+  bool _validateUpdated(BuiltMap<String, ModelType> updated) =>
+      modelValidator == null || modelValidator(updated.asMap());
 
-  /// Checks if [update] complies to the *strict* update rule,
+  /// Checks if [nextModels] complies to the *strict* update rule,
   /// which states:
-  /// * Every model in this must be in [update]
-  /// * Every model in [update] cannot be the initial instance (see [ModelType.initial])
-  /// * Every model in [update] cannot have the same value as the one in this.
-  bool _isStrictUpdate(Map<String, ModelType> update) =>
-      fieldLabels.every((fl) =>
-          update.containsKey(fl) &&
-          !update[fl].isInitial &&
-          update[fl] != this[fl]);
+  /// * Every model in this must be in [nextModels]
+  /// * Every model in [nextModels] cannot be the initial instance (see [ModelType.initial])
+  /// * Every model in [nextModels] cannot have the same value as the one in this.
+  bool _isStrict(Map<String, ModelType> nextModels) => fieldLabels.every((fl) =>
+      nextModels.containsKey(fl) &&
+      !nextModels[fl].isInitial &&
+      nextModels[fl] != this[fl]);
 
   @override
-  ModelInner buildNext(Map<String, ModelType> updates) {
-    if (strictUpdates && !_isStrictUpdate(updates)) {
-      return logExceptionAndReturn(this, StrictUpdateException(this, updates));
+  ModelInner buildNext(Map<String, ModelType> nextModels) {
+    if (strictUpdates && !_isStrict(nextModels)) {
+      return logExceptionAndReturn(
+          this, StrictUpdateException(this, nextModels));
     }
-    if (updates.isEmpty) {
+    if (nextModels.isEmpty) {
       return this;
     }
     final updated = _current.rebuild((mb) {
-      updates.forEach((label, updatedModel) {
-        if (hasModel(label)) {
-          mb.updateValue(
-            label,
-            // no new instance is created unless its a value type
-            (currentModel) => currentModel.nextFromModel(updatedModel),
-          );
-        } else {
-          throw ModelAccessError(fieldLabels, label);
-        }
-      });
+      nextModels.forEach((label, nextModel) => hasModel(label)
+          ? mb.updateValue(
+              label,
+              // no new instance is created unless its a value type
+              (currentModel) => currentModel.nextFromModel(nextModel),
+            )
+          : throw ModelAccessError(fieldLabels, label));
     });
-    return ModelInner._next(
-      this,
-      _validateModel(updated),
-    );
+    return _validateUpdated(updated)
+        ? ModelInner._next(this, updated)
+        : logExceptionAndReturn(
+            this,
+            ValidationException(ModelInner, updated, fieldLabel),
+          );
   }
 
-  ModelInner nextWithUpdates(Map<String, dynamic> updates) =>
-      next(updates.map<String, ModelType>((label, update) {
-        // will throw if the model doesn't exist
-        final currentModel = getModel(label);
+  /// Returns a new instance with models that were updated using [updates].
+  ///
+  /// The values in [updates] can be a value,
+  /// a [ValueUpdater] function or a [ModelType].
+  ///
+  /// Throws a [ModelAccess] error if a field in [updates] is not in the model.
+  ModelInner nextWithUpdates(Map<String, dynamic> updates) => next(
+        updates.map<String, ModelType>((label, update) => MapEntry(
+              label,
+              // getModel will throw if the model doesn't exist
+              _applyUpdate(getModel(label), update),
+            )),
+      );
 
-        // this was once nice and clean
-        if (update == null) {
-          return MapEntry(label, currentModel);
-        } else if (update is ModelType) {
-          return MapEntry(label, update);
-        } else if (currentModel is ModelInner) {
-          if (update is Map<String, dynamic>) {
-            return MapEntry(label, currentModel.nextWithUpdates(update));
-          } else {
-            throw ModelTypeError(this, update);
-          }
-        } else if (update is ValueUpdater) {
-          return MapEntry(label, currentModel.nextFromFunc(update));
-        } else {
-          return MapEntry(label, currentModel.nextFromDynamic(update));
-        }
-      }));
+  // this was once nice and clean...
+  ModelType _applyUpdate(ModelType currentModel, dynamic update) =>
+      update == null
+          ? currentModel
+          : update is ModelType
+              ? update
+              : currentModel is ModelInner
+                  ? update is Map<String, dynamic>
+                      ? currentModel.nextWithUpdates(update)
+                      : throw ModelTypeError(this, update)
+                  : update is ValueUpdater
+                      ? currentModel.nextFromFunc(update)
+                      : currentModel.nextFromDynamic(update);
 
   /// Updates the model selected by [selector] with [update].
   ///
@@ -162,23 +159,30 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
 
   /// The current map between field labels and [ModelType]s.
   ///
-  /// Note: this map is unmodifiable (i.e. read-only)
+  /// Note: the returned map is unmodifiable (i.e. read-only)
   @override
   Map<String, ModelType> get value => _current.asMap();
 
   /// The map between field labels and the current [ModelType]s.
   ///
-  /// Note: this map is copy-on-write protected.
-  /// When modified, a new instance will be created.
+  /// Note: the returned map is copy-on-write protected.
+  /// When modified, a new copied instance will be created.
   Map<String, ModelType> get modelMap => _current.toMap();
 
   /// The map between field labels and the current [ModelType] values.
   ///
-  /// Note: this returns a copy of all components and nested-components of the underlying map,
-  /// meaning this could potentially be an expensive call if this model is large.
-  /// Consider instead accessing only the required field values (using the [selectValue] or [get] methods).
+  /// Note: this returns a copied (or copy-on-write protected) instance
+  /// of all models (or nested models).
+  ///
+  /// If the model is large or highly nested, consider instead accessing
+  /// and modifying only the required field values
+  /// (using the [selectValue] or [getValue] methods).
   Map<String, dynamic> get valueMap =>
-      _current.toMap().map((field, model) => MapEntry(field, model.value));
+      modelMap.map((label, model) => model is ModelInner
+          ? MapEntry(label, model.valueMap)
+          : model is ModelList
+              ? MapEntry(label, model.list)
+              : MapEntry(label, model.value));
 
   /// Joins [otherModel] to this and creates a new [ModelInner] from the result.
   ///
@@ -284,9 +288,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// meaning this could potentially be an expensive call if this model is large.
   /// If this is the case, consider using [asSerializableDelta] on some pre-cached model to serialize only the changes.
   @override
-  Map<String, dynamic> asSerializable() =>
-      _current.toMap().map((currentField, currentModel) =>
-          MapEntry(currentField, currentModel.asSerializable()));
+  Map<String, dynamic> asSerializable() => _current.toMap().map(
+        (currentField, currentModel) => MapEntry(
+          currentField,
+          currentModel.asSerializable(),
+        ),
+      );
 
   /// Converts [serialized] into a [Map] of field labels and [ModelType] models.
   ///
@@ -299,13 +306,13 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   Map<String, ModelType> fromSerialized(dynamic serialized) {
     if (serialized is Map<String, dynamic>) {
       // there's possibly a more efficient way of doing this
-      final returnMap = <String, ModelType>{};
+      final modMap = <String, ModelType>{};
       serialized.forEach((serLabel, serValue) {
         if (hasModel(serLabel)) {
-          returnMap[serLabel] = getModel(serLabel).nextFromSerialized(serValue);
+          modMap[serLabel] = getModel(serLabel).nextFromSerialized(serValue);
         }
       });
-      return returnMap;
+      return modMap;
     } else {
       return null;
     }
@@ -332,29 +339,27 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
       ? _current[label]
       : throw ModelAccessError(fieldLabels, label);
 
-  /// Returns the value of the model specified by [label].
-  dynamic get(String label) => getModel(label).value;
-
-  /// Returns the value of the model specified by [label], except if the model is a [ModelInner], in which case
+  /// Returns the value of the model specified by [label],
+  /// except if the model is a [ModelInner], in which case
   /// the [ModelInner] model will be returned, not its value.
   dynamic operator [](String label) {
-    final fm = getModel(label);
-    return fm is ModelInner ? fm : fm.value;
+    final m = getModel(label);
+    return m is ModelInner ? m : m.value;
   }
 
+  /// Returns the value of the model specified by [label].
+  dynamic getValue(String label) => getModel(label).value;
+
   /// Resets the models specified by [fieldLabels] to their [initial] instance.
-  ModelInner resetFields(List<String> fieldLabels) => isInitial
-      ? this
-      : ModelInner._next(
-          this,
-          _current.rebuild((mb) {
-            for (var fl in fieldLabels) {
-              hasModel(fl)
-                  ? mb.updateValue(fl, (currentModel) => currentModel.initial)
-                  : throw ModelAccessError(fieldLabels, fl);
-            }
-          }),
-        );
+  ModelInner resetFields(List<String> fieldLabels) {
+    if (isInitial) return this;
+    final modMap = <String, ModelType>{};
+    for (var label in fieldLabels) {
+      final m = getModel(label);
+      modMap[label] = m.initial;
+    }
+    return next(modMap);
+  }
 
   /// Resets all models to their [initial] instance.
   ModelInner resetAll() => initial;

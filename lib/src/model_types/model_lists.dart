@@ -11,14 +11,15 @@ import 'model_inner.dart';
 /// A function that validates an item from a list
 typedef ListItemValidator<V> = bool Function(V listItem);
 
-// todo: maybe the value should be imm. If they want to replace/appened they must the correct functions
+// todo: impl sorting
+// todo: make modellist work publicly -> because of BuiltList it might work for any type?
 
 /// An abstract class for a model for a validated list of items.
-abstract class _ModelList<M extends _ModelList<M, T>, T>
+abstract class ModelList<M extends ModelList<M, T>, T>
     extends ModelType<M, List<T>> {
   final BuiltList<T> _current;
 
-  _ModelList._([
+  ModelList._([
     List<T> initialList,
     ListItemValidator<T> listItemValidator,
     String fieldLabel,
@@ -32,7 +33,7 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
           fieldLabel,
         );
 
-  _ModelList._constructNext(M previous, this._current)
+  ModelList._constructNext(M previous, this._current)
       : super.fromPrevious(previous);
 
   @protected
@@ -59,10 +60,10 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
   ///
   /// Note: this list is copy-on-write protected.
   /// When modified, a new instance will be created.
-  List<T> get toList => _current.toList();
+  List<T> get list => _current.toList();
 
   @override
-  dynamic asSerializable() => value;
+  List asSerializable() => value;
 
   @override
   List<T> fromSerialized(dynamic serialized) {
@@ -121,7 +122,7 @@ abstract class _ModelList<M extends _ModelList<M, T>, T>
   List<Object> get props => [_current];
 }
 
-class ModelBoolList extends _ModelList<ModelBoolList, bool> {
+class ModelBoolList extends ModelList<ModelBoolList, bool> {
   ModelBoolList._([
     List<bool> initialList,
     String fieldLabel,
@@ -153,7 +154,7 @@ class ModelBoolList extends _ModelList<ModelBoolList, bool> {
       ModelBoolList._next(this, next);
 }
 
-class ModelIntList extends _ModelList<ModelIntList, int> {
+class ModelIntList extends ModelList<ModelIntList, int> {
   ModelIntList._([
     List<int> initialList,
     ListItemValidator<int> listItemValidator,
@@ -198,7 +199,7 @@ class ModelIntList extends _ModelList<ModelIntList, int> {
 }
 
 /// A model for a validated list of doubles.
-class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
+class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   ModelDoubleList._([
     List<double> initialList,
     ListItemValidator<double> listItemValidator,
@@ -243,7 +244,7 @@ class ModelDoubleList extends _ModelList<ModelDoubleList, double> {
 }
 
 /// A model for a validated list of Strings.
-class ModelStringList extends _ModelList<ModelStringList, String> {
+class ModelStringList extends ModelList<ModelStringList, String> {
   ModelStringList._([
     List<String> initialList,
     ListItemValidator<String> listItemValidator,
@@ -288,7 +289,7 @@ class ModelStringList extends _ModelList<ModelStringList, String> {
 }
 
 /// A model for a validated list of DateTimes.
-class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
+class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
   ModelDateTimeList._([
     List<DateTime> initial,
     ListItemValidator<DateTime> listItemValidator,
@@ -333,7 +334,8 @@ class ModelDateTimeList extends _ModelList<ModelDateTimeList, DateTime> {
       ModelDateTimeList._next(this, next);
 
   @override
-  dynamic asSerializable() => value.map((dt) => dt.toIso8601String());
+  List<String> asSerializable() =>
+      value.map((dt) => dt.toIso8601String()).toList(growable: false);
 
   @override
   List<DateTime> fromSerialized(dynamic serialized) {

@@ -14,7 +14,7 @@ enum ModelState { Default }
 /// The main class used to define immutable state models.
 @immutable
 class ImmutableModel<S> extends Equatable {
-  /// The internal [ModelInner] used by this class.
+  /// The internal [ModelInner] model used by this class.
   final ModelInner _model;
 
   /// The underlying [ModelInner].
@@ -30,8 +30,8 @@ class ImmutableModel<S> extends Equatable {
 
   /// Constructs a class used to define an immutable state model.
   ///
-  /// [modelMap] is  a map between field label [String]s and other [ModelType] models, which defines the model's scheme
-  /// and the field validations.
+  /// [modelMap] defines the mapping between field label [String]s and [ModelType] models.
+  /// This defines the model's scheme as well as the field data type and validation.
   /// [modelMap] cannot be null or empty.
   ///
   /// [modelValidator] is a function that must return `true` if the map passed to it from an update is valid,
@@ -110,7 +110,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// if `point=1`, the previous instance would be returned (like an undo).
   ///
-  /// Note: this feature is still experimental and unexpected results can occur.
+  /// Note: this feature is still experimental. Unexpected results can occur.
   @experimental
   ImmutableModel<S> restoreBy(int point) =>
       _cache == null ? this : _cache.restoreBy(point);
@@ -131,40 +131,59 @@ class ImmutableModel<S> extends Equatable {
   /// When modified, a new instance will be created.
   Map<String, ModelType> toMap() => _model.modelMap;
 
+  /// The map between field labels and the current [ModelType] values.
+  ///
+  /// Note: this returns a copy of all components and nested-components of the underlying map,
+  /// meaning this could potentially be an expensive call if this model is large.
+  /// Consider instead accessing only the required field values (using the [selectValue] or [get] methods).
+  Map<String, dynamic> toValueMap() => _model.valueMap;
+
   // updating
 
-  Map<String, dynamic> _assertNotEmpty(Map<String, dynamic> updateToCheck) =>
+  Map<String, dynamic> _assertNotEmpty(
+    Map<String, dynamic> updateToCheck,
+  ) =>
       updateToCheck.isNotEmpty
           ? updateToCheck
           : throw AssertionError("Update can't be empty");
 
   /// Updates the current model values with those specified in [updates].
   ///
+  /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
+  ///
+  /// Throws a [ModelAccess] error if a field in [updates] is not in the model.
+  ImmutableModel<S> update(
+    Map<String, dynamic> updates,
+  ) =>
+      ImmutableModel<S>._nextModel(
+        this,
+        _model.nextWithUpdates(_assertNotEmpty(updates)),
+      );
+
+  /// Updates the current model values with those specified in [updates],
+  /// if [currentState] == [inState].
+  ///
   /// The field label strings in [updates] must exist in this [ImmutableModel].
   ///
   /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
-  ImmutableModel<S> update(Map<String, dynamic> updates) =>
-      ImmutableModel<S>._nextModel(
-          this, _model.nextWithUpdates(_assertNotEmpty(updates)));
-
-  ImmutableModel<S> updateIfIn(Map<String, dynamic> updates, S inState) =>
+  ///
+  /// Throws a [ModelStateError] if [currentState] != [inState].
+  ImmutableModel<S> updateIfIn(
+    Map<String, dynamic> updates,
+    S inState,
+  ) =>
+      // fixme: find a better way
       currentState.runtimeType == inState.runtimeType
           ? update(updates)
           : throw ModelStateError(currentState, inState);
-
-  /// As [update] but the values must be [ValueUpdater] functions
-  ImmutableModel<S> updateWith(Map<String, ValueUpdater> updaters) =>
-      update(updaters);
-
-  /// As [update] but the values must be [ModelType]s.
-  ImmutableModel<S> updateWithModels(Map<String, ModelType> updates) =>
-      update(updates);
 
   /// Updates the field selected by [selector] with [update].
   ///
   /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
   ImmutableModel<S> updateWithSelector<V>(
-          ModelSelector<V> selector, dynamic update) =>
+    ModelSelector<V> selector,
+    dynamic update,
+  ) =>
       ImmutableModel<S>._nextModel(
           this, _model.nextWithSelector(selector, update));
 
@@ -172,47 +191,80 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
   ImmutableModel<S> updateWithSelectorIfIn<V>(
-          ModelSelector<V> selector, V update, S inState) =>
+    ModelSelector<V> selector,
+    V update,
+    S inState,
+  ) =>
       currentState.runtimeType == inState.runtimeType
           ? updateWithSelector<V>(selector, update)
           : throw ModelStateError(currentState, inState);
 
-  /// All models are set to those in [other],
-  /// only if the underlying [ModelInner] in this [ImmutableModel] share a history with the one in [other].
+  /// Updates the underlying [ModelInner] with the one in [other]
+  /// and the [currentState] will be set to that of [other].
+  ///
+  /// The two [ModelInner]'s must share a history.
   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
-      ImmutableModel<S>._nextModel(this, _model.nextFromModel(other._model));
+      ImmutableModel<S>._nextBoth(
+        this,
+        other._state,
+        _model.nextFromModel(other._model),
+      );
 
   /// Merges [other] into this.
   ///
+  /// Will not affect the [currentState].
+  ///
   /// As [ModelInner.merge].
   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
-      ImmutableModel<S>._nextModel(this, _model.merge(other._model));
+      ImmutableModel<S>._nextModel(
+        this,
+        _model.merge(other._model),
+      );
 
-  /// Resets the models specified by [fieldLabels] to their [ModelType.initial] instance.
+  /// Resets the models specified by [fieldLabels]
+  /// to their [ModelType.initial] instance.
   ///
   /// [fieldLabels] cannot be empty.
   ImmutableModel<S> resetFields(List<String> fieldLabels) =>
       fieldLabels.isNotEmpty
-          ? ImmutableModel<S>._nextModel(this, _model.resetFields(fieldLabels))
+          ? ImmutableModel<S>._nextModel(
+              this,
+              _model.resetFields(fieldLabels),
+            )
           : throw AssertionError("Fields can't be empty");
 
   /// Resets all the models in this to their [ModelType.initial] instance.
-  ImmutableModel<S> resetAll() =>
-      ImmutableModel<S>._nextModel(this, _model.resetAll(), false);
+  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(
+        this,
+        _model.resetAll(),
+        false,
+      );
 
   /// Sets the [currentState] to [nextState].
-  ImmutableModel<S> transitionTo(S nextState) =>
-      ImmutableModel<S>._nextState(this, nextState);
+  ImmutableModel<S> transitionTo(S nextState) => ImmutableModel<S>._nextState(
+        this,
+        nextState,
+      );
 
   /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
   ImmutableModel<S> resetAndTransitionTo(S nextState) =>
-      ImmutableModel<S>._nextBoth(this, nextState, _model.resetAll(), false);
+      ImmutableModel<S>._nextBoth(
+        this,
+        nextState,
+        _model.resetAll(),
+        false,
+      );
 
   /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
   ImmutableModel<S> transitionToAndUpdate(
-          S nextState, Map<String, dynamic> updates) =>
+    S nextState,
+    Map<String, dynamic> updates,
+  ) =>
       ImmutableModel<S>._nextBoth(
-          this, nextState, _model.nextWithUpdates(_assertNotEmpty(updates)));
+        this,
+        nextState,
+        _model.nextWithUpdates(_assertNotEmpty(updates)),
+      );
 
   // JSON
 
@@ -220,7 +272,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// Note: this returns a copy of all components and nested-components of the underlying map,
   /// meaning this could potentially be an expensive call if this model is large.
-  /// If this is the case, consider using [toJsonDiff] on a previous instance of this [ImmutableModel].
+  /// If this is the case, consider using [toJsonDelta] on a previous instance of this [ImmutableModel].
   Map<String, dynamic> toJson() => _model.asSerializable();
 
   /// Returns a [Map] between the field labels and the current, serialized model values,
@@ -232,14 +284,17 @@ class ImmutableModel<S> extends Equatable {
   /// To avoid unexpected results, this should share a *direct* history with [other].
   ///
   /// This is useful if, for example, you want to serialize only the changes to a model to send to a remote.
-  Map<String, dynamic> toJsonDiff(ImmutableModel<S> other) =>
+  Map<String, dynamic> toJsonDelta(ImmutableModel<S> other) =>
       _model.asSerializableDelta(other._model);
 
   /// Deserializes the values in [jsonMap] and updates the current model values with them.
   ///
   /// The values are deserialized using the corresponding model [ModelType.fromSerialized] method.
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
-      ImmutableModel<S>._nextModel(this, _model.nextFromSerialized(jsonMap));
+      ImmutableModel<S>._nextModel(
+        this,
+        _model.nextFromSerialized(jsonMap),
+      );
 
   // field ops
 
@@ -254,17 +309,18 @@ class ImmutableModel<S> extends Equatable {
       _model.selectModel(selector);
 
   /// Returns the value of the model selected by [selector].
-  V select<V>(ModelSelector<V> selector) => _model.selectValue(selector);
+  V selectValue<V>(ModelSelector<V> selector) => _model.selectValue(selector);
 
   /// Returns the [ModelType] model specified by [fieldLabel].
   ModelType getModel(String fieldLabel) => _model.getModel(fieldLabel);
 
-  /// Returns the value of the model specified by [fieldLabel].
-  dynamic get(String fieldLabel) => _model.get(fieldLabel);
-
-  /// Returns the value of the model specified by [fieldLabel], except if the model is a [ModelInner], in which case
+  /// Returns the value of the model specified by [fieldLabel],
+  /// except if the model is a [ModelInner], in which case
   /// the [ModelInner] model will be returned, not its value.
   dynamic operator [](String fieldLabel) => _model[fieldLabel];
+
+  /// Returns the value of the model specified by [fieldLabel].
+  dynamic getValue(String fieldLabel) => _model.getValue(fieldLabel);
 
   // misc
 
