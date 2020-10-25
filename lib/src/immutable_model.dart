@@ -45,6 +45,14 @@ class ImmutableModel<S> extends Equatable {
   /// and every field value cannot be null and must be valid. If it's false, updates can
   /// contain a sub-set of the fields.
   ///
+  /// [cacheBufferSize] determines the number of previous instances
+  /// that will be cached and that can be access
+  /// using the [restoreBy] method.
+  /// Note: this feature is experimental.
+  /// The cache buffer is synchronous between
+  /// different [ImmutableModel] instances that share it.
+  /// Unexpected results may occur.
+  ///
   /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
   ImmutableModel(
@@ -66,9 +74,12 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextBoth(ImmutableModel<S> last, this._state, this._model,
-      [bool cacheOrPurge = true])
-      : _cache = last._cache {
+  ImmutableModel._nextBoth(
+    ImmutableModel<S> last,
+    this._state,
+    this._model, [
+    bool cacheOrPurge = true,
+  ]) : _cache = last._cache {
     if (cacheOrPurge) {
       _cache?.cacheItem(last);
     } else {
@@ -80,9 +91,11 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextModel(ImmutableModel<S> last, this._model,
-      [bool cacheOrPurge = true])
-      : _state = last._state,
+  ImmutableModel._nextModel(
+    ImmutableModel<S> last,
+    this._model, [
+    bool cacheOrPurge = true,
+  ])  : _state = last._state,
         _cache = last._cache {
     if (cacheOrPurge) {
       _cache?.cacheItem(last);
@@ -95,9 +108,11 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
   /// Otherwise the cache is purged, all items are removed.
-  ImmutableModel._nextState(ImmutableModel<S> last, this._state,
-      [bool cacheOrPurge = true])
-      : _model = last._model,
+  ImmutableModel._nextState(
+    ImmutableModel<S> last,
+    this._state, [
+    bool cacheOrPurge = true,
+  ])  : _model = last._model,
         _cache = last._cache {
     if (cacheOrPurge) {
       _cache?.cacheItem(last);
@@ -278,12 +293,15 @@ class ImmutableModel<S> extends Equatable {
   /// Returns a [Map] between the field labels and the current, serialized model values,
   /// based on the delta from [other] to this.
   ///
-  /// If the corresponding models are equal, they are removed from the resulting map.
-  /// Otherwise, the model value in this is serialized (using [ModelType.asSerializable]).
+  /// If the corresponding models are equal,
+  /// it is removed from the resulting map.
+  /// Otherwise, the model value in this is serialized
+  /// (using [ModelType.asSerializable]).
   ///
   /// To avoid unexpected results, this should share a *direct* history with [other].
   ///
-  /// This is useful if, for example, you want to serialize only the changes to a model to send to a remote.
+  /// This is useful if, for example, you want to serialize only
+  /// the changes made to a model to send to a remote.
   Map<String, dynamic> toJsonDelta(ImmutableModel<S> other) =>
       _model.asSerializableDelta(other._model);
 
@@ -343,7 +361,7 @@ class ImmutableModel<S> extends Equatable {
       modelValidator: joinedInner.modelValidator,
       initialState: _state,
       strictUpdates: strictUpdates,
-      cacheBufferSize: _cache.bufferSize,
+      cacheBufferSize: _cache?.bufferSize,
     );
   }
 

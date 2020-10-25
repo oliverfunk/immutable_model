@@ -1325,32 +1325,10 @@ void main() {
         "prim_str": "Hello"
       }
     });
-    // some invalid updates
-    final updatedWithInv = updated.update({
-      "prim_int": 9,
-      "prim_double": (d) => d - 1.1,
-      "list_int": [9, 12],
-      "list_double": [0.4, 0.5]
-    });
-    // update the model with invalid values at the map level
-    // i.e. between prim_int and prim_double
-    final updatedWithInvBtwFields = updated.update({
-      "prim_double": 6.1,
-    });
-    // attempt to update the inner without all fields
-    final updatedWithStrictNotAllFields = updated.update({
-      "inner": {
-        "prim_int": 5,
-        "prim_str": "Hello",
-      },
-    });
-    // attempt to update the inner with some invalid fields
-    final updatedWithStrictInv = updated.update({
-      "inner": {
-        "prim_int": 5,
-        "prim_double": (d) => d - 1.1,
-        "prim_str": "Hello"
-      },
+    final simpleModel = ImmutableModel({
+      "an_int": M.nt(initial: 5),
+      "a_dbl": M.dbl(initial: 0.5),
+      "a_str": M.str(),
     });
 
     test("Checking update", () {
@@ -1392,6 +1370,14 @@ void main() {
       );
     });
     test("Checking update with inv. values", () {
+      // some invalid updates
+      final updatedWithInv = updated.update({
+        "prim_int": 9,
+        "prim_double": (d) => d - 1.1,
+        "list_int": [9, 12],
+        "list_double": [0.4, 0.5]
+      });
+
       expect(
         updatedWithInv['prim_int'],
         equals(9),
@@ -1410,18 +1396,35 @@ void main() {
       );
     });
     test("Checking update with inv. values between fields", () {
+      // update the model with invalid values at the map level
+      // i.e. between prim_int and prim_double
       expect(
-        updatedWithInvBtwFields,
+        updated.update({
+          "prim_double": 6.1,
+        }),
         equals(updated),
       );
     });
     test("Checking strict updates", () {
+      // attempt to update the inner without all fields
       expect(
-        updatedWithStrictNotAllFields,
+        updated.update({
+          "inner": {
+            "prim_int": 5,
+            "prim_str": "Hello",
+          },
+        }),
         equals(updated),
       );
+      // attempt to update the inner with some invalid fields
       expect(
-        updatedWithStrictInv,
+        updated.update({
+          "inner": {
+            "prim_int": 5,
+            "prim_double": (d) => d - 1.1,
+            "prim_str": "Hello"
+          },
+        }),
         equals(updated),
       );
     });
@@ -1449,40 +1452,34 @@ void main() {
         throwsA(TypeMatcher<ModelStateError>()),
       );
     });
-    test(
-      "Checking updateWithSelector",
-      () {
-        expect(
-          updated.updateWithSelector(ModelSelector("list_int"), [6, 7]),
-          equals(updated.update({
-            "list_int": [6, 7]
-          })),
-        );
-      },
-    );
-    test(
-      "Checking updateWithSelectorIfIn",
-      () {
-        expect(
-          updated.updateWithSelectorIfIn(
-            ModelSelector("list_int"),
-            [6, 7],
-            const SomeAState(),
-          ),
-          updated.update({
-            "list_int": [6, 7]
-          }),
-        );
-        expect(
-          () => updated.updateWithSelectorIfIn(
-            ModelSelector("list_int"),
-            [6, 7],
-            const SomeBState(),
-          ),
-          throwsA(TypeMatcher<ModelStateError>()),
-        );
-      },
-    );
+    test("Checking updateWithSelector", () {
+      expect(
+        updated.updateWithSelector(ModelSelector("list_int"), [6, 7]),
+        equals(updated.update({
+          "list_int": [6, 7]
+        })),
+      );
+    });
+    test("Checking updateWithSelectorIfIn", () {
+      expect(
+        updated.updateWithSelectorIfIn(
+          ModelSelector("list_int"),
+          [6, 7],
+          const SomeAState(),
+        ),
+        updated.update({
+          "list_int": [6, 7]
+        }),
+      );
+      expect(
+        () => updated.updateWithSelectorIfIn(
+          ModelSelector("list_int"),
+          [6, 7],
+          const SomeBState(),
+        ),
+        throwsA(TypeMatcher<ModelStateError>()),
+      );
+    });
     test("Checking mergeFrom", () {
       final toMerge = model.update({
         "list_int": [8, 9],
@@ -1560,9 +1557,124 @@ void main() {
     });
     test("Checking toJSON/fromJSON", () {
       expect(
-        model.fromJson(jsonDecode(jsonEncode(model.toJson()))),
-        equals(model),
+        model.fromJson(jsonDecode(jsonEncode(updated.toJson()))),
+        equals(updated),
       );
+      expect(
+        model.fromJson(jsonDecode(jsonEncode(updated.toJsonDelta(model)))),
+        equals(updated),
+      );
+    });
+    test("Checking to map functions", () {
+      final mutableModelMap = simpleModel.toMap();
+      mutableModelMap['extra'] = M.bl(initial: false);
+      final mutableValueMap = simpleModel.toValueMap();
+      mutableValueMap['another'] = 7;
+      expect(
+        simpleModel.asMap(),
+        equals({
+          "an_int": M.nt(initial: 5),
+          "a_dbl": M.dbl(initial: 0.5),
+          "a_str": M.str(),
+        }),
+      );
+      expect(
+        mutableModelMap,
+        equals({
+          "an_int": M.nt(initial: 5),
+          "a_dbl": M.dbl(initial: 0.5),
+          "a_str": M.str(),
+          "extra": M.bl(initial: false),
+        }),
+      );
+      expect(
+        mutableValueMap,
+        equals({
+          "an_int": 5,
+          "a_dbl": 0.5,
+          "a_str": null,
+          "another": 7,
+        }),
+      );
+    });
+    test("Checking fieldLabels and numberOfFields", () {
+      expect(simpleModel.fieldLabels, equals(["an_int", "a_dbl", "a_str"]));
+      expect(simpleModel.numberOfFields, equals(3));
+    });
+    test("Checking model and value getters", () {
+      expect(model.hasModel("list_str"), equals(true));
+      expect(model.hasModel("random"), equals(false));
+      expect(updated.getModel("prim_int"), equals(M.nt(initial: 5)));
+      expect(updated.getValue("prim_int"), equals(5));
+    });
+    test("Checking model and value selector", () {
+      final innerIntSel = ModelSelector<int>("inner.prim_int");
+      expect(updated.selectModel(innerIntSel), equals(M.nt(initial: 5)));
+      expect(updated.selectValue(innerIntSel), equals(5));
+    });
+    test("Checking join", () {
+      final m = ImmutableModel<SomeState>(
+        {
+          "an_int": M.nt(initial: 2),
+          "a_dbl": M.dbl(initial: 0.5),
+        },
+        modelValidator: (modelMap) =>
+            modelMap["an_int"].value + modelMap["a_dbl"].value < 10,
+        initialState: const SomeAState(),
+      );
+      final toJoin = ImmutableModel(
+        {
+          "an_int": M.nt(initial: 5),
+          "a_str": M.str(initial: 'init'),
+        },
+        modelValidator: (modelMap) =>
+            (modelMap["a_str"].value as String).length <=
+            (modelMap["an_int"].value as int),
+      );
+      final joined = m.join(toJoin);
+      expect(joined.fieldLabels, equals(['an_int', 'a_dbl', 'a_str']));
+      expect(joined.currentState, equals(const SomeAState()));
+      expect(joined['an_int'], equals(5));
+      expect(joined['a_dbl'], equals(0.5));
+      expect(joined['a_str'], equals('init'));
+      // inv updates
+      expect(
+        joined.update({
+          "an_int": 11,
+        }),
+        equals(joined),
+      );
+      expect(
+        joined.update({
+          "a_str": "longer",
+        }),
+        equals(joined),
+      );
+    });
+    test("Checking restore", () {
+      final restorableModel = ImmutableModel<SomeState>(
+        {
+          'an_int': M.nt(),
+          'a_str': M.str(initial: "Hello"),
+        },
+        cacheBufferSize: 2,
+        initialState: SomeAState(),
+      );
+      final update1 = restorableModel.update({
+        'a_str': 'Foo',
+      });
+      final update2 = update1.transitionToAndUpdate(const SomeBState(), {
+        'an_int': 1,
+        'a_str': 'Bar',
+      });
+      final update3 = update2.update({
+        'a_str': 'Foo',
+      });
+      expect(update3.restoreBy(1), equals(update2));
+      // the cache buffer is shared between instances
+      expect(update3.restoreBy(1), equals(update1));
+      final reset = update3.resetAll();
+      expect(() => reset.restoreBy(1), throwsA(TypeMatcher<Exception>()));
     });
   });
 }

@@ -8,7 +8,7 @@ class CacheBuffer<T> {
       : assert(bufferSize >= 0, "The buffer's size can't be negative"),
         _buffer = Queue();
 
-  int get numberCachedOfItems => _buffer.length;
+  int get numberOfCachedItems => _buffer.length;
 
   void cacheItem(T toCache) {
     if (bufferSize == 0 || toCache == null) {
@@ -16,7 +16,7 @@ class CacheBuffer<T> {
     }
 
     // if the buffer is full, remove the FIFO first and add the new item
-    if (numberCachedOfItems == bufferSize) {
+    if (numberOfCachedItems == bufferSize) {
       _buffer.removeFirst();
     }
     _buffer.add(toCache);
@@ -24,12 +24,12 @@ class CacheBuffer<T> {
 
   T restoreBy(int point) {
     if (point <= 0) {
-      throw Error();
+      throw RangeError.index(point, _buffer);
     } else if (bufferSize == 0) {
       throw Exception('Cannot restore, buffer is size 0');
-    } else if (point > numberCachedOfItems) {
+    } else if (point > numberOfCachedItems) {
       throw Exception(
-          'Cannot restore to point $point, exceeds number of cached items: $numberCachedOfItems');
+          'Cannot restore to point $point, exceeds number of cached items: $numberOfCachedItems');
     }
 
     T val;
@@ -44,9 +44,9 @@ class CacheBuffer<T> {
       throw Error();
     } else if (bufferSize == 0) {
       throw Exception('Cannot peek, buffer is size 0');
-    } else if (point > numberCachedOfItems) {
+    } else if (point > numberOfCachedItems) {
       throw Exception(
-          'Cannot peek at point $point, exceeds number of cached items: $numberCachedOfItems');
+          'Cannot peek at point $point, exceeds number of cached items: $numberOfCachedItems');
     }
 
     return _buffer.elementAt(point - 1);
@@ -58,5 +58,5 @@ class CacheBuffer<T> {
 
   @override
   String toString() =>
-      'Cache Buffer [$numberCachedOfItems/$bufferSize]:\n$_buffer';
+      'Cache Buffer [$numberOfCachedItems/$bufferSize]:\n$_buffer';
 }
