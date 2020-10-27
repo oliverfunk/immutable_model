@@ -106,5 +106,5 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
       jsonValue is String ? fromString(jsonValue) : null;
 
   @override
-  String toString() => "<ModelEnum<$E>>($value)";
+  String toString() => "ModelEnum<$E>($value)";
 }
