@@ -24,7 +24,7 @@ class ModelInitialValidationError extends Error {
   ModelInitialValidationError(this.modelType, this.receivedValue);
 
   @override
-  String toString() => "ModelInitializationError\n"
+  String toString() => "ModelInitialValidationError\n"
       "Attempting to initialize a model with invalid data:\n"
       " Model:    $modelType\n"
       " Received: $receivedValue";

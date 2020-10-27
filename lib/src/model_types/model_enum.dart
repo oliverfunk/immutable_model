@@ -44,7 +44,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
     E initial, {
     String fieldLabel,
   }) {
-    if (enumValues.isEmpty) {
+    if (enumValues == null || enumValues.isEmpty) {
       throw ModelInitializationError(
         ModelEnum,
         "The enum values list must be provided. Use the static .values getter method on the enum class.",

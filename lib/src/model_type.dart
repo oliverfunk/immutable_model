@@ -59,8 +59,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// [validator] will be run on the [initialValue].
   ///
   /// Throws a [ModelInitialValidationError] if [validator] returns false after being run on [initialValue].
-  ModelType.initial([
-    V initialValue,
+  ModelType.initial(
+    V initialValue, [
     ValueValidator<V> validator,
     this.fieldLabel,
   ])  : _validator = validator,
@@ -134,6 +134,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// indicating [serialized] could not be deserialized.
   @nonVirtual
   M nextFromSerialized(dynamic serialized) {
+    if (serialized == null) return this;
     final serializedValue = fromSerialized(serialized);
     return serializedValue != null
         ? next(serializedValue)
@@ -203,5 +204,5 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   /// Debug toString method including the [modelType] and model [value].
   @override
-  String toString() => "<$modelType>($value)";
+  String toString() => "$modelType($value)";
 }

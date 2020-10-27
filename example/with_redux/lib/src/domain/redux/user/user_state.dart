@@ -10,7 +10,7 @@ final userStateModel = ImmutableModel<UserState>(
       "validated_number": M.nt(initial: 0, validator: (n) => n >= 0),
       "entered_double": M.dbl(initial: 13 / 7),
       "chosen_bool": M.bl(initial: true),
-      "chosen_enum": M.enm(Seasons.values, Seasons.Spring),
+      "chosen_enum": M.enm(Seasons.values, initial: Seasons.Spring),
       "date_begin": M.dt(initial: DateTime.now()),
       "date_end": M.dt(initial: DateTime.now().add(Duration(days: 1))),
       'list_of_evens':

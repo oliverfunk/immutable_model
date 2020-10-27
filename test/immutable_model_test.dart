@@ -20,21 +20,16 @@ class SomeBState extends SomeState {
   const SomeBState();
 }
 
-// todo: invalid init's
-// todo: updates/dserialiastions with null
-// todo: updates with improper types
-// todo: updates with models of same value
-
-// fix: enum value are dyanmic
-
 void main() {
-  test("Init test", () {
+  test("Init", () {
     print("TESTS STARTING");
   });
   group("ModelType tests:", () {
     // model primitives
     group("ModelBool:", () {
       final mBool = M.bl(initial: false);
+      // update the model with another model holding the same value
+      final sameMod = mBool.nextFromModel(mBool.next(true).next(false));
       // update the model a couple of times with valid values
       final updated = mBool.next(false).next(true);
       // update the updated instance with the same value
@@ -50,26 +45,32 @@ void main() {
         expect(updated.value, isNot(equals(mBool.value)));
       });
       test("Checking object value equality", () {
-        expect(mBool, equals(ModelBool(initial: false)));
-        expect(updated, equals(ModelBool(initial: true)));
+        expect(mBool, equals(ModelBool(false)));
+        expect(updated, equals(ModelBool(true)));
         expect(updated, updatedEqu);
         expect(updated, isNot(equals(mBool)));
       });
       test("Checking new instance generation", () {
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mBool),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mBool.nextFromModel(updated),
+          same(updated),
+        );
         // updating with the same value should return the same instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedSame,
-            ));
+          updatedSame,
+          same(updated),
+        );
         // equivalent updates return a different instance
         expect(
-            false,
-            identical(
-              updated,
-              updatedEqu,
-            ));
+          updatedEqu,
+          isNot(same(updated)),
+        );
       });
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
@@ -94,7 +95,7 @@ void main() {
         expect(
             false,
             updated.hasEqualityOfHistory(
-              ModelBool(initial: true),
+              ModelBool(true),
             ));
       });
       test("Checking serialization", () {
@@ -107,6 +108,8 @@ void main() {
     });
     group("ModelInt:", () {
       final mInt = M.nt(initial: 1, validator: (n) => n <= 10);
+      // update the model with another model holding the same value
+      final sameMod = mInt.nextFromModel(mInt.next(0).next(1));
       // update the model with an invalid value
       final inv = mInt.next(11);
       // update the model a couple of times with valid values
@@ -126,40 +129,47 @@ void main() {
         expect(updated.value, isNot(equals(mInt.value)));
       });
       test("Checking object value equality", () {
-        expect(mInt, equals(ModelInt(initial: 1)));
-        expect(updated, equals(ModelInt(initial: 9)));
+        expect(mInt, equals(ModelInt(1)));
+        expect(updated, equals(ModelInt(9)));
         expect(updated, updatedEqu);
         expect(updated, isNot(equals(mInt)));
       });
       test("Checking new instance generation", () {
+        // updating with null
+        expect(
+          mInt.next(null),
+          same(mInt),
+        );
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mInt),
+        );
         // invalid update returns the same model
         expect(
-            true,
-            identical(
-              mInt,
-              inv,
-            ));
-        // invalid update returns the same model
+          inv,
+          same(mInt),
+        );
+        // updating with a model should return that model instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedInv,
-            ));
+          mInt.nextFromModel(updated),
+          same(updated),
+        );
         // updating with the same value should return the same instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedSame,
-            ));
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
         // equivalent updates return a different instance
         expect(
-            false,
-            identical(
-              updated,
-              updatedEqu,
-            ));
+          updatedEqu,
+          isNot(same(updated)),
+        );
       });
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
@@ -184,7 +194,7 @@ void main() {
         expect(
             false,
             updated.hasEqualityOfHistory(
-              ModelInt(initial: 9),
+              ModelInt(9),
             ));
       });
       test("Checking serialization", () {
@@ -194,10 +204,13 @@ void main() {
         // deserializing should have the same value as update
         expect(updated, equals(mInt.nextFromSerialized(serialized)));
         expect(mInt, equals(mInt.nextFromSerialized("wrong")));
+        expect(mInt.nextFromSerialized(null), same(mInt));
       });
     });
     group("ModelDouble:", () {
       final mDbl = M.dbl(initial: 0.1, validator: (n) => n >= 0.1);
+      // update the model with another model holding the same value
+      final sameMod = mDbl.nextFromModel(mDbl.next(0.2).next(0.1));
       // update the model with an invalid value
       final inv = mDbl.next(-0.1);
       // update the model a couple of times with valid values
@@ -217,40 +230,42 @@ void main() {
         expect(updated.value, isNot(equals(mDbl.value)));
       });
       test("Checking object value equality", () {
-        expect(mDbl, equals(ModelDouble(initial: 0.1)));
-        expect(updated, equals(ModelDouble(initial: 0.9)));
+        expect(mDbl, equals(ModelDouble(0.1)));
+        expect(updated, equals(ModelDouble(0.9)));
         expect(updated, updatedEqu);
         expect(updated, isNot(equals(mDbl)));
       });
       test("Checking new instance generation", () {
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mDbl),
+        );
         // invalid update returns the same model
         expect(
-            true,
-            identical(
-              mDbl,
-              inv,
-            ));
-        // invalid update returns the same model
+          inv,
+          same(mDbl),
+        );
+        // updating with a model should return that model instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedInv,
-            ));
+          mDbl.nextFromModel(updated),
+          same(updated),
+        );
         // updating with the same value should return the same instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedSame,
-            ));
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
         // equivalent updates return a different instance
         expect(
-            false,
-            identical(
-              updated,
-              updatedEqu,
-            ));
+          updatedEqu,
+          isNot(same(updated)),
+        );
       });
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
@@ -275,7 +290,7 @@ void main() {
         expect(
             false,
             updated.hasEqualityOfHistory(
-              ModelDouble(initial: 9),
+              ModelDouble(9),
             ));
       });
       test("Checking serialization", () {
@@ -288,6 +303,8 @@ void main() {
     });
     group("ModelString:", () {
       final mStr = M.txt(initial: "Hello");
+      // update the model with another model holding the same value
+      final sameMod = mStr.nextFromModel(mStr.next("Goodbye").next("Hello"));
       // update the model with an invalid value
       final inv = mStr.next('');
       // update the model a couple of times with valid values
@@ -307,40 +324,42 @@ void main() {
         expect(updated.value, isNot(equals(mStr.value)));
       });
       test("Checking object value equality", () {
-        expect(mStr, equals(ModelString(initial: "Hello")));
-        expect(updated, equals(ModelString(initial: "Baz")));
+        expect(mStr, equals(ModelString("Hello")));
+        expect(updated, equals(ModelString("Baz")));
         expect(updated, updatedEqu);
         expect(updated, isNot(equals(mStr)));
       });
       test("Checking new instance generation", () {
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mStr),
+        );
         // invalid update returns the same model
         expect(
-            true,
-            identical(
-              mStr,
-              inv,
-            ));
-        // invalid update returns the same model
+          inv,
+          same(mStr),
+        );
+        // updating with a model should return that model instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedInv,
-            ));
+          mStr.nextFromModel(updated),
+          same(updated),
+        );
         // updating with the same value should return the same instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedSame,
-            ));
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
         // equivalent updates return a different instance
         expect(
-            false,
-            identical(
-              updated,
-              updatedEqu,
-            ));
+          updatedEqu,
+          isNot(same(updated)),
+        );
       });
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
@@ -365,7 +384,7 @@ void main() {
         expect(
             false,
             updated.hasEqualityOfHistory(
-              ModelString(initial: "Baz"),
+              ModelString("Baz"),
             ));
       });
       test("Checking serialization", () {
@@ -379,6 +398,9 @@ void main() {
     group("ModelDateTime:", () {
       final mDt =
           M.dt(initial: DateTime(2020), validator: (dt) => dt.year >= 2020);
+      // update the model with another model holding the same value
+      final sameMod =
+          mDt.nextFromModel(mDt.next(DateTime(2021)).next(DateTime(2020)));
       // update the model with an invalid value
       final inv = mDt.next(DateTime(2000));
       // update the model a couple of times with valid values
@@ -400,40 +422,42 @@ void main() {
         expect(updated.value, isNot(equals(mDt.value)));
       });
       test("Checking object value equality", () {
-        expect(mDt, equals(ModelDateTime(initial: DateTime(2020))));
-        expect(updated, equals(ModelDateTime(initial: DateTime(2022))));
+        expect(mDt, equals(ModelDateTime(DateTime(2020))));
+        expect(updated, equals(ModelDateTime(DateTime(2022))));
         expect(updated, updatedEqu);
         expect(updated, isNot(equals(mDt)));
       });
       test("Checking new instance generation", () {
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mDt),
+        );
         // invalid update returns the same model
         expect(
-            true,
-            identical(
-              mDt,
-              inv,
-            ));
-        // invalid update returns the same model
+          inv,
+          same(mDt),
+        );
+        // updating with a model should return that model instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedInv,
-            ));
+          mDt.nextFromModel(updated),
+          same(updated),
+        );
         // updating with the same value should return the same instance
         expect(
-            true,
-            identical(
-              updated,
-              updatedSame,
-            ));
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
         // equivalent updates return a different instance
         expect(
-            false,
-            identical(
-              updated,
-              updatedEqu,
-            ));
+          updatedEqu,
+          isNot(same(updated)),
+        );
       });
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
@@ -458,7 +482,7 @@ void main() {
         expect(
             false,
             updated.hasEqualityOfHistory(
-              ModelDateTime(initial: DateTime(2022)),
+              ModelDateTime(DateTime(2022)),
             ));
       });
       test("Checking serialization", () {
@@ -470,25 +494,209 @@ void main() {
       });
     });
     // model value types
-    // group(
-    //   "ModelEmail:",
-    //   () {
-    //     final mEmil = M.email(defaultEmail: "example@gmail.com");
-    //   },
-    // );
-    // group(
-    //   "ModelPassword:",
-    //   () {
-    //     final mPass = M.password();
-    //   },
-    // );
+    group("ModelEmail:", () {
+      final mEmail = M.email(defaultEmail: "ex@gmail.com");
+      // update the model with another model holding the same value
+      final sameMod =
+          mEmail.nextFromModel(mEmail.next('b@gmail.com').next('ex@gmail.com'));
+      // update the model with an invalid value
+      final inv = mEmail.next('notanemail');
+      // update the model a couple of times with valid values
+      final updated =
+          mEmail.next('a@gmail.com').next('b@gmail.com').next('c@gmail.com');
+      // update the updated instance with the same value
+      final updatedSame = updated.next('c@gmail.com');
+      // update the updated instance with an invalid value
+      final updatedInv = updated.next('notanemail');
+      // updated the model with equivalent updates
+      final updatedEqu =
+          mEmail.next('a@gmail.com').next('b@gmail.com').next('c@gmail.com');
+      // serialize the model
+      final serialized = updated.asSerializable();
+
+      test("Checking value access", () {
+        expect(mEmail.value, equals("ex@gmail.com"));
+        expect(updated.value, equals("c@gmail.com"));
+        expect(updated.value, isNot(equals(mEmail.value)));
+      });
+      test("Checking object value equality", () {
+        expect(mEmail, equals(ModelEmail("ex@gmail.com")));
+        expect(updated, equals(ModelEmail("c@gmail.com")));
+        expect(updated, equals(updatedEqu));
+        expect(updated, isNot(equals(mEmail)));
+      });
+      test("Checking new instance generation", () {
+        // updating with a model that holds the same value
+        expect(
+          sameMod,
+          same(mEmail),
+        );
+        // invalid update returns the same model
+        expect(
+          inv,
+          same(mEmail),
+        );
+        // updating with a model should return a new model instance (value types only)
+        expect(
+          mEmail.nextFromModel(updated),
+          isNot(same(updated)),
+        );
+        // updating with the same value should return the same instance
+        expect(
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
+        // equivalent updates return a different instance
+        expect(
+          updatedEqu,
+          isNot(same(updated)),
+        );
+      });
+      test("Checking equality of history", () {
+        // shares a history with a direct ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            mEmail,
+          ),
+          true,
+        );
+        // shares a history with itself
+        expect(
+          updated.hasEqualityOfHistory(
+            updatedInv,
+          ),
+          true,
+        );
+        // shares a history with an indirect ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
+        // DOES share a history with a new instance (value types only)
+        expect(
+          updated.hasEqualityOfHistory(
+            ModelEmail("c@gmail.com"),
+          ),
+          true,
+        );
+      });
+      test("Checking serialization", () {
+        expect(serialized, equals('c@gmail.com'));
+      });
+      test("Checking deserialisation", () {
+        // deserializing should have the same value as update
+        expect(mEmail.nextFromSerialized(serialized), equals(updated));
+        expect(mEmail, equals(mEmail.nextFromSerialized("notanemail")));
+      });
+    });
+    group("ModelPassword:", () {
+      final mPass = M.password();
+      // update the model with an invalid value
+      final inv = mPass.next('notvalid');
+      // update the model a couple of times with valid values
+      final updated =
+          mPass.next('Validpass1').next('Validpass2').next('Validpass3');
+      // update the updated instance with the same value
+      final updatedSame = updated.next('Validpass3');
+      // update the updated instance with an invalid value
+      final updatedInv = updated.next('notvalid');
+      // updated the model with equivalent updates
+      final updatedEqu =
+          mPass.next('Validpass1').next('Validpass2').next('Validpass3');
+      // serialize the model
+      final serialized = updated.asSerializable();
+
+      test("Checking value access", () {
+        expect(mPass.value, equals(null));
+        expect(updated.value, equals("Validpass3"));
+        expect(updated.value, isNot(equals(mPass.value)));
+      });
+      test("Checking object value equality", () {
+        expect(mPass, equals(ModelPassword(null)));
+        expect(updated, equals(ModelPassword("Validpass3")));
+        expect(updated, equals(updatedEqu));
+        expect(updated, isNot(equals(mPass)));
+      });
+      test("Checking new instance generation", () {
+        // invalid update returns the same model
+        expect(
+          inv,
+          same(mPass),
+        );
+        // updating with a model should return a new model instance (value types only)
+        expect(
+          mPass.nextFromModel(updated),
+          isNot(same(updated)),
+        );
+        // updating with the same value should return the same instance
+        expect(
+          updatedSame,
+          same(updated),
+        );
+        // invalid update returns the same model
+        expect(
+          updatedInv,
+          same(updated),
+        );
+        // equivalent updates return a different instance
+        expect(
+          updatedEqu,
+          isNot(same(updated)),
+        );
+      });
+      test("Checking equality of history", () {
+        // shares a history with a direct ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            mPass,
+          ),
+          true,
+        );
+        // shares a history with itself
+        expect(
+          updated.hasEqualityOfHistory(
+            updatedInv,
+          ),
+          true,
+        );
+        // shares a history with an indirect ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
+        // DOES share a history with a new instance (value types only)
+        expect(
+          updated.hasEqualityOfHistory(
+            ModelPassword("Validpass3"),
+          ),
+          true,
+        );
+      });
+      test("Checking serialization", () {
+        print(serialized);
+        expect(
+            serialized,
+            equals(
+              '74e6759b0bb98164fcf3a9f31ac4086c830198c2604a97c8bb76d21c1d6e3e13',
+            ));
+      });
+    });
     // model lists
     group("ModelBoolList:", () {
       final mBoolL = M.blList(
         initial: [true, false],
       );
       // update the model with another model holding the same value
-      final same =
+      final sameMod =
           mBoolL.nextFromModel(mBoolL.next([true]).next([true, false]));
       // update the model a couple of times with valid values
       final updated =
@@ -511,35 +719,31 @@ void main() {
         expect(updated.value, isNot(equals(mBoolL.value)));
       });
       test("Checking object value equality", () {
-        expect(mBoolL, equals(ModelBoolList(initial: [true, false])));
-        expect(updated, equals(ModelBoolList(initial: [false, true])));
+        expect(mBoolL, equals(ModelBoolList([true, false])));
+        expect(updated, equals(ModelBoolList([false, true])));
         expect(updated, equals(updatedEqu));
         expect(updated, isNot(equals(mBoolL)));
       });
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mBoolL,
-            same,
-          ),
-          true,
+          sameMod,
+          same(mBoolL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mBoolL.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -567,7 +771,7 @@ void main() {
         // does not share a history with a new instance (model types only)
         expect(
           updated.hasEqualityOfHistory(
-            ModelBoolList(initial: [false, true]),
+            ModelBoolList([false, true]),
           ),
           false,
         );
@@ -587,14 +791,14 @@ void main() {
         expect(updated.value, equals([false, true]));
       });
       test("Checking list append", () {
-        expect(appended,
-            equals(ModelBoolList(initial: [false, true, true, true, false])));
+        expect(
+            appended, equals(ModelBoolList([false, true, true, true, false])));
       });
       test("Checking list replaceAt", () {
-        expect(replaced, equals(ModelBoolList(initial: [false, false])));
+        expect(replaced, equals(ModelBoolList([false, false])));
       });
       test("Checking list removeAt", () {
-        expect(removed, equals(ModelBoolList(initial: [false])));
+        expect(removed, equals(ModelBoolList([false])));
       });
     });
     group("ModelIntList:", () {
@@ -603,7 +807,7 @@ void main() {
         itemValidator: (n) => n <= 10,
       );
       // update the model with another model holding the same value
-      final same = mIntL.nextFromModel(mIntL.next([1]).next([1, 2]));
+      final sameMod = mIntL.nextFromModel(mIntL.next([1]).next([1, 2]));
       // update the model with an invalid value
       final inv = mIntL.next([9, 12]);
       // update the model a couple of times with valid values
@@ -629,51 +833,41 @@ void main() {
         expect(updated.value, isNot(equals(mIntL.value)));
       });
       test("Checking object value equality", () {
-        expect(mIntL, equals(ModelIntList(initial: [1, 2])));
-        expect(updated, equals(ModelIntList(initial: [5, 6])));
+        expect(mIntL, equals(ModelIntList([1, 2])));
+        expect(updated, equals(ModelIntList([5, 6])));
         expect(updated, equals(updatedEqu));
         expect(updated, isNot(equals(mIntL)));
       });
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mIntL,
-            same,
-          ),
-          true,
+          sameMod,
+          same(mIntL),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            mIntL,
-            inv,
-          ),
-          true,
+          inv,
+          same(mIntL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mIntL.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            updated,
-            updatedInv,
-          ),
-          true,
+          updatedInv,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -701,7 +895,7 @@ void main() {
         // does not share a history with a new instance (model types only)
         expect(
           updated.hasEqualityOfHistory(
-            ModelIntList(initial: [5, 6]),
+            ModelIntList([5, 6]),
           ),
           false,
         );
@@ -721,15 +915,15 @@ void main() {
         expect(updated.value, equals([5, 6]));
       });
       test("Checking list append", () {
-        expect(appended, equals(ModelIntList(initial: [5, 6, 1, 2, 3])));
+        expect(appended, equals(ModelIntList([5, 6, 1, 2, 3])));
         expect(appendedInv, equals(updated));
       });
       test("Checking list replaceAt", () {
-        expect(replaced, equals(ModelIntList(initial: [5, 4])));
+        expect(replaced, equals(ModelIntList([5, 4])));
         expect(replacedInv, equals(updated));
       });
       test("Checking list removeAt", () {
-        expect(removed, equals(ModelIntList(initial: [5])));
+        expect(removed, equals(ModelIntList([5])));
       });
     });
     group("ModelDoubleList:", () {
@@ -738,7 +932,7 @@ void main() {
         itemValidator: (n) => n >= 0.1,
       );
       // update the model with another model holding the same value
-      final same = mDblL.nextFromModel(mDblL.next([0.1]).next([0.1, 0.2]));
+      final sameMod = mDblL.nextFromModel(mDblL.next([0.1]).next([0.1, 0.2]));
       // update the model with an invalid value
       final inv = mDblL.next([-0.9, 12]);
       // update the model a couple of times with valid values
@@ -764,51 +958,41 @@ void main() {
         expect(updated.value, isNot(equals(mDblL.value)));
       });
       test("Checking object value equality", () {
-        expect(mDblL, equals(ModelDoubleList(initial: [0.1, 0.2])));
-        expect(updated, equals(ModelDoubleList(initial: [0.5, 0.6])));
+        expect(mDblL, equals(ModelDoubleList([0.1, 0.2])));
+        expect(updated, equals(ModelDoubleList([0.5, 0.6])));
         expect(updated, equals(updatedEqu));
         expect(updated, isNot(equals(mDblL)));
       });
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mDblL,
-            same,
-          ),
-          true,
+          sameMod,
+          same(mDblL),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            mDblL,
-            inv,
-          ),
-          true,
+          inv,
+          same(mDblL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mDblL.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            updated,
-            updatedInv,
-          ),
-          true,
+          updatedInv,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -836,7 +1020,7 @@ void main() {
         // does not share a history with a new instance (model types only)
         expect(
           updated.hasEqualityOfHistory(
-            ModelDoubleList(initial: [0.5, 0.6]),
+            ModelDoubleList([0.5, 0.6]),
           ),
           false,
         );
@@ -856,16 +1040,15 @@ void main() {
         expect(updated.value, equals([0.5, 0.6]));
       });
       test("Checking list append", () {
-        expect(appended,
-            equals(ModelDoubleList(initial: [0.5, 0.6, 0.1, 0.2, 0.3])));
+        expect(appended, equals(ModelDoubleList([0.5, 0.6, 0.1, 0.2, 0.3])));
         expect(appendedInv, equals(updated));
       });
       test("Checking list replaceAt", () {
-        expect(replaced, equals(ModelDoubleList(initial: [0.5, 4])));
+        expect(replaced, equals(ModelDoubleList([0.5, 4])));
         expect(replacedInv, equals(updated));
       });
       test("Checking list removeAt", () {
-        expect(removed, equals(ModelDoubleList(initial: [0.5])));
+        expect(removed, equals(ModelDoubleList([0.5])));
       });
     });
     group("ModelStringList:", () {
@@ -874,7 +1057,7 @@ void main() {
         itemValidator: (s) => s[0] == s[0].toUpperCase(),
       );
       // update the model with another model holding the same value
-      final same =
+      final sameMod =
           mStrL.nextFromModel(mStrL.next(['Foo']).next(['Hello', 'World']));
       // update the model with an invalid value
       final inv = mStrL.next(['Hello', 'world']);
@@ -903,51 +1086,41 @@ void main() {
         expect(updated.value, isNot(equals(mStrL.value)));
       });
       test("Checking object value equality", () {
-        expect(mStrL, equals(ModelStringList(initial: ['Hello', 'World'])));
-        expect(updated, equals(ModelStringList(initial: ['Foo', 'Bar'])));
+        expect(mStrL, equals(ModelStringList(['Hello', 'World'])));
+        expect(updated, equals(ModelStringList(['Foo', 'Bar'])));
         expect(updated, equals(updatedEqu));
         expect(updated, isNot(equals(mStrL)));
       });
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mStrL,
-            same,
-          ),
-          true,
+          sameMod,
+          same(mStrL),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            mStrL,
-            inv,
-          ),
-          true,
+          inv,
+          same(mStrL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mStrL.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            updated,
-            updatedInv,
-          ),
-          true,
+          updatedInv,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -975,7 +1148,7 @@ void main() {
         // does not share a history with a new instance (model types only)
         expect(
           updated.hasEqualityOfHistory(
-            ModelStringList(initial: ['Foo', 'Bar']),
+            ModelStringList(['Foo', 'Bar']),
           ),
           false,
         );
@@ -995,16 +1168,16 @@ void main() {
         expect(updated.value, equals(['Foo', 'Bar']));
       });
       test("Checking list append", () {
-        expect(appended,
-            equals(ModelStringList(initial: ['Foo', 'Bar', 'A', 'B', 'C'])));
+        expect(
+            appended, equals(ModelStringList(['Foo', 'Bar', 'A', 'B', 'C'])));
         expect(appendedInv, equals(updated));
       });
       test("Checking list replaceAt", () {
-        expect(replaced, equals(ModelStringList(initial: ['Foo', 'Baz'])));
+        expect(replaced, equals(ModelStringList(['Foo', 'Baz'])));
         expect(replacedInv, equals(updated));
       });
       test("Checking list removeAt", () {
-        expect(removed, equals(ModelStringList(initial: ['Foo'])));
+        expect(removed, equals(ModelStringList(['Foo'])));
       });
     });
     group("ModelDateTimeList:", () {
@@ -1012,8 +1185,8 @@ void main() {
         initial: [DateTime(2020), DateTime(2021)],
         itemValidator: (listItem) => listItem.isAfter(DateTime(2000)),
       );
-      // update the model with another model of equivalent value
-      final equValue = mDtL.nextFromModel(
+      // update the model with another model holding the same value
+      final sameMod = mDtL.nextFromModel(
           mDtL.next([DateTime(2022)]).next([DateTime(2020), DateTime(2021)]));
       // update the model with an invalid value
       final inv = mDtL.next([DateTime(2020), DateTime(1995)]);
@@ -1046,56 +1219,42 @@ void main() {
       });
       test("Checking object value equality", () {
         expect(
-            mDtL,
-            equals(
-                ModelDateTimeList(initial: [DateTime(2020), DateTime(2021)])));
-        expect(
-            updated,
-            equals(
-                ModelDateTimeList(initial: [DateTime(2023), DateTime(2024)])));
+            mDtL, equals(ModelDateTimeList([DateTime(2020), DateTime(2021)])));
+        expect(updated,
+            equals(ModelDateTimeList([DateTime(2023), DateTime(2024)])));
         expect(updated, equals(updatedEqu));
         expect(updated, isNot(equals(mDtL)));
       });
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mDtL,
-            equValue,
-          ),
-          true,
+          sameMod,
+          same(mDtL),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            mDtL,
-            inv,
-          ),
-          true,
+          inv,
+          same(mDtL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mDtL.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // invalid update returns the same model
         expect(
-          identical(
-            updated,
-            updatedInv,
-          ),
-          true,
+          updatedInv,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -1123,7 +1282,7 @@ void main() {
         // does not share a history with a new instance (model types only)
         expect(
           updated.hasEqualityOfHistory(
-            ModelDateTimeList(initial: [DateTime(2023), DateTime(2024)]),
+            ModelDateTimeList([DateTime(2023), DateTime(2024)]),
           ),
           false,
         );
@@ -1150,7 +1309,7 @@ void main() {
       test("Checking list append", () {
         expect(
             appended,
-            equals(ModelDateTimeList(initial: [
+            equals(ModelDateTimeList([
               DateTime(2023),
               DateTime(2024),
               DateTime(2030),
@@ -1162,19 +1321,19 @@ void main() {
       test("Checking list replaceAt", () {
         expect(
           replaced,
-          equals(ModelDateTimeList(initial: [DateTime(2023), DateTime(2040)])),
+          equals(ModelDateTimeList([DateTime(2023), DateTime(2040)])),
         );
         expect(replacedInv, equals(updated));
       });
       test("Checking list removeAt", () {
-        expect(removed, equals(ModelDateTimeList(initial: [DateTime(2023)])));
+        expect(removed, equals(ModelDateTimeList([DateTime(2023)])));
       });
     });
     // model enum
     group("ModelEnum:", () {
-      final mEnm = M.enm(TestEnum.values, TestEnum.en1);
-      // update the model with another model of equivalent value
-      final equValue =
+      final mEnm = M.enm(TestEnum.values, initial: TestEnum.en1);
+      // update the model with another model holding the same value
+      final sameMod =
           mEnm.nextFromModel(mEnm.next(TestEnum.en2).next(TestEnum.en1));
       // update the model a couple of times with valid values
       final updated =
@@ -1211,27 +1370,23 @@ void main() {
       test("Checking new instance generation", () {
         // updating with a model that holds the same value
         expect(
-          identical(
-            mEnm,
-            equValue,
-          ),
-          true,
+          sameMod,
+          same(mEnm),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mEnm.nextFromModel(updated),
+          same(updated),
         );
         // updating with the same value should return the same instance
         expect(
-          identical(
-            updated,
-            updatedSame,
-          ),
-          true,
+          updatedSame,
+          same(updated),
         );
         // equivalent updates return a different instance
         expect(
-          identical(
-            updated,
-            updatedEqu,
-          ),
-          false,
+          updatedEqu,
+          isNot(same(updated)),
         );
       });
       test("Checking equality of history", () {
@@ -1280,11 +1435,6 @@ void main() {
         expect(mEnm.enumStrings, equals(['en1', 'en2', 'en3']));
       });
     });
-    // group("Model errors:", () {
-    // invalid model dyanmic updates
-    //   // todo: invalid enum invputs
-    // invalid enum from string
-    // });
   });
   group("ImmutableModel tests:", () {
     final model = ImmutableModel<SomeState>(
@@ -1298,7 +1448,7 @@ void main() {
         "list_double": M.dblList(initial: [0.1, 0.2]),
         "list_str": M.strList(itemValidator: (s) => s[0] == s[0].toUpperCase()),
         "list_date_time": M.dtList(initial: [DateTime(2020), DateTime(2020)]),
-        "enum": M.enm(TestEnum.values, TestEnum.en1),
+        "enum": M.enm(TestEnum.values, initial: TestEnum.en1),
         "inner": M.inner(
           {
             "prim_int": M.nt(initial: 1, validator: (n) => n <= 10),
@@ -1675,6 +1825,170 @@ void main() {
       expect(update3.restoreBy(1), equals(update1));
       final reset = update3.resetAll();
       expect(() => reset.restoreBy(1), throwsA(TypeMatcher<Exception>()));
+    });
+  });
+  group("Error tests", () {
+    test("Checking initial validation errors", () {
+      expect(
+        () => ModelInt(
+          5,
+          validator: (n) => n < 2,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelDouble(
+          0.5,
+          validator: (n) => n < 0.2,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelString.text(''),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelDateTime(DateTime(2020),
+            validator: (dt) => dt.isBefore(DateTime(1900))),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelEmail('notanemail'),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelPassword('invalid'),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelDateTime(DateTime(2020),
+            validator: (dt) => dt.isBefore(DateTime(1900))),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelIntList(
+          [4, 5],
+          itemValidator: (i) => i < 1,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelDoubleList(
+          [0.4, 0.5],
+          itemValidator: (i) => i < 0.1,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelStringList(
+          ['', 'hello'],
+          itemValidator: (s) => s.length != 0,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ModelDateTimeList(
+          [DateTime(2020), DateTime(2021)],
+          itemValidator: (dt) => dt.isBefore(DateTime(1900)),
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+      expect(
+        () => ImmutableModel(
+          {
+            'int': M.nt(initial: 1),
+            "dbl": M.dbl(initial: 0.1),
+          },
+          modelValidator: (mm) => mm['dbl'].value > mm['int'].value,
+        ),
+        throwsA(TypeMatcher<ModelInitialValidationError>()),
+      );
+    });
+    test("Checking model initialization errors", () {
+      expect(
+        () => ImmutableModel({}),
+        throwsA(TypeMatcher<ModelInitializationError>()),
+      );
+      expect(
+        () => ModelEnum([], TestEnum.en1),
+        throwsA(TypeMatcher<ModelInitializationError>()),
+      );
+      expect(
+        () => ModelEnum(TestEnum.values, null),
+        throwsA(TypeMatcher<ModelInitializationError>()),
+      );
+    });
+    test("Checking ModelTypeError", () {
+      expect(
+        () => ModelDateTime(DateTime(2020)).nextFromDynamic("wrong"),
+        throwsA(TypeMatcher<ModelTypeError>()),
+      );
+      expect(
+        () => ModelDoubleList([0.1, 0.2]).nextFromDynamic(['wrong', 'wrong']),
+        throwsA(TypeMatcher<ModelTypeError>()),
+      );
+      expect(
+        () => ModelEnum(TestEnum.values, TestEnum.en1).nextFromDynamic("wrong"),
+        throwsA(TypeMatcher<ModelTypeError>()),
+      );
+    });
+    test("Checking ModelEnumError", () {
+      expect(
+        () => ModelEnum(TestEnum.values, TestEnum.en1).nextFromString("wrong"),
+        throwsA(TypeMatcher<ModelEnumError>()),
+      );
+    });
+    test("Checking ModelInnerStrictUpdateError", () {
+      expect(
+        () {
+          final m = ImmutableModel(
+            {
+              'int': M.nt(initial: 1),
+              "dbl": M.dbl(initial: 0.1),
+            },
+            strictUpdates: true,
+          );
+          final sel = ModelSelector('int');
+          m.updateWithSelector(sel, 2);
+        },
+        throwsA(TypeMatcher<ModelInnerStrictUpdateError>()),
+      );
+    });
+    test("Checking ModelAccessError", () {
+      expect(
+        () => ImmutableModel(
+          {
+            'int': M.nt(initial: 1),
+            "dbl": M.dbl(initial: 0.1),
+          },
+          strictUpdates: true,
+        )['notinhere'],
+        throwsA(TypeMatcher<ModelAccessError>()),
+      );
+    });
+    test("Checking ModelSelectError", () {
+      expect(
+        () {
+          final m = ImmutableModel(
+            {
+              'int': M.nt(initial: 1),
+              "dbl": M.dbl(initial: 0.1),
+              "inner": M.inner({
+                "inner_int": M.nt(initial: 1),
+              }),
+            },
+          );
+          final sel = ModelSelector('int.inner_int');
+          m.selectModel(sel);
+        },
+        throwsA(TypeMatcher<ModelSelectError>()),
+      );
+    });
+    test("Checking ModelHistoryEqualityError", () {
+      expect(
+        () => ModelInt(1).nextFromModel(ModelInt(2)),
+        throwsA(TypeMatcher<ModelHistoryEqualityError>()),
+      );
     });
   });
 }

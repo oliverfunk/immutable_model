@@ -15,12 +15,13 @@ typedef ListItemValidator<V> = bool Function(V listItem);
 // todo: make modellist work publicly -> because of BuiltList it might work for any type?
 
 /// An abstract class for a model for a validated list of items.
+/// This class is used internally only.
 abstract class ModelList<M extends ModelList<M, T>, T>
     extends ModelType<M, List<T>> {
   final BuiltList<T> _current;
 
-  ModelList._([
-    List<T> initialList,
+  ModelList._(
+    List<T> initialList, [
     ListItemValidator<T> listItemValidator,
     String fieldLabel,
   ])  : _current = BuiltList<T>.of(initialList ?? <T>[]),
@@ -70,7 +71,8 @@ abstract class ModelList<M extends ModelList<M, T>, T>
     if (serialized is Iterable) {
       try {
         return serialized.cast<T>().toList();
-      } catch (_) {
+        // ignore: avoid_catching_errors
+      } on TypeError {
         return null;
       }
     } else {
@@ -123,8 +125,8 @@ abstract class ModelList<M extends ModelList<M, T>, T>
 }
 
 class ModelBoolList extends ModelList<ModelBoolList, bool> {
-  ModelBoolList._([
-    List<bool> initialList,
+  ModelBoolList._(
+    List<bool> initialList, [
     String fieldLabel,
   ]) : super._(initialList, null, fieldLabel);
 
@@ -135,19 +137,19 @@ class ModelBoolList extends ModelList<ModelBoolList, bool> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initial] defines the first (or default) list.
-  /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  /// [initialValue] defines the first (or default) list.
+  /// This can be accessed using the [initialValue] instance, useful when resetting.
+  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// This model needs no validation.
   ///
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
-  factory ModelBoolList({
-    List<bool> initial,
+  factory ModelBoolList(
+    List<bool> initialValue, {
     String fieldLabel,
   }) =>
-      ModelBoolList._(initial, fieldLabel);
+      ModelBoolList._(initialValue, fieldLabel);
 
   @override
   ModelBoolList _buildNextInternal(BuiltList<bool> next) =>
@@ -155,8 +157,8 @@ class ModelBoolList extends ModelList<ModelBoolList, bool> {
 }
 
 class ModelIntList extends ModelList<ModelIntList, int> {
-  ModelIntList._([
-    List<int> initialList,
+  ModelIntList._(
+    List<int> initialList, [
     ListItemValidator<int> listItemValidator,
     String fieldLabel,
   ]) : super._(initialList, listItemValidator, fieldLabel);
@@ -168,9 +170,9 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initial] defines the first (or default) list.
-  /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  /// [initialValue] defines the first (or default) list.
+  /// This can be accessed using the [initialValue] instance, useful when resetting.
+  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [listItemValidator] is a function that must return `true` if the [int] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -183,15 +185,15 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
-  factory ModelIntList({
-    List<int> initial,
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
+  factory ModelIntList(
+    List<int> initialValue, {
     ListItemValidator<int> itemValidator,
     String fieldLabel,
   }) =>
-      ModelIntList._(initial, itemValidator, fieldLabel);
+      ModelIntList._(initialValue, itemValidator, fieldLabel);
 
   @override
   ModelIntList _buildNextInternal(BuiltList<int> next) =>
@@ -200,8 +202,8 @@ class ModelIntList extends ModelList<ModelIntList, int> {
 
 /// A model for a validated list of doubles.
 class ModelDoubleList extends ModelList<ModelDoubleList, double> {
-  ModelDoubleList._([
-    List<double> initialList,
+  ModelDoubleList._(
+    List<double> initialList, [
     ListItemValidator<double> listItemValidator,
     String fieldLabel,
   ]) : super._(initialList, listItemValidator, fieldLabel);
@@ -213,9 +215,9 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initial] defines the first (or default) list.
-  /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  /// [initialValue] defines the first (or default) list.
+  /// This can be accessed using the [initialValue] instance, useful when resetting.
+  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [listItemValidator] is a function that must return `true` if the [double] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -228,15 +230,15 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
-  factory ModelDoubleList({
-    List<double> initial,
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
+  factory ModelDoubleList(
+    List<double> initialValue, {
     ListItemValidator<double> itemValidator,
     String fieldLabel,
   }) =>
-      ModelDoubleList._(initial, itemValidator, fieldLabel);
+      ModelDoubleList._(initialValue, itemValidator, fieldLabel);
 
   @override
   ModelDoubleList _buildNextInternal(BuiltList<double> next) =>
@@ -245,8 +247,8 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
 
 /// A model for a validated list of Strings.
 class ModelStringList extends ModelList<ModelStringList, String> {
-  ModelStringList._([
-    List<String> initialList,
+  ModelStringList._(
+    List<String> initialList, [
     ListItemValidator<String> listItemValidator,
     String fieldLabel,
   ]) : super._(initialList, listItemValidator, fieldLabel);
@@ -258,9 +260,9 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initial] defines the first (or default) list.
-  /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  /// [initialValue] defines the first (or default) list.
+  /// This can be accessed using the [initialValue] instance, useful when resetting.
+  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [listItemValidator] is a function that must return `true` if the [String] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -273,15 +275,15 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
-  factory ModelStringList({
-    List<String> initial,
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
+  factory ModelStringList(
+    List<String> initialValue, {
     ListItemValidator<String> itemValidator,
     String fieldLabel,
   }) =>
-      ModelStringList._(initial, itemValidator, fieldLabel);
+      ModelStringList._(initialValue, itemValidator, fieldLabel);
 
   @override
   ModelStringList _buildNextInternal(BuiltList<String> next) =>
@@ -290,11 +292,11 @@ class ModelStringList extends ModelList<ModelStringList, String> {
 
 /// A model for a validated list of DateTimes.
 class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
-  ModelDateTimeList._([
-    List<DateTime> initial,
+  ModelDateTimeList._(
+    List<DateTime> initialList, [
     ListItemValidator<DateTime> listItemValidator,
     String fieldLabel,
-  ]) : super._(initial, listItemValidator, fieldLabel);
+  ]) : super._(initialList, listItemValidator, fieldLabel);
 
   ModelDateTimeList._next(
       ModelDateTimeList previous, BuiltList<DateTime> nextList)
@@ -304,9 +306,9 @@ class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initial] defines the first (or default) list.
-  /// This can be accessed using the [initial] instance, useful when resetting.
-  /// [initial] can be `null` indicating this model has no initial (or default) value.
+  /// [initialValue] defines the first (or default) list.
+  /// This can be accessed using the [initialValue] instance, useful when resetting.
+  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [listItemValidator] is a function that must return `true` if the [DateTime] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -319,15 +321,15 @@ class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
   /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
   /// This is not guaranteed, however.
   ///
-  /// [listItemValidator] will be run on the elements of [initial] if they are both not null.
+  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initial].
-  factory ModelDateTimeList({
-    List<DateTime> initial,
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
+  factory ModelDateTimeList(
+    List<DateTime> initialValue, {
     ListItemValidator<DateTime> itemValidator,
     String fieldLabel,
   }) =>
-      ModelDateTimeList._(initial, itemValidator, fieldLabel);
+      ModelDateTimeList._(initialValue, itemValidator, fieldLabel);
 
   @override
   ModelDateTimeList _buildNextInternal(BuiltList<DateTime> next) =>
@@ -342,7 +344,8 @@ class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
     if (serialized is Iterable) {
       try {
         return serialized.cast<String>().map(DateTime.parse).toList();
-      } catch (_) {
+        // ignore: avoid_catching_errors
+      } on TypeError {
         return null;
       }
     } else {

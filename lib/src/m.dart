@@ -1,3 +1,5 @@
+import 'package:meta/meta.dart';
+
 import '../model_types.dart';
 import '../value_types.dart';
 
@@ -33,8 +35,8 @@ abstract class M {
 
   /// Returns a [ModelEnum]
   static ModelEnum<E> enm<E>(
-    List<E> enumValues,
-    E initial, {
+    List<E> enumValues, {
+    @required E initial,
     String fieldLabel,
   }) =>
       ModelEnum(
@@ -49,7 +51,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelBool(
-        initial: initial,
+        initial,
         fieldLabel: fieldLabel,
       );
 
@@ -60,7 +62,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelInt(
-        initial: initial,
+        initial,
         validator: validator,
         fieldLabel: fieldLabel,
       );
@@ -72,7 +74,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelDouble(
-        initial: initial,
+        initial,
         validator: validator,
         fieldLabel: fieldLabel,
       );
@@ -84,7 +86,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelString(
-        initial: initial,
+        initial,
         validator: validator,
         fieldLabel: fieldLabel,
       );
@@ -96,7 +98,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelString.text(
-        initial: initial,
+        initial,
         validator: validator,
         fieldLabel: fieldLabel,
       );
@@ -108,7 +110,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelDateTime(
-        initial: initial,
+        initial,
         validator: validator,
         fieldLabel: fieldLabel,
       );
@@ -119,7 +121,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelBoolList(
-        initial: initial,
+        initial,
         fieldLabel: fieldLabel,
       );
 
@@ -130,7 +132,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelIntList(
-        initial: initial,
+        initial,
         itemValidator: itemValidator,
         fieldLabel: fieldLabel,
       );
@@ -142,7 +144,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelDoubleList(
-        initial: initial,
+        initial,
         itemValidator: itemValidator,
         fieldLabel: fieldLabel,
       );
@@ -154,7 +156,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelStringList(
-        initial: initial,
+        initial,
         itemValidator: itemValidator,
         fieldLabel: fieldLabel,
       );
@@ -166,7 +168,7 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelDateTimeList(
-        initial: initial,
+        initial,
         itemValidator: itemValidator,
         fieldLabel: fieldLabel,
       );

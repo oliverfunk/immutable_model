@@ -1,3 +1,7 @@
+## [0.8.0]
+
+- Made the initialization of models more uniform
+
 ## [0.7.0] - [0.7.1]
 
 - Reparameterized ModelInner and ModelEnum
