@@ -32,9 +32,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// A `null` value indicates the model has no initial value.
   ///
   /// This model needs no validation.
-  ModelValue.bool([
+  ModelValue.bool(
     // ignore: avoid_positional_boolean_parameters
-    bool initialValue,
+    bool initialValue, [
     String fieldLabel,
   ])  : _current = initialValue as V,
         super.initial(initialValue as V, null, fieldLabel);
@@ -54,8 +54,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  ModelValue.int([
-    int initialValue,
+  ModelValue.int(
+    int initialValue, [
     ValueValidator<int> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
@@ -77,8 +77,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  ModelValue.double([
-    double initialValue,
+  ModelValue.double(
+    double initialValue, [
     ValueValidator<double> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
@@ -100,8 +100,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  ModelValue.string([
-    String initialValue,
+  ModelValue.string(
+    String initialValue, [
     ValueValidator<String> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
@@ -127,8 +127,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  ModelValue.text([
-    String initialValue,
+  ModelValue.text(
+    String initialValue, [
     ValueValidator<String> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
@@ -158,8 +158,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  ModelValue.datetime([
-    DateTime initialValue,
+  ModelValue.datetime(
+    DateTime initialValue, [
     ValueValidator<DateTime> validator,
     String fieldLabel,
   ])  : _current = initialValue as V,
