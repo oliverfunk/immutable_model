@@ -5,7 +5,6 @@ import '../exceptions.dart';
 import '../model_selector.dart';
 import '../model_type.dart';
 import '../utils/log.dart';
-import './model_lists.dart';
 
 /// A function that validates [modelMap].
 ///
@@ -47,7 +46,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// and `false` otherwise. [modelValidator] can be `null` indicating this model has no validation.
   ///
   /// [modelValidator] will be run on the resulting (new) map after every update ([next] etc.) applied to this model.
-  /// If it returns `true`, the update will be applied. Otherwise a [ValidationException]
+  /// If it returns `true`, the update will be applied. Otherwise a [ModelValidationException]
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
@@ -70,7 +69,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
       );
     }
     if (modelValidator != null && !modelValidator(modelMap)) {
-      logException(ValidationException(ModelInner, modelMap, fieldLabel));
+      logException(ModelValidationException(ModelInner, modelMap, fieldLabel));
       throw ModelInitialValidationError(ModelInner, modelMap);
     }
     return ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
@@ -82,8 +81,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
         super.fromPrevious(last);
 
   /// Validates [updated] using [modelValidator], if it's defined.
-  bool _validateUpdated(BuiltMap<String, ModelType> updated) =>
-      modelValidator == null || modelValidator(updated.asMap());
+  bool _validateUpdated(Map<String, ModelType> updated) =>
+      modelValidator == null || modelValidator(updated);
 
   /// Checks if [nextModels] complies to the *strict* update rule,
   /// which states:
@@ -95,11 +94,15 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
       !nextModels[fl].isInitial &&
       nextModels[fl] != this[fl]);
 
+  // always rebuild for this class as it's possibly a very expensive call to check equality each update.
+  @override
+  bool shouldBuild(Map<String, ModelType> nextModels) => true;
+
   @override
   ModelInner buildNext(Map<String, ModelType> nextModels) {
     if (strictUpdates && !_isStrict(nextModels)) {
       return logExceptionAndReturn(
-          this, StrictUpdateException(this, nextModels));
+          this, ModelStrictUpdateException(this, nextModels));
     }
     if (nextModels.isEmpty) {
       return this;
@@ -113,11 +116,11 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
             )
           : throw ModelAccessError(fieldLabels, label));
     });
-    return _validateUpdated(updated)
+    return _validateUpdated(updated.asMap())
         ? ModelInner._next(this, updated)
         : logExceptionAndReturn(
             this,
-            ValidationException(ModelInner, updated, fieldLabel),
+            ModelValidationException(ModelInner, updated, fieldLabel),
           );
   }
 
@@ -146,8 +149,8 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
                       ? currentModel.nextWithUpdates(update)
                       : throw ModelTypeError(this, update)
                   : update is ValueUpdater
-                      ? currentModel.nextFromFunc(update)
-                      : currentModel.nextFromDynamic(update);
+                      ? currentModel.nextWithFunc(update)
+                      : currentModel.nextWithDynamic(update);
 
   /// Updates the model selected by [selector] with [update].
   ///
@@ -163,26 +166,11 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   @override
   Map<String, ModelType> get value => _current.asMap();
 
-  /// The map between field labels and the current [ModelType]s.
+  /// Returns the map between field labels and the current [ModelType]s.
   ///
   /// Note: the returned map is copy-on-write protected.
   /// When modified, a new copied instance will be created.
   Map<String, ModelType> get modelMap => _current.toMap();
-
-  /// The map between field labels and the current [ModelType] values.
-  ///
-  /// Note: this returns a copied (or copy-on-write protected) instance
-  /// of all models (or nested models).
-  ///
-  /// If the model is large or highly nested, consider instead accessing
-  /// and modifying only the required field values
-  /// (using the [selectValue] or [getValue] methods).
-  Map<String, dynamic> get valueMap =>
-      modelMap.map((label, model) => model is ModelInner
-          ? MapEntry(label, model.valueMap)
-          : model is ModelList
-              ? MapEntry(label, model.list)
-              : MapEntry(label, model.value));
 
   /// Joins [otherModel] to this and creates a new [ModelInner] from the result.
   ///
@@ -215,8 +203,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
       }
     }
 
-    final mergedModelMaps = _current.toMap()
-      ..addAll(otherModel._current.toMap());
+    final mergedModelMaps = modelMap..addAll(otherModel.modelMap);
 
     return ModelInner._(
         mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
@@ -263,9 +250,9 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
 
   Map<String, dynamic> _buildDelta(Map<String, ModelType> other) {
     final returnMap = <String, dynamic>{};
+
     other.forEach((otherLabel, otherModel) {
       final thisModel = getModel(otherLabel);
-
       if (thisModel != otherModel) {
         if (thisModel is ModelInner) {
           // safe to assume otherModel is also ModelInner
@@ -288,28 +275,28 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// meaning this could potentially be an expensive call if this model is large.
   /// If this is the case, consider using [asSerializableDelta] on some pre-cached model to serialize only the changes.
   @override
-  Map<String, dynamic> asSerializable() => _current.toMap().map(
+  Map<String, dynamic> asSerializable() => Map.unmodifiable(modelMap.map(
         (currentField, currentModel) => MapEntry(
           currentField,
           currentModel.asSerializable(),
         ),
-      );
+      ));
 
   /// Converts [serialized] into a [Map] of field labels and [ModelType] models.
   ///
-  /// [nextFromSerialized] is called on every model
+  /// [nextWithSerialized] is called on every model
   /// that matches a label in [serialized]
   /// with the serialized value.
   ///
   /// Note: this works deeply with nested maps.
   @override
-  Map<String, ModelType> fromSerialized(dynamic serialized) {
+  Map<String, ModelType> deserialize(dynamic serialized) {
     if (serialized is Map<String, dynamic>) {
       // there's possibly a more efficient way of doing this
       final modMap = <String, ModelType>{};
       serialized.forEach((serLabel, serValue) {
         if (hasModel(serLabel)) {
-          modMap[serLabel] = getModel(serLabel).nextFromSerialized(serValue);
+          modMap[serLabel] = getModel(serLabel).nextWithSerialized(serValue);
         }
       });
       return modMap;

@@ -89,10 +89,10 @@ class ChoicesComp extends StatelessWidget {
             children: [
               DropdownButton<String>(
                   underline: Container(),
-                  value: currentSeasonModel.asString,
+                  value: currentSeasonModel.asString(),
                   onChanged: (String enStr) => userCubit.updateValues(
                         UserState.chosenEnumSel,
-                        currentSeasonModel.nextFromString(enStr),
+                        currentSeasonModel.nextWithString(enStr),
                       ),
                   items: currentSeasonModel.enumStrings
                       .map<DropdownMenuItem<String>>(

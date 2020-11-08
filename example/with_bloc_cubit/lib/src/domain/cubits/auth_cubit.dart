@@ -25,8 +25,10 @@ class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
       'password': password,
     }));
     // do some authorization using auth repo functions
-    final didAuth =
-        await _authUser(email.asSerializable(), password.asSerializable());
+    final didAuth = await _authUser(
+      email.asSerializable(),
+      password.asSerializable(),
+    );
     if (didAuth) {
       userCubit.authUser(email);
       emit(state.transitionTo(const AuthSuccess()));

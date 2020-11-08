@@ -28,7 +28,8 @@ class WeatherCubit extends Cubit<ImmutableModel<WeatherState>> {
       emit(state.transitionTo(const WeatherLoaded()).mergeFrom(weatherModel));
     } on NetworkException {
       emit(state.transitionTo(
-          const WeatherError("Couldn't fetch weather. Is the device online?")));
+        const WeatherError("Couldn't fetch weather. Is the device online?"),
+      ));
     }
   }
 }

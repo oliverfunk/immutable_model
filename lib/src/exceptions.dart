@@ -19,8 +19,8 @@ abstract class ModelException implements Exception {
 }
 
 /// An [Exception] that occurs when a model is updated with an invalid value.
-class ValidationException extends ModelException {
-  ValidationException(
+class ModelValidationException extends ModelException {
+  ModelValidationException(
     Type modelType,
     dynamic receivedValue, [
     String fieldLabel,
@@ -31,8 +31,9 @@ class ValidationException extends ModelException {
 }
 
 /// An [Exception] that occurs when a [ModelInner] is updated with a map that fails a [ModelInner.strictUpdates] check.
-class StrictUpdateException extends ModelException {
-  StrictUpdateException(ModelInner currentModel, Map<String, dynamic> update)
+class ModelStrictUpdateException extends ModelException {
+  ModelStrictUpdateException(
+      ModelInner currentModel, Map<String, dynamic> update)
       : super(
           ModelInner,
           "The update did not contain all fields in the model or some values were null\n"
@@ -42,9 +43,9 @@ class StrictUpdateException extends ModelException {
         );
 }
 
-/// An [Exception] that occurs when a value cannot be deserialized using a model's [ModelType.fromSerialized] method.
-class DeserialisationException extends ModelException {
-  DeserialisationException(
+/// An [Exception] that occurs when a value cannot be deserialized using a model's [ModelType.deserialize] method.
+class ModelDeserializationException extends ModelException {
+  ModelDeserializationException(
     Type modelType,
     dynamic receivedValue, [
     String fieldLabel,

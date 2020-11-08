@@ -24,7 +24,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   dynamic asSerializable() => value;
 
   @override
-  V fromSerialized(dynamic serialized) => serialized is V ? serialized : null;
+  V deserialize(dynamic serialized) => serialized is V ? serialized : null;
 
   /// A constructor for an object that models an [bool].
   ///
@@ -179,7 +179,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
 /// therefore all instances of it will hold an equally valid value and thus all "share a history" in an abstract sense.
 mixin ValueType<M extends ModelValue<M, V>, V> on ModelValue<M, V> {
   @override
-  M buildFromModel(M previous) => buildNext(previous.value);
+  M buildFromModel(M previous) => identical(initial, previous.initial)
+      ? previous
+      : buildNext(previous.value);
 
   @override
   bool hasEqualityOfHistory(ModelType other) => other is M;

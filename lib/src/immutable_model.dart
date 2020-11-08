@@ -55,14 +55,36 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
-  ImmutableModel(
+  factory ImmutableModel(
     Map<String, ModelType> modelMap, {
     ModelMapValidator modelValidator,
     S initialState,
     bool strictUpdates = false,
     int cacheBufferSize,
-  })  : assert(initialState is S, "The model's initialState must be set"),
-        _model = ModelInner(
+  }) {
+    // can happen if the initialState is not set when S is, or vise versa.
+    if (initialState is! S) {
+      throw ModelInitializationError(
+        ImmutableModel,
+        "The <S> and initialState must be set.",
+      );
+    }
+    return ImmutableModel._(
+      modelMap,
+      modelValidator,
+      initialState,
+      strictUpdates,
+      cacheBufferSize,
+    );
+  }
+
+  ImmutableModel._(
+    Map<String, ModelType> modelMap, [
+    ModelMapValidator modelValidator,
+    S initialState,
+    bool strictUpdates = false,
+    int cacheBufferSize,
+  ])  : _model = ModelInner(
           modelMap,
           modelValidator: modelValidator,
           strictUpdates: strictUpdates,
@@ -137,21 +159,9 @@ class ImmutableModel<S> extends Equatable {
 
   /// The map between field labels and the current [ModelType] models.
   ///
-  /// Note: this map is unmodifiable (i.e. read-only)
-  Map<String, ModelType> asMap() => _model.value;
-
-  /// The map between field labels and the current [ModelType] models.
-  ///
   /// Note: this map is copy-on-write protected.
   /// When modified, a new instance will be created.
-  Map<String, ModelType> toMap() => _model.modelMap;
-
-  /// The map between field labels and the current [ModelType] values.
-  ///
-  /// Note: this returns a copy of all components and nested-components of the underlying map,
-  /// meaning this could potentially be an expensive call if this model is large.
-  /// Consider instead accessing only the required field values (using the [selectValue] or [get] methods).
-  Map<String, dynamic> toValueMap() => _model.valueMap;
+  Map<String, ModelType> get modelMap => _model.modelMap;
 
   // updating
 
@@ -307,11 +317,11 @@ class ImmutableModel<S> extends Equatable {
 
   /// Deserializes the values in [jsonMap] and updates the current model values with them.
   ///
-  /// The values are deserialized using the corresponding model [ModelType.fromSerialized] method.
+  /// The values are deserialized using the corresponding model [ModelType.deserialize] method.
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
       ImmutableModel<S>._nextModel(
         this,
-        _model.nextFromSerialized(jsonMap),
+        _model.nextWithSerialized(jsonMap),
       );
 
   // field ops

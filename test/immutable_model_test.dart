@@ -20,16 +20,21 @@ class SomeBState extends SomeState {
   const SomeBState();
 }
 
+// todo: make sure serialized and values are immutable
+// todo: check incorrect serialsiation
+// todo: list sort + impl in examples
+// todo: change from to with for all model types
+
 void main() {
   test("Init", () {
     print("TESTS STARTING");
+    final en = ModelEnum<TestEnum>(TestEnum.values, TestEnum.en3);
+    print(en);
   });
   group("ModelType tests:", () {
     // model primitives
     group("ModelBool:", () {
       final mBool = M.bl(initial: false);
-      // update the model with another model holding the same value
-      final sameMod = mBool.nextFromModel(mBool.next(true).next(false));
       // update the model a couple of times with valid values
       final updated = mBool.next(false).next(true);
       // update the updated instance with the same value
@@ -51,11 +56,6 @@ void main() {
         expect(updated, isNot(equals(mBool)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mBool),
-        );
         // updating with a model should return that model instance
         expect(
           mBool.nextFromModel(updated),
@@ -103,13 +103,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mBool.nextFromSerialized(serialized), equals(updated));
+        expect(mBool.nextWithSerialized(serialized), equals(updated));
       });
     });
     group("ModelInt:", () {
       final mInt = M.nt(initial: 1, validator: (n) => n <= 10);
-      // update the model with another model holding the same value
-      final sameMod = mInt.nextFromModel(mInt.next(0).next(1));
       // update the model with an invalid value
       final inv = mInt.next(11);
       // update the model a couple of times with valid values
@@ -138,11 +136,6 @@ void main() {
         // updating with null
         expect(
           mInt.next(null),
-          same(mInt),
-        );
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
           same(mInt),
         );
         // invalid update returns the same model
@@ -202,15 +195,13 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mInt.nextFromSerialized(serialized)));
-        expect(mInt, equals(mInt.nextFromSerialized("wrong")));
-        expect(mInt.nextFromSerialized(null), same(mInt));
+        expect(updated, equals(mInt.nextWithSerialized(serialized)));
+        expect(mInt, equals(mInt.nextWithSerialized("wrong")));
+        expect(mInt.nextWithSerialized(null), same(mInt));
       });
     });
     group("ModelDouble:", () {
       final mDbl = M.dbl(initial: 0.1, validator: (n) => n >= 0.1);
-      // update the model with another model holding the same value
-      final sameMod = mDbl.nextFromModel(mDbl.next(0.2).next(0.1));
       // update the model with an invalid value
       final inv = mDbl.next(-0.1);
       // update the model a couple of times with valid values
@@ -236,11 +227,6 @@ void main() {
         expect(updated, isNot(equals(mDbl)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mDbl),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -298,13 +284,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mDbl.nextFromSerialized(serialized)));
+        expect(updated, equals(mDbl.nextWithSerialized(serialized)));
       });
     });
     group("ModelString:", () {
       final mStr = M.txt(initial: "Hello");
-      // update the model with another model holding the same value
-      final sameMod = mStr.nextFromModel(mStr.next("Goodbye").next("Hello"));
       // update the model with an invalid value
       final inv = mStr.next('');
       // update the model a couple of times with valid values
@@ -330,11 +314,6 @@ void main() {
         expect(updated, isNot(equals(mStr)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mStr),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -392,15 +371,12 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mStr.nextFromSerialized(serialized)));
+        expect(updated, equals(mStr.nextWithSerialized(serialized)));
       });
     });
     group("ModelDateTime:", () {
       final mDt =
           M.dt(initial: DateTime(2020), validator: (dt) => dt.year >= 2020);
-      // update the model with another model holding the same value
-      final sameMod =
-          mDt.nextFromModel(mDt.next(DateTime(2021)).next(DateTime(2020)));
       // update the model with an invalid value
       final inv = mDt.next(DateTime(2000));
       // update the model a couple of times with valid values
@@ -428,11 +404,6 @@ void main() {
         expect(updated, isNot(equals(mDt)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mDt),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -490,15 +461,13 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mDt.nextFromSerialized(serialized)));
+        expect(updated, equals(mDt.nextWithSerialized(serialized)));
+        expect(updated, equals(mDt.nextWithSerialized("wrong")));
       });
     });
     // model value types
     group("ModelEmail:", () {
       final mEmail = M.email(defaultEmail: "ex@gmail.com");
-      // update the model with another model holding the same value
-      final sameMod =
-          mEmail.nextFromModel(mEmail.next('b@gmail.com').next('ex@gmail.com'));
       // update the model with an invalid value
       final inv = mEmail.next('notanemail');
       // update the model a couple of times with valid values
@@ -526,20 +495,21 @@ void main() {
         expect(updated, isNot(equals(mEmail)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mEmail),
-        );
         // invalid update returns the same model
         expect(
           inv,
           same(mEmail),
         );
-        // updating with a model should return a new model instance (value types only)
+        // updating with a model that shares an initial instance should return the model instance (value types only)
         expect(
           mEmail.nextFromModel(updated),
-          isNot(same(updated)),
+          same(updated),
+        );
+        // updating with a model that does not share an initial instance should return a new model instance (value types only)
+        final newModel = ModelEmail('test@gmail.com');
+        expect(
+          mEmail.nextFromModel(newModel),
+          isNot(same(newModel)),
         );
         // updating with the same value should return the same instance
         expect(
@@ -592,8 +562,8 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mEmail.nextFromSerialized(serialized), equals(updated));
-        expect(mEmail, equals(mEmail.nextFromSerialized("notanemail")));
+        expect(mEmail.nextWithSerialized(serialized), equals(updated));
+        expect(mEmail, equals(mEmail.nextWithSerialized("notanemail")));
       });
     });
     group("ModelPassword:", () {
@@ -630,10 +600,16 @@ void main() {
           inv,
           same(mPass),
         );
-        // updating with a model should return a new model instance (value types only)
+        // updating with a model that shares an initial instance should return the model instance (value types only)
         expect(
           mPass.nextFromModel(updated),
-          isNot(same(updated)),
+          same(updated),
+        );
+        // updating with a model that does not share an initial instance should return a new model instance (value types only)
+        final newModel = ModelPassword('Validpass5');
+        expect(
+          mPass.nextFromModel(newModel),
+          isNot(same(newModel)),
         );
         // updating with the same value should return the same instance
         expect(
@@ -695,9 +671,6 @@ void main() {
       final mBoolL = M.blList(
         initial: [true, false],
       );
-      // update the model with another model holding the same value
-      final sameMod =
-          mBoolL.nextFromModel(mBoolL.next([true]).next([true, false]));
       // update the model a couple of times with valid values
       final updated =
           mBoolL.next([true]).next([false, false]).next([false, true]);
@@ -725,11 +698,6 @@ void main() {
         expect(updated, isNot(equals(mBoolL)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mBoolL),
-        );
         // updating with a model should return that model instance
         expect(
           mBoolL.nextFromModel(updated),
@@ -781,11 +749,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mBoolL.nextFromSerialized(serialized), equals(updated));
-        expect(mBoolL, equals(mBoolL.nextFromSerialized("wrong")));
+        expect(mBoolL.nextWithSerialized(serialized), equals(updated));
+        expect(mBoolL, equals(mBoolL.nextWithSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.list;
+        final vl = updated.asList();
         vl[1] = false;
         expect(vl, equals([false, false]));
         expect(updated.value, equals([false, true]));
@@ -806,8 +774,6 @@ void main() {
         initial: [1, 2],
         itemValidator: (n) => n <= 10,
       );
-      // update the model with another model holding the same value
-      final sameMod = mIntL.nextFromModel(mIntL.next([1]).next([1, 2]));
       // update the model with an invalid value
       final inv = mIntL.next([9, 12]);
       // update the model a couple of times with valid values
@@ -826,6 +792,7 @@ void main() {
       final replaced = updated.replaceAt(1, (_) => 4);
       final replacedInv = updated.replaceAt(1, (_) => 12);
       final removed = updated.removeAt(1);
+      final sorted = updated.sort((a, b) => a < b ? 1 : -1);
 
       test("Checking value access", () {
         expect(mIntL.value, equals([1, 2]));
@@ -839,11 +806,6 @@ void main() {
         expect(updated, isNot(equals(mIntL)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mIntL),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -905,11 +867,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mIntL.nextFromSerialized(serialized), equals(updated));
-        expect(mIntL, equals(mIntL.nextFromSerialized("wrong")));
+        expect(mIntL.nextWithSerialized(serialized), equals(updated));
+        expect(mIntL, equals(mIntL.nextWithSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.list;
+        final vl = updated.asList();
         vl[1] = 12;
         expect(vl, equals([5, 12]));
         expect(updated.value, equals([5, 6]));
@@ -925,14 +887,22 @@ void main() {
       test("Checking list removeAt", () {
         expect(removed, equals(ModelIntList([5])));
       });
+      test("Checking list sort", () {
+        expect(
+          sorted,
+          equals(ModelIntList([6, 5])),
+        );
+        expect(
+          sorted,
+          isNot(equals(ModelIntList([5, 6]))),
+        );
+      });
     });
     group("ModelDoubleList:", () {
       final mDblL = M.dblList(
         initial: [0.1, 0.2],
         itemValidator: (n) => n >= 0.1,
       );
-      // update the model with another model holding the same value
-      final sameMod = mDblL.nextFromModel(mDblL.next([0.1]).next([0.1, 0.2]));
       // update the model with an invalid value
       final inv = mDblL.next([-0.9, 12]);
       // update the model a couple of times with valid values
@@ -964,11 +934,6 @@ void main() {
         expect(updated, isNot(equals(mDblL)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mDblL),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -1030,11 +995,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mDblL.nextFromSerialized(serialized), equals(updated));
-        expect(mDblL, equals(mDblL.nextFromSerialized("wrong")));
+        expect(mDblL.nextWithSerialized(serialized), equals(updated));
+        expect(mDblL, equals(mDblL.nextWithSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.list;
+        final vl = updated.asList();
         vl[1] = -12;
         expect(vl, equals([0.5, -12]));
         expect(updated.value, equals([0.5, 0.6]));
@@ -1056,9 +1021,6 @@ void main() {
         initial: ['Hello', 'World'],
         itemValidator: (s) => s[0] == s[0].toUpperCase(),
       );
-      // update the model with another model holding the same value
-      final sameMod =
-          mStrL.nextFromModel(mStrL.next(['Foo']).next(['Hello', 'World']));
       // update the model with an invalid value
       final inv = mStrL.next(['Hello', 'world']);
       // update the model a couple of times with valid values
@@ -1092,11 +1054,6 @@ void main() {
         expect(updated, isNot(equals(mStrL)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mStrL),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -1158,11 +1115,11 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mStrL.nextFromSerialized(serialized), equals(updated));
-        expect(mStrL, equals(mStrL.nextFromSerialized("wrong")));
+        expect(mStrL.nextWithSerialized(serialized), equals(updated));
+        expect(mStrL, equals(mStrL.nextWithSerialized("wrong")));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.list;
+        final vl = updated.asList();
         vl[1] = 'new';
         expect(vl, equals(['Foo', 'new']));
         expect(updated.value, equals(['Foo', 'Bar']));
@@ -1185,9 +1142,6 @@ void main() {
         initial: [DateTime(2020), DateTime(2021)],
         itemValidator: (listItem) => listItem.isAfter(DateTime(2000)),
       );
-      // update the model with another model holding the same value
-      final sameMod = mDtL.nextFromModel(
-          mDtL.next([DateTime(2022)]).next([DateTime(2020), DateTime(2021)]));
       // update the model with an invalid value
       final inv = mDtL.next([DateTime(2020), DateTime(1995)]);
       // update the model a couple of times with valid values
@@ -1211,6 +1165,7 @@ void main() {
       final replaced = updated.replaceAt(1, (_) => DateTime(2040));
       final replacedInv = updated.replaceAt(1, (_) => DateTime(1980));
       final removed = updated.removeAt(1);
+      final sorted = updated.sort((a, b) => a.isBefore(b) ? 1 : -1);
 
       test("Checking value access", () {
         expect(mDtL.value, equals([DateTime(2020), DateTime(2021)]));
@@ -1226,11 +1181,6 @@ void main() {
         expect(updated, isNot(equals(mDtL)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mDtL),
-        );
         // invalid update returns the same model
         expect(
           inv,
@@ -1297,11 +1247,12 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mDtL.nextFromSerialized(serialized), equals(updated));
-        expect(mDtL.nextFromSerialized("wrong"), equals(mDtL));
+        expect(mDtL.nextWithSerialized(serialized), equals(updated));
+        expect(mDtL.nextWithSerialized("wrong"), equals(mDtL));
+        expect(mDtL.nextWithSerialized(["notadt"]), equals(mDtL));
       });
       test("Checking list internal mutation", () {
-        final vl = updated.list;
+        final vl = updated.asList();
         vl[1] = DateTime(1995);
         expect(vl, equals([DateTime(2023), DateTime(1995)]));
         expect(updated.value, equals([DateTime(2023), DateTime(2024)]));
@@ -1328,13 +1279,474 @@ void main() {
       test("Checking list removeAt", () {
         expect(removed, equals(ModelDateTimeList([DateTime(2023)])));
       });
+      test("Checking list sort", () {
+        expect(
+          sorted,
+          equals(ModelDateTimeList([DateTime(2024), DateTime(2023)])),
+        );
+        expect(
+          sorted,
+          isNot(equals(ModelDateTimeList([DateTime(2023), DateTime(2024)]))),
+        );
+      });
     });
+    group("ModelInnerList:", () {
+      final mInL = M.inList(
+        ModelInner({
+          "outer_int": M.nt(initial: 1),
+          "inner": M.inner(
+            {
+              "inner_int": M.nt(validator: (n) => n >= 10),
+              "inner_dt": M.dt(initial: DateTime(2020)),
+            },
+            strictUpdates: true,
+          ),
+        }),
+        initial: [
+          {
+            "inner": {
+              "inner_int": 11,
+              "inner_dt": DateTime(2021),
+            }
+          },
+          {
+            "outer_int": 2,
+          },
+        ],
+      );
+      // update the model with an invalid value
+      final inv = mInL.next([
+        ModelInner({'defsnotvalid': M.nt(initial: 1)})
+      ]);
+      // update the model a couple of times with valid values
+      final updated = mInL.nextWithUpdateMaps([
+        {
+          "outer_int": 2,
+        }
+      ]).nextWithUpdateMaps([
+        {
+          "outer_int": 5,
+        },
+        {
+          "inner": {
+            "inner_int": 110,
+            "inner_dt": DateTime(2022),
+          }
+        },
+      ]);
+      // update the updated instance with the same value
+      final updatedSame = updated.nextWithUpdateMaps([
+        {
+          "outer_int": 5,
+        },
+        {
+          "inner": {
+            "inner_int": 110,
+            "inner_dt": DateTime(2022),
+          }
+        },
+      ]);
+      // serialize the model
+      final serialized = updated.asSerializable();
+
+      final inner = updated.inner;
+      final appended = updated.append([
+        inner.nextWithUpdates({
+          "outer_int": 7,
+        })
+      ]);
+      final appendedInv = updated.append([
+        ModelInner({'defsnotvalid': M.nt(initial: 1)})
+      ]);
+      final replaced =
+          updated.replaceAt(0, (i) => i.nextWithUpdates({"outer_int": 55}));
+      final replacedInv = updated.replaceAt(
+          1, (_) => ModelInner({'defsnotvalid': M.nt(initial: 1)}));
+      final removed = updated.removeAt(1);
+      final sorted = updated.sort(
+          (a, b) => (a['outer_int'] as int) > (b['outer_int'] as int) ? 1 : -1);
+
+      test("Checking value access", () {
+        expect(
+          mInL.value,
+          equals([
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(initial: 11),
+                  "inner_dt": M.dt(initial: DateTime(2021)),
+                },
+              ),
+            }),
+            ModelInner({
+              "outer_int": M.nt(initial: 2),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+              ),
+            }),
+          ]),
+        );
+        expect(
+          updated.value,
+          equals([
+            ModelInner({
+              "outer_int": M.nt(initial: 5),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+              ),
+            }),
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(initial: 110),
+                  "inner_dt": M.dt(initial: DateTime(2022)),
+                },
+              ),
+            }),
+          ]),
+        );
+        expect(updated.value, isNot(equals(mInL.value)));
+      });
+      test("Checking object value equality", () {
+        expect(
+          mInL,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "inner": {
+                  "inner_int": 11,
+                  "inner_dt": DateTime(2021),
+                }
+              },
+              {
+                "outer_int": 2,
+              },
+            ],
+          )),
+        );
+        // checks if the fromIM constructor works
+        expect(
+          mInL,
+          equals(ModelInnerList.fromIM(
+            ImmutableModel({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            [
+              {
+                "inner": {
+                  "inner_int": 11,
+                  "inner_dt": DateTime(2021),
+                }
+              },
+              {
+                "outer_int": 2,
+              },
+            ],
+          )),
+        );
+        expect(
+          updated,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "outer_int": 5,
+              },
+              {
+                "inner": {
+                  "inner_int": 110,
+                  "inner_dt": DateTime(2022),
+                }
+              },
+            ],
+          )),
+        );
+        // wrong order
+        expect(
+            updated,
+            isNot(
+              equals(M.inList(
+                ModelInner({
+                  "outer_int": M.nt(initial: 1),
+                  "inner": M.inner(
+                    {
+                      "inner_int": M.nt(validator: (n) => n >= 10),
+                      "inner_dt": M.dt(initial: DateTime(2020)),
+                    },
+                    strictUpdates: true,
+                  ),
+                }),
+                initial: [
+                  {
+                    "inner": {
+                      "inner_int": 110,
+                      "inner_dt": DateTime(2022),
+                    }
+                  },
+                  {
+                    "outer_int": 5,
+                  },
+                ],
+              )),
+            ));
+        expect(updated, isNot(equals(mInL)));
+      });
+      test("Checking new instance generation", () {
+        // invalid update returns the same model
+        expect(
+          inv,
+          same(mInL),
+        );
+        // updating with a model should return that model instance
+        expect(
+          mInL.nextFromModel(updated),
+          same(updated),
+        );
+        // updating with the same value should return a new instance (ModelInnerList specific)
+        expect(
+          updatedSame,
+          isNot(same(updated)),
+        );
+      });
+      test("Checking equality of history", () {
+        // shares a history with a direct ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            mInL,
+          ),
+          true,
+        );
+        // shares a history with itself
+        expect(
+          updated.hasEqualityOfHistory(
+            updated,
+          ),
+          true,
+        );
+      });
+      test("Checking serialization", () {
+        expect(
+            serialized,
+            equals([
+              {
+                "outer_int": 5,
+                "inner": {
+                  "inner_int": null,
+                  "inner_dt": DateTime(2020).toIso8601String(),
+                }
+              },
+              {
+                "outer_int": 1,
+                "inner": {
+                  "inner_int": 110,
+                  "inner_dt": DateTime(2022).toIso8601String(),
+                }
+              },
+            ]));
+      });
+      test("Checking deserialisation", () {
+        // deserializing should have the same value as update
+        expect(mInL.nextWithSerialized(serialized), equals(updated));
+        expect(mInL, equals(mInL.nextWithSerialized("wrong")));
+      });
+      test("Checking list internal mutation", () {
+        final vl = updated.asList();
+        vl[1] = ModelInner({'defsnotvalid': M.nt(initial: 1)});
+        expect(
+          vl,
+          equals([
+            ModelInner({
+              "outer_int": M.nt(initial: 5),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+              ),
+            }),
+            ModelInner({'defsnotvalid': M.nt(initial: 1)}),
+          ]),
+        );
+        expect(
+          updated,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "outer_int": 5,
+              },
+              {
+                "inner": {
+                  "inner_int": 110,
+                  "inner_dt": DateTime(2022),
+                }
+              },
+            ],
+          )),
+        );
+      });
+      test("Checking list append", () {
+        expect(
+          appended,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "outer_int": 5,
+              },
+              {
+                "inner": {
+                  "inner_int": 110,
+                  "inner_dt": DateTime(2022),
+                }
+              },
+              {
+                "outer_int": 7,
+              }
+            ],
+          )),
+        );
+        expect(appendedInv, equals(updated));
+      });
+      test("Checking list replaceAt", () {
+        expect(
+          replaced,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "outer_int": 55,
+              },
+              {
+                "inner": {
+                  "inner_int": 110,
+                  "inner_dt": DateTime(2022),
+                }
+              },
+            ],
+          )),
+        );
+        expect(replacedInv, equals(updated));
+      });
+      test("Checking list removeAt", () {
+        expect(
+          removed,
+          equals(M.inList(
+            ModelInner({
+              "outer_int": M.nt(initial: 1),
+              "inner": M.inner(
+                {
+                  "inner_int": M.nt(validator: (n) => n >= 10),
+                  "inner_dt": M.dt(initial: DateTime(2020)),
+                },
+                strictUpdates: true,
+              ),
+            }),
+            initial: [
+              {
+                "outer_int": 5,
+              },
+            ],
+          )),
+        );
+      });
+      test("Checking list sort", () {
+        expect(
+          sorted,
+          equals(mInL.nextWithUpdateMaps([
+            {
+              "inner": {
+                "inner_int": 110,
+                "inner_dt": DateTime(2022),
+              }
+            },
+            {
+              "outer_int": 5,
+            },
+          ])),
+        );
+        expect(
+          sorted,
+          isNot(equals(mInL.nextWithUpdateMaps([
+            {
+              "outer_int": 5,
+            },
+            {
+              "inner": {
+                "inner_int": 110,
+                "inner_dt": DateTime(2022),
+              }
+            },
+          ]))),
+        );
+      });
+    });
+    group("ModelValueTypeList", () {});
+    group("ModelEnumList", () {});
     // model enum
     group("ModelEnum:", () {
-      final mEnm = M.enm(TestEnum.values, initial: TestEnum.en1);
-      // update the model with another model holding the same value
-      final sameMod =
-          mEnm.nextFromModel(mEnm.next(TestEnum.en2).next(TestEnum.en1));
+      final mEnm = M.enm<TestEnum>(TestEnum.values, initial: TestEnum.en1);
       // update the model a couple of times with valid values
       final updated =
           mEnm.next(TestEnum.en3).next(TestEnum.en2).next(TestEnum.en3);
@@ -1346,7 +1758,7 @@ void main() {
       // serialize the model
       final serialized = updated.asSerializable();
 
-      final updatedFromString = mEnm.nextFromString('en2');
+      final updatedFromString = mEnm.nextWithString('en2');
 
       test("Checking value access", () {
         expect(mEnm.value, equals(TestEnum.en1));
@@ -1368,11 +1780,6 @@ void main() {
         expect(updated, isNot(equals(mEnm)));
       });
       test("Checking new instance generation", () {
-        // updating with a model that holds the same value
-        expect(
-          sameMod,
-          same(mEnm),
-        );
         // updating with a model should return that model instance
         expect(
           mEnm.nextFromModel(updated),
@@ -1424,8 +1831,8 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(mEnm.nextFromSerialized(serialized), equals(updated));
-        expect(mEnm.nextFromSerialized("wrong"), equals(mEnm));
+        expect(mEnm.nextWithSerialized(serialized), equals(updated));
+        expect(mEnm.nextWithSerialized("wrong"), equals(mEnm));
       });
       test("Checking enum nextFromString", () {
         expect(updatedFromString.value, equals(TestEnum.en2));
@@ -1827,7 +2234,7 @@ void main() {
       expect(() => reset.restoreBy(1), throwsA(TypeMatcher<Exception>()));
     });
   });
-  group("Error tests", () {
+  group("Error tests:", () {
     test("Checking initial validation errors", () {
       expect(
         () => ModelInt(
@@ -1920,21 +2327,21 @@ void main() {
     });
     test("Checking ModelTypeError", () {
       expect(
-        () => ModelDateTime(DateTime(2020)).nextFromDynamic("wrong"),
+        () => ModelDateTime(DateTime(2020)).nextWithDynamic("wrong"),
         throwsA(TypeMatcher<ModelTypeError>()),
       );
       expect(
-        () => ModelDoubleList([0.1, 0.2]).nextFromDynamic(['wrong', 'wrong']),
+        () => ModelDoubleList([0.1, 0.2]).nextWithDynamic(['wrong', 'wrong']),
         throwsA(TypeMatcher<ModelTypeError>()),
       );
       expect(
-        () => ModelEnum(TestEnum.values, TestEnum.en1).nextFromDynamic("wrong"),
+        () => ModelEnum(TestEnum.values, TestEnum.en1).nextWithDynamic("wrong"),
         throwsA(TypeMatcher<ModelTypeError>()),
       );
     });
     test("Checking ModelEnumError", () {
       expect(
-        () => ModelEnum(TestEnum.values, TestEnum.en1).nextFromString("wrong"),
+        () => ModelEnum(TestEnum.values, TestEnum.en1).nextWithString("wrong"),
         throwsA(TypeMatcher<ModelEnumError>()),
       );
     });

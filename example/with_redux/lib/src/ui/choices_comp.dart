@@ -79,25 +79,25 @@ class ChoicesComp extends StatelessWidget {
         ),
       );
 
-  Widget _inputFavSeason() => StoreConnector<AppState, ModelEnum>(
-        converter: (store) =>
-            store.state.userModel.selectModel(UserState.chosenEnumSel),
+  Widget _inputFavSeason() => StoreConnector<AppState, ModelEnum<Seasons>>(
+        converter: (store) => store.state.userModel
+            .selectModel(UserState.chosenEnumSel) as ModelEnum<Seasons>,
         distinct: true,
         builder: (context, currentSeasonModel) => Row(
           children: [
             DropdownButton<String>(
                 underline: Container(),
-                value: currentSeasonModel.asString,
+                value: currentSeasonModel.asString(),
                 onChanged: (String enStr) =>
                     _store(context).dispatch(UpdateValues(
                       UserState.chosenEnumSel,
-                      currentSeasonModel.nextFromString(enStr),
+                      currentSeasonModel.nextWithString(enStr),
                     )),
                 items: currentSeasonModel.enumStrings
                     .map<DropdownMenuItem<String>>(
-                        (String value) => DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
+                        (String enStr) => DropdownMenuItem<String>(
+                              value: enStr,
+                              child: Text(enStr),
                             ))
                     .toList()),
             Padding(padding: EdgeInsets.only(left: 2.0)),

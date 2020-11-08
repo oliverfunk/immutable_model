@@ -28,4 +28,8 @@ class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
 
   @override
   String asSerializable() => sha256.convert(utf8.encode(value)).toString();
+
+  // shouldn't be deserializing passwords
+  @override
+  String deserialize(dynamic serialized) => null;
 }

@@ -6,15 +6,15 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://pub.dev/packages/effective_dart)
 
-This package lets you define valid, immutable state models in a succinct way (with no code generation) that are interoperable between commonly used state management systems and that support serialization to and from JSON out of the box.
+This package helps build valid, immutable state models in a succinct way (with no code generation) that are interoperable between commonly used state management systems and that support serialization to and from JSON out of the box.
 
 Fully implemented examples using this package with the **BLoC** (and Cubits) and **Redux** frameworks can found in the [example](https://github.com/oliverfunk/immutable_model/tree/master/example) folder.
 
-This package supports int's, double's, bool's, String's, DateTime's, lists, enums and maps, each having their own `ModelType` representation (e.g. `ModelInt`, `ModelString`, `ModelList<T>`, `ModelEnum<E>` etc.).
+This package supports int's, double's, bool's, String's, DateTime's, lists, enums and maps, each having their own `ModelType` representation (e.g. `ModelInt`, `ModelString`, `ModelIntList`, `ModelStringList`, `ModelEnum<E>` etc.).
 
-Maps are represented with the `ModelInner` class which defines a map between field label Strings and other `ModelType` models. A `ModelInner` is generally used for hierarchical nesting in a `ImmutableModel` (hence "inner").
+Maps between between Strings (field labels) and other `ModelType` models are defined using the `ModelInner` class. A `ModelInner` is generally used for hierarchical nesting in a `ImmutableModel` (hence "inner").
 
-Every `ModelType` can be passed a `validator` which is run when it is updated. If the update is invalid, the instance is returned without the update applied.
+Every `ModelType` can be passed a `validator` which is run when during an update. If the update is invalid, the instance is returned without the update applied.
 
 This package provides some commonly used `ValueType` classes too (and a way to declare your own). A `ValueType` is defined as a `ModelType` that wraps it's own `validator`. Currently only `ModelEmail` and `ModelPassword` for email and password Strings are provided, but more can be added.
 

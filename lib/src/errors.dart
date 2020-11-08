@@ -47,20 +47,20 @@ class ModelTypeError extends Error {
 /// An [Error] that occurs when an [EnumModel] is updated
 /// with a string that does not match any of the internal enums.
 class ModelEnumError extends Error {
-  final ModelEnum modelEnum;
-  final String receivedValue;
+  final dynamic receivedValue;
+  final List<String> availableValues;
 
-  ModelEnumError(this.modelEnum, this.receivedValue);
+  ModelEnumError(this.receivedValue, this.availableValues);
 
   @override
   String toString() => "ModelEnumError\n"
-      "$receivedValue does not match an enum in the model\n"
-      " Model:            ${modelEnum.toLongString()}\n"
-      " Available enums:  ${modelEnum.enumStrings}\n";
+      "Received value not one of the enums values\n"
+      " Received:   $receivedValue\n"
+      " Available:  $availableValues\n";
 }
 
-/// An [Error] that occurs when an attempt is made to update a [ModelInner]
-/// with a selector when that [ModelInner] can only be updated strictly.
+/// An [Error] that occurs when an attempt is made to update a [potentially]
+/// with a selector when that [potentially] can only be updated strictly.
 class ModelInnerStrictUpdateError extends Error {
   ModelInnerStrictUpdateError();
 
@@ -85,7 +85,7 @@ class ModelHistoryEqualityError extends Error {
       " Received model: ${receivedModel.toLongString()}";
 }
 
-/// An [Error] that occurs when an attempt is made to access a model that does not exist in a [ModelInner].
+/// An [Error] that occurs when an attempt is made to access a model that does not exist in a [potentially].
 class ModelAccessError extends Error {
   final Iterable<String> fieldLabels;
   final String field;
@@ -99,7 +99,7 @@ class ModelAccessError extends Error {
 }
 
 /// An [Error] that occurs when an attempt is made to traverse a level of a state tree's hierarchy,
-/// but the selected model is not a [ModelInner].
+/// but the selected model is not a [potentially].
 class ModelSelectError extends Error {
   final String field;
 

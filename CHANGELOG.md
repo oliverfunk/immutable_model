@@ -1,6 +1,20 @@
-## [0.8.0]
+## [0.9.0]
+
+- Out of Alpha! All core features have been added and the fat trimmed.
+- Added ModelValue and ModelEnum lists
+- Changed the library structure and some of the interfaces
+- Fixed a bug ModelEnum
+- All values returned from the asSerializable method are now read-only
+- Fixed bug with ModelDateTime fromSerialized
+- Unified the interfaces
+
+## [0.8.0] - [0.8.1]
 
 - Made the initialization of models more uniform
+- Removed equality check when updating with a model
+- Improved IM update speed slightly
+- Added ModelInnerList and tests
+- Added list sorting methods
 
 ## [0.7.0] - [0.7.1]
 

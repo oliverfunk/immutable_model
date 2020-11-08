@@ -34,8 +34,9 @@ class WeatherBloc extends Bloc<WeatherEvent, ImmutableModel<WeatherState>> {
         // the mergeFrom method ignores default values from the weatherModel passed back by the repo
         yield state.transitionTo(const WeatherLoaded()).mergeFrom(weatherModel);
       } on NetworkException {
-        yield state.transitionTo(const WeatherError(
-            "Couldn't fetch weather. Is the device online?"));
+        yield state.transitionTo(
+          const WeatherError("Couldn't fetch weather. Is the device online?"),
+        );
       }
     }
   }

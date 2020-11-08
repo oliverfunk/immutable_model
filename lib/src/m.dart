@@ -173,14 +173,17 @@ abstract class M {
         fieldLabel: fieldLabel,
       );
 
-  // /// Returns a [ModelList.modelValidatedList]
-  // static ModelValidatedList mvList(
-  //   ModelInner model, {
-  //   List<Map<String, dynamic>> initialList,
-  //   bool append = true,
-  //   String fieldLabel,
-  // }) =>
-  //     ModelValidatedList(model, initialList: initialList, append: append, fieldLabel: fieldLabel);
+  /// Returns a [ModelInnerList]
+  static ModelInnerList inList(
+    ModelInner model, {
+    List<Map<String, dynamic>> initial,
+    String fieldLabel,
+  }) =>
+      ModelInnerList(
+        model,
+        initial,
+        fieldLabel: fieldLabel,
+      );
 
   // value types
 
