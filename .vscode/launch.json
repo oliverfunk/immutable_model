@@ -2,10 +2,11 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Dart: Run all Tests",
       "type": "dart",
-      "name": "Run All Tests",
       "request": "launch",
-      "program": "test/"
+      "program": "./test/",
+      "args": ["flutter"]
     },
     {
       "type": "dart",

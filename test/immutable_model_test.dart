@@ -23,13 +23,10 @@ class SomeBState extends SomeState {
 // todo: make sure serialized and values are immutable
 // todo: check incorrect serialsiation
 // todo: list sort + impl in examples
-// todo: change from to with for all model types
 
 void main() {
   test("Init", () {
     print("TESTS STARTING");
-    final en = ModelEnum<TestEnum>(TestEnum.values, TestEnum.en3);
-    print(en);
   });
   group("ModelType tests:", () {
     // model primitives
@@ -104,6 +101,7 @@ void main() {
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
         expect(mBool.nextWithSerialized(serialized), equals(updated));
+        expect(mBool.nextWithSerialized("wrong"), equals(mBool));
       });
     });
     group("ModelInt:", () {
@@ -167,28 +165,32 @@ void main() {
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              mInt,
-            ));
+          updated.hasEqualityOfHistory(
+            mInt,
+          ),
+          true,
+        );
         // shares a history with itself
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedInv,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedInv,
+          ),
+          true,
+        );
         // shares a history with an indirect ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedEqu,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
         // does not share a history with a new instance (model types only)
         expect(
-            false,
-            updated.hasEqualityOfHistory(
-              ModelInt(9),
-            ));
+          updated.hasEqualityOfHistory(
+            ModelStringList(['Foo', 'Bar']),
+          ),
+          false,
+        );
       });
       test("Checking serialization", () {
         expect(serialized, equals(9));
@@ -256,28 +258,32 @@ void main() {
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              mDbl,
-            ));
+          updated.hasEqualityOfHistory(
+            mDbl,
+          ),
+          true,
+        );
         // shares a history with itself
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedInv,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedInv,
+          ),
+          true,
+        );
         // shares a history with an indirect ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedEqu,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
         // does not share a history with a new instance (model types only)
         expect(
-            false,
-            updated.hasEqualityOfHistory(
-              ModelDouble(9),
-            ));
+          updated.hasEqualityOfHistory(
+            ModelStringList(['Foo', 'Bar']),
+          ),
+          false,
+        );
       });
       test("Checking serialization", () {
         expect(serialized, equals(0.9));
@@ -285,6 +291,7 @@ void main() {
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
         expect(updated, equals(mDbl.nextWithSerialized(serialized)));
+        expect(mDbl.nextWithSerialized("wrong"), equals(mDbl));
       });
     });
     group("ModelString:", () {
@@ -433,28 +440,32 @@ void main() {
       test("Checking equality of history", () {
         // shares a history with a direct ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              mDt,
-            ));
+          updated.hasEqualityOfHistory(
+            mDt,
+          ),
+          true,
+        );
         // shares a history with itself
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedInv,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedInv,
+          ),
+          true,
+        );
         // shares a history with an indirect ancestor
         expect(
-            true,
-            updated.hasEqualityOfHistory(
-              updatedEqu,
-            ));
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
         // does not share a history with a new instance (model types only)
         expect(
-            false,
-            updated.hasEqualityOfHistory(
-              ModelDateTime(DateTime(2022)),
-            ));
+          updated.hasEqualityOfHistory(
+            ModelStringList(['Foo', 'Bar']),
+          ),
+          false,
+        );
       });
       test("Checking serialization", () {
         expect(serialized, equals(DateTime(2022).toIso8601String()));
@@ -462,7 +473,7 @@ void main() {
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
         expect(updated, equals(mDt.nextWithSerialized(serialized)));
-        expect(updated, equals(mDt.nextWithSerialized("wrong")));
+        expect(mDt, equals(mDt.nextWithSerialized("wrong")));
       });
     });
     // model value types
@@ -658,7 +669,6 @@ void main() {
         );
       });
       test("Checking serialization", () {
-        print(serialized);
         expect(
             serialized,
             equals(
@@ -1314,37 +1324,38 @@ void main() {
           },
         ],
       );
+      final innerModel = mInL.inner;
       // update the model with an invalid value
       final inv = mInL.next([
         ModelInner({'defsnotvalid': M.nt(initial: 1)})
       ]);
       // update the model a couple of times with valid values
-      final updated = mInL.nextWithUpdateMaps([
-        {
+      final updated = mInL.next([
+        innerModel.nextWithUpdates({
           "outer_int": 2,
-        }
-      ]).nextWithUpdateMaps([
-        {
+        })
+      ]).next([
+        innerModel.nextWithUpdates({
           "outer_int": 5,
-        },
-        {
+        }),
+        innerModel.nextWithUpdates({
           "inner": {
             "inner_int": 110,
             "inner_dt": DateTime(2022),
           }
-        },
+        }),
       ]);
       // update the updated instance with the same value
-      final updatedSame = updated.nextWithUpdateMaps([
-        {
+      final updatedSame = updated.next([
+        innerModel.nextWithUpdates({
           "outer_int": 5,
-        },
-        {
+        }),
+        innerModel.nextWithUpdates({
           "inner": {
             "inner_int": 110,
             "inner_dt": DateTime(2022),
           }
-        },
+        }),
       ]);
       // serialize the model
       final serialized = updated.asSerializable();
@@ -1714,30 +1725,30 @@ void main() {
       test("Checking list sort", () {
         expect(
           sorted,
-          equals(mInL.nextWithUpdateMaps([
-            {
+          equals(mInL.next([
+            innerModel.nextWithUpdates({
               "inner": {
                 "inner_int": 110,
                 "inner_dt": DateTime(2022),
               }
-            },
-            {
+            }),
+            innerModel.nextWithUpdates({
               "outer_int": 5,
-            },
+            }),
           ])),
         );
         expect(
           sorted,
-          isNot(equals(mInL.nextWithUpdateMaps([
-            {
+          isNot(equals(mInL.next([
+            innerModel.nextWithUpdates({
               "outer_int": 5,
-            },
-            {
+            }),
+            innerModel.nextWithUpdates({
               "inner": {
                 "inner_int": 110,
                 "inner_dt": DateTime(2022),
               }
-            },
+            }),
           ]))),
         );
       });
@@ -2122,13 +2133,11 @@ void main() {
         equals(updated),
       );
     });
-    test("Checking to map functions", () {
-      final mutableModelMap = simpleModel.toMap();
-      mutableModelMap['extra'] = M.bl(initial: false);
-      final mutableValueMap = simpleModel.toValueMap();
-      mutableValueMap['another'] = 7;
+    test("Checking modelMap", () {
+      final modelMap = simpleModel.modelMap;
+      modelMap['extra'] = M.bl(initial: false);
       expect(
-        simpleModel.asMap(),
+        simpleModel.modelMap,
         equals({
           "an_int": M.nt(initial: 5),
           "a_dbl": M.dbl(initial: 0.5),
@@ -2136,21 +2145,12 @@ void main() {
         }),
       );
       expect(
-        mutableModelMap,
+        modelMap,
         equals({
           "an_int": M.nt(initial: 5),
           "a_dbl": M.dbl(initial: 0.5),
           "a_str": M.str(),
           "extra": M.bl(initial: false),
-        }),
-      );
-      expect(
-        mutableValueMap,
-        equals({
-          "an_int": 5,
-          "a_dbl": 0.5,
-          "a_str": null,
-          "another": 7,
         }),
       );
     });
@@ -2289,7 +2289,7 @@ void main() {
       expect(
         () => ModelStringList(
           ['', 'hello'],
-          itemValidator: (s) => s.length != 0,
+          itemValidator: (s) => s.isNotEmpty,
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
