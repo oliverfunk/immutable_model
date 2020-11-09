@@ -21,7 +21,7 @@ class ModelString extends ModelValue<ModelString, String> {
   ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString(
     String initialValue, {
     ValueValidator<String> validator,
@@ -48,7 +48,7 @@ class ModelString extends ModelValue<ModelString, String> {
   ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
+  /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString.text(
     String initialValue, {
     ValueValidator<String> validator,
@@ -73,4 +73,7 @@ class ModelString extends ModelValue<ModelString, String> {
 
   @override
   ModelString buildNext(String nextValue) => ModelString._next(this, nextValue);
+
+  @override
+  String asSerializable() => super.asSerializable();
 }

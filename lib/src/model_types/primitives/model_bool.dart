@@ -29,4 +29,7 @@ class ModelBool extends ModelValue<ModelBool, bool> {
 
   @override
   ModelBool buildNext(bool nextValue) => ModelBool._next(this, nextValue);
+
+  @override
+  bool asSerializable() => super.asSerializable();
 }

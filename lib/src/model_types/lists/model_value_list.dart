@@ -1,30 +1,52 @@
 part of 'model_list.dart';
 
-class ModelValueList extends ModelList<ModelValueList, ModelValue> {
+class ModelValueList<M extends ModelValue<M, dynamic>>
+    extends ModelList<ModelValueList<M>, M> {
   /// The internal [ModelValue] model used by this class.
-  final ModelValue _model;
+  final M _model;
+
+  M get model => _model;
 
   factory ModelValueList(
-    ModelValue model,
+    M defaultModel,
     List initialModelValues, {
     String fieldLabel,
   }) {
-    if (model == null) {
+    if (defaultModel == null) {
       throw ModelInitializationError(
         ModelValueList,
         "A model must be provided",
       );
     }
     return ModelValueList._(
-      model,
-      initialModelValues?.map((i) => model.next(i) as ModelValue)?.toList(),
+      defaultModel,
+      initialModelValues?.map((i) => defaultModel.next(i))?.toList(),
+      fieldLabel,
+    );
+  }
+
+  factory ModelValueList.numberOfDefault(
+    M defaultModel,
+    int numberOfDefault, {
+    String fieldLabel,
+  }) {
+    if (defaultModel == null) {
+      throw ModelInitializationError(
+        ModelValueList,
+        "A model must be provided",
+      );
+    }
+    return ModelValueList._(
+      defaultModel,
+      List(numberOfDefault)
+        ..fillRange(0, numberOfDefault, defaultModel.initial),
       fieldLabel,
     );
   }
 
   ModelValueList._(
     this._model,
-    List<ModelValue> initialList, [
+    List<M> initialList, [
     String fieldLabel,
   ]) : super._(
           initialList,
@@ -32,29 +54,34 @@ class ModelValueList extends ModelList<ModelValueList, ModelValue> {
           fieldLabel,
         );
 
-  ModelValueList._next(ModelValueList previous, BuiltList<ModelValue> nextList)
-      : _model = previous._model,
+  ModelValueList._next(
+    ModelValueList<M> previous,
+    BuiltList<M> nextList,
+  )   : _model = previous._model,
         super._constructNext(previous, nextList);
 
   @override
-  ModelValueList buildNextInternal(BuiltList<ModelValue> next) =>
-      ModelValueList._next(this, next);
+  ModelValueList<M> buildNextInternal(BuiltList<M> next) =>
+      ModelValueList<M>._next(this, next);
 
   @override
   List asSerializable() =>
       List.unmodifiable(value.map((i) => i.asSerializable()));
 
   @override
-  List<ModelValue> deserialize(dynamic serialized) {
+  List<M> deserialize(dynamic serialized) {
     if (serialized is Iterable) {
       // if the item cannot be deserialized, an instance of the model passed in will be used
-      return serialized
-          .map((i) => _model.nextWithSerialized(i) as ModelValue)
-          .toList();
+      return serialized.map(_model.nextWithSerialized).toList();
     } else {
       return null;
     }
   }
+
+  /// The list of values of [M].
+  ///
+  /// Note: this is a mutable copy
+  List get valueList => value.map((i) => i.value).toList();
 
   /// Returns the value of the model at [index]
   dynamic valueAt(int index) => itemAt(index).value;

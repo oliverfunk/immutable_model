@@ -41,4 +41,7 @@ class ModelInt extends ModelValue<ModelInt, int> {
 
   @override
   ModelInt buildNext(int nextValue) => ModelInt._next(this, nextValue);
+
+  @override
+  int asSerializable() => super.asSerializable();
 }

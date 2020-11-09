@@ -43,4 +43,7 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   @override
   ModelDoubleList buildNextInternal(BuiltList<double> next) =>
       ModelDoubleList._next(this, next);
+
+  @override
+  List<double> asSerializable() => super.asSerializable();
 }

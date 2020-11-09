@@ -51,7 +51,7 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
 
   @override
   ModelEnumList<E> buildNextInternal(BuiltList<E> next) =>
-      ModelEnumList._next(this, next);
+      ModelEnumList<E>._next(this, next);
 
   ModelEnumList<E> nextWithStrings(List<String> nextStrings) {
     final ens = ModelEnum.fromStringList<E>(_enums, nextStrings);

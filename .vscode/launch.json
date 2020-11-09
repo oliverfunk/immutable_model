@@ -6,7 +6,6 @@
       "type": "dart",
       "request": "launch",
       "program": "./test/",
-      "args": ["flutter"]
     },
     {
       "type": "dart",

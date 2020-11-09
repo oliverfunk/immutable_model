@@ -26,18 +26,6 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// If `false`, updates can contain a sub-set of the defined fields.
   final bool strictUpdates;
 
-  ModelInner._(
-    Map<String, ModelType> modelMap, [
-    this.modelValidator,
-    this.strictUpdates = false,
-    String fieldLabel,
-  ])  : _current = BuiltMap.of(modelMap),
-        super.initial(
-          modelMap,
-          (_) => true, // this class manages it's own validation
-          fieldLabel,
-        );
-
   /// Constructs a [ModelType] of map between field label [String]s and other [ModelType] models.
   ///
   /// [modelMap] cannot be null or empty.
@@ -74,6 +62,18 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
     }
     return ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
   }
+
+  ModelInner._(
+    Map<String, ModelType> modelMap, [
+    this.modelValidator,
+    this.strictUpdates = false,
+    String fieldLabel,
+  ])  : _current = BuiltMap.of(modelMap),
+        super.initial(
+          modelMap,
+          (_) => true, // this class manages it's own validation
+          fieldLabel,
+        );
 
   ModelInner._next(ModelInner last, this._current)
       : modelValidator = last.modelValidator,
@@ -154,7 +154,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
 
   /// Updates the model selected by [selector] with [update].
   ///
-  /// Throws a [ModelInnerStrictUpdateError] when [strictUpdates] is enabled.
+  /// Throws a [ModelInnerStrictUpdateError] if [strictUpdates] is enabled.
   ModelInner nextWithSelector<V>(ModelSelector<V> selector, dynamic update) =>
       strictUpdates
           ? throw ModelInnerStrictUpdateError()
@@ -287,6 +287,9 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// [nextWithSerialized] is called on every model
   /// that matches a label in [serialized]
   /// with the serialized value.
+  ///
+  /// This will pick out fields in this from fields in [serialized],
+  /// meaning [serialized] can have fields in it that aren't in this.
   ///
   /// Note: this works deeply with nested maps.
   @override

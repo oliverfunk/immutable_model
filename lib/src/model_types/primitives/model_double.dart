@@ -40,4 +40,7 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
 
   @override
   ModelDouble buildNext(double nextValue) => ModelDouble._next(this, nextValue);
+
+  @override
+  double asSerializable() => super.asSerializable();
 }

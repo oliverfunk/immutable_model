@@ -1,10 +1,10 @@
-## [0.9.0]
+## [0.9.0] - [0.9.2]
 
 - Out of Alpha! All core features have been added and the fat trimmed.
 - Added ModelValue and ModelEnum lists
 - Changed the library structure and some of the interfaces
 - Fixed a bug ModelEnum
-- All values returned from the asSerializable method are now read-only
+- All values returned from the asSerializable method are now read-only with the correct types
 - Fixed bug with ModelDateTime fromSerialized
 - Unified the interfaces
 

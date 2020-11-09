@@ -21,8 +21,6 @@ class SomeBState extends SomeState {
 }
 
 // todo: make sure serialized and values are immutable
-// todo: check incorrect serialsiation
-// todo: list sort + impl in examples
 
 void main() {
   test("Init", () {
@@ -197,8 +195,8 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mInt.nextWithSerialized(serialized)));
-        expect(mInt, equals(mInt.nextWithSerialized("wrong")));
+        expect(mInt.nextWithSerialized(serialized), equals(updated));
+        expect(mInt.nextWithSerialized("wrong"), equals(mInt));
         expect(mInt.nextWithSerialized(null), same(mInt));
       });
     });
@@ -290,7 +288,7 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mDbl.nextWithSerialized(serialized)));
+        expect(mDbl.nextWithSerialized(serialized), equals(updated));
         expect(mDbl.nextWithSerialized("wrong"), equals(mDbl));
       });
     });
@@ -378,7 +376,8 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mStr.nextWithSerialized(serialized)));
+        expect(mStr.nextWithSerialized(serialized), equals(updated));
+        expect(mStr.nextWithSerialized(7), equals(mStr));
       });
     });
     group("ModelDateTime:", () {
@@ -472,8 +471,8 @@ void main() {
       });
       test("Checking deserialisation", () {
         // deserializing should have the same value as update
-        expect(updated, equals(mDt.nextWithSerialized(serialized)));
-        expect(mDt, equals(mDt.nextWithSerialized("wrong")));
+        expect(mDt.nextWithSerialized(serialized), equals(updated));
+        expect(mDt.nextWithSerialized("wrong"), equals(mDt));
       });
     });
     // model value types
@@ -1753,7 +1752,173 @@ void main() {
         );
       });
     });
-    group("ModelValueTypeList", () {});
+    group("ModelValueList", () {
+      final mValL = M.mvList(
+        ModelEmail("default@gmail.com"),
+        initial: ["a@gmail.com", "b@gmail.com"],
+      );
+      // update the model a couple of times with valid values
+      final updated = mValL.next([
+        ModelEmail("c@gmail.com"),
+        ModelEmail("d@gmail.com"),
+      ]);
+      // update the updated instance with the same value
+      final updatedSame = updated.next([
+        ModelEmail("c@gmail.com"),
+        ModelEmail("d@gmail.com"),
+      ]);
+      // serialize the model
+      final serialized = updated.asSerializable();
+
+      final appended = updated.append([
+        ModelEmail("e@gmail.com"),
+        ModelEmail("f@gmail.com"),
+      ]);
+      final replaced = updated.replaceAt(
+        1,
+        (emailModel) => emailModel.next("replaced@gmail.com"),
+      );
+      final removed = updated.removeAt(1);
+
+      test("Checking value access", () {
+        expect(
+            mValL.value,
+            equals([
+              ModelEmail("a@gmail.com"),
+              ModelEmail("b@gmail.com"),
+            ]));
+        expect(
+            updated.value,
+            equals([
+              ModelEmail("c@gmail.com"),
+              ModelEmail("d@gmail.com"),
+            ]));
+        expect(
+            updated.valueList,
+            equals([
+              "c@gmail.com",
+              "d@gmail.com",
+            ]));
+        expect(updated[1], equals(ModelEmail("d@gmail.com")));
+        expect(updated.valueAt(1), equals("d@gmail.com"));
+        expect(updated.value, isNot(equals(mValL.value)));
+      });
+      test("Checking object value equality", () {
+        expect(
+            mValL,
+            equals(ModelValueList(
+              ModelEmail("default@gmail.com"),
+              ["a@gmail.com", "b@gmail.com"],
+            )));
+        expect(
+            updated,
+            equals(ModelValueList(
+              ModelEmail("default@gmail.com"),
+              ["c@gmail.com", "d@gmail.com"],
+            )));
+        expect(updated, isNot(equals(mValL)));
+      });
+      test("Checking new instance generation", () {
+        // updating with a model should return that model instance
+        expect(
+          mValL.nextFromModel(updated),
+          same(updated),
+        );
+        // updating with the same value should return the same instance
+        expect(
+          updatedSame,
+          same(updated),
+        );
+      });
+      test("Checking equality of history", () {
+        // shares a history with a direct ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            mValL,
+          ),
+          true,
+        );
+        // shares a history with itself
+        expect(
+          updated.hasEqualityOfHistory(
+            updated,
+          ),
+          true,
+        );
+        // does not share a history with a new instance
+        expect(
+          updated.hasEqualityOfHistory(
+            ModelValueList(
+              ModelEmail("default@gmail.com"),
+              ["a@gmail.com", "b@gmail.com"],
+            ),
+          ),
+          false,
+        );
+      });
+      test("Checking serialization", () {
+        expect(
+            serialized,
+            equals([
+              "c@gmail.com",
+              "d@gmail.com",
+            ]));
+      });
+      test("Checking deserialisation", () {
+        // deserializing should have the same value as update
+        expect(mValL.nextWithSerialized(serialized), equals(updated));
+        expect(mValL.nextWithSerialized("wrong"), equals(mValL));
+        expect(
+            mValL.nextWithSerialized(["notanemail1", "notanemail2"]),
+            equals(
+              ModelValueList.numberOfDefault(
+                ModelEmail("default@gmail.com"),
+                2,
+              ),
+            ));
+      });
+      test("Checking list internal mutation", () {
+        final vl = updated.asList();
+        vl[1] = ModelEmail('rand@gmail.com');
+        expect(
+            vl,
+            equals([
+              ModelEmail('c@gmail.com'),
+              ModelEmail('rand@gmail.com'),
+            ]));
+        expect(
+            updated.value,
+            equals([
+              ModelEmail("c@gmail.com"),
+              ModelEmail("d@gmail.com"),
+            ]));
+      });
+      test("Checking list append", () {
+        expect(
+            appended.value,
+            equals([
+              ModelEmail("c@gmail.com"),
+              ModelEmail("d@gmail.com"),
+              ModelEmail("e@gmail.com"),
+              ModelEmail("f@gmail.com"),
+            ]));
+      });
+      test("Checking list replaceAt", () {
+        expect(
+            replaced.value,
+            equals([
+              ModelEmail("c@gmail.com"),
+              ModelEmail("replaced@gmail.com"),
+            ]));
+      });
+      test("Checking list removeAt", () {
+        expect(
+            removed.value,
+            equals([
+              ModelEmail("c@gmail.com"),
+            ]));
+      });
+    });
     group("ModelEnumList", () {});
     // model enum
     group("ModelEnum:", () {

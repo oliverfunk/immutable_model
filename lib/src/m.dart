@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../model_types.dart';
 import '../value_types.dart';
+import './immutable_model.dart';
 
 /// An abstract holding class defining shorthands for the constructors of each model defined in this library.
 ///
@@ -173,6 +174,28 @@ abstract class M {
         fieldLabel: fieldLabel,
       );
 
+  static ModelEnumList<E> enList<E>(
+    List<E> enumValues, {
+    List<E> initial,
+    String fieldLabel,
+  }) =>
+      ModelEnumList<E>(
+        enumValues,
+        initial,
+        fieldLabel: fieldLabel,
+      );
+
+  static ModelValueList<M> mvList<M extends ModelValue<M, dynamic>>(
+    M defaultModel, {
+    List initial,
+    String fieldLabel,
+  }) =>
+      ModelValueList(
+        defaultModel,
+        initial,
+        fieldLabel: fieldLabel,
+      );
+
   /// Returns a [ModelInnerList]
   static ModelInnerList inList(
     ModelInner model, {
@@ -180,6 +203,18 @@ abstract class M {
     String fieldLabel,
   }) =>
       ModelInnerList(
+        model,
+        initial,
+        fieldLabel: fieldLabel,
+      );
+
+  /// Returns a [ModelInnerList] using an [ImmutableModel]
+  static ModelInnerList imList(
+    ImmutableModel model, {
+    List<Map<String, dynamic>> initial,
+    String fieldLabel,
+  }) =>
+      ModelInnerList.fromIM(
         model,
         initial,
         fieldLabel: fieldLabel,
@@ -194,6 +229,7 @@ abstract class M {
   }) =>
       ModelEmail(
         defaultEmail,
+        fieldLabel: fieldLabel,
       );
 
   /// Returns a [ModelPassword]

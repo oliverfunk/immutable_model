@@ -42,4 +42,7 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   @override
   ModelIntList buildNextInternal(BuiltList<int> next) =>
       ModelIntList._next(this, next);
+
+  @override
+  List<int> asSerializable() => super.asSerializable();
 }

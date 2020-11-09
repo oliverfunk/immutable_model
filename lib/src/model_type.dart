@@ -136,9 +136,9 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   @nonVirtual
   M nextWithSerialized(dynamic serialized) {
     if (serialized == null) return this;
-    final serializedValue = deserialize(serialized);
-    return serializedValue != null
-        ? next(serializedValue)
+    final v = deserialize(serialized);
+    return v != null
+        ? next(v)
         : logExceptionAndReturn(
             this,
             ModelDeserializationException(M, serialized, fieldLabel),

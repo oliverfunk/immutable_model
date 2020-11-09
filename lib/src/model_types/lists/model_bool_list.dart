@@ -30,4 +30,7 @@ class ModelBoolList extends ModelList<ModelBoolList, bool> {
   @override
   ModelBoolList buildNextInternal(BuiltList<bool> next) =>
       ModelBoolList._next(this, next);
+
+  @override
+  List<bool> asSerializable() => super.asSerializable();
 }

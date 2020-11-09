@@ -36,7 +36,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
     if (initialValue is! E) {
       throw ModelInitializationError(
         ModelEnum,
-        "The enum type <E> must be set.",
+        "The enum type <E> must be set (it can't be inferred).",
       );
     }
     // weak check of E being an enum type
@@ -46,7 +46,7 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
     } catch (e) {
       throw ModelInitializationError(
         ModelEnum,
-        "The E must be an enum type.",
+        "<E> must be an enum type.",
       );
     }
     return ModelEnum._(enumValues, initialValue, fieldLabel);

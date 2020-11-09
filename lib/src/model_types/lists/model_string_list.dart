@@ -43,4 +43,7 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   @override
   ModelStringList buildNextInternal(BuiltList<String> next) =>
       ModelStringList._next(this, next);
+
+  @override
+  List<String> asSerializable() => super.asSerializable();
 }
