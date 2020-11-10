@@ -7,6 +7,7 @@ import 'package:immutable_model/model_types.dart';
 import 'package:immutable_model/value_types.dart';
 
 enum TestEnum { en1, en2, en3 }
+enum AnotherEnum { an1, an2, an3 }
 
 abstract class SomeState {
   const SomeState();
@@ -19,8 +20,6 @@ class SomeAState extends SomeState {
 class SomeBState extends SomeState {
   const SomeBState();
 }
-
-// todo: make sure serialized and values are immutable
 
 void main() {
   test("Init", () {
@@ -1919,7 +1918,115 @@ void main() {
             ]));
       });
     });
-    group("ModelEnumList", () {});
+    group("ModelEnumList", () {
+      final mEnmL = M.enmList<TestEnum>(
+        TestEnum.values,
+        initial: [TestEnum.en1, TestEnum.en2],
+      );
+      // update the model a couple of times with valid values
+      final updated =
+          mEnmL.next([TestEnum.en1]).next([TestEnum.en2, TestEnum.en3]);
+      // update the updated instance with the same value
+      final updatedSame = updated.next([TestEnum.en2, TestEnum.en3]);
+      final updatedEqu =
+          mEnmL.next([TestEnum.en1]).next([TestEnum.en2, TestEnum.en3]);
+      // serialize the model
+      final serialized = updated.asSerializable();
+
+      final updatedWithStrings = mEnmL.nextWithStrings(['en1', 'en3']);
+
+      test("Checking value access", () {
+        expect(mEnmL.value, equals([TestEnum.en1, TestEnum.en2]));
+        expect(updated.value, equals([TestEnum.en2, TestEnum.en3]));
+        expect(updated.value, isNot(equals(mEnmL.value)));
+      });
+      test("Checking object value equality", () {
+        expect(
+            mEnmL,
+            equals(
+              ModelEnumList<TestEnum>(
+                TestEnum.values,
+                [TestEnum.en1, TestEnum.en2],
+              ),
+            ));
+        expect(
+            updated,
+            equals(
+              ModelEnumList<TestEnum>(
+                TestEnum.values,
+                [TestEnum.en2, TestEnum.en3],
+              ),
+            ));
+        expect(updated, updatedEqu);
+        expect(updated, isNot(equals(mEnmL)));
+      });
+      test("Checking new instance generation", () {
+        // updating with a model should return that model instance
+        expect(
+          mEnmL.nextFromModel(updated),
+          same(updated),
+        );
+        // updating with the same value should return the same instance
+        expect(
+          updatedSame,
+          same(updated),
+        );
+        // equivalent updates return a different instance
+        expect(
+          updatedEqu,
+          isNot(same(updated)),
+        );
+      });
+      test("Checking equality of history", () {
+        // shares a history with a direct ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            mEnmL,
+          ),
+          true,
+        );
+        // shares a history with itself
+        expect(
+          updated.hasEqualityOfHistory(
+            updated,
+          ),
+          true,
+        );
+        // shares a history with an indirect ancestor
+        expect(
+          updated.hasEqualityOfHistory(
+            updatedEqu,
+          ),
+          true,
+        );
+        // does not share a history with a new instance (model types only)
+        expect(
+          updated.hasEqualityOfHistory(
+            ModelEnumList<TestEnum>(
+              TestEnum.values,
+              [TestEnum.en2, TestEnum.en3],
+            ),
+          ),
+          false,
+        );
+      });
+      test("Checking serialization", () {
+        expect(serialized, equals(["en2", "en3"]));
+      });
+      test("Checking deserialisation", () {
+        // deserializing should have the same value as update
+        expect(mEnmL.nextWithSerialized(serialized), equals(updated));
+        expect(mEnmL.nextWithSerialized("wrong"), equals(mEnmL));
+        expect(mEnmL.nextWithSerialized(["wrong"]), equals(mEnmL));
+      });
+      test("Checking enum nextFromString", () {
+        expect(updatedWithStrings.value, equals([TestEnum.en1, TestEnum.en3]));
+      });
+      test("Checking enum lists", () {
+        expect(mEnmL.enums, equals(TestEnum.values));
+        expect(mEnmL.enumStrings, equals(['en1', 'en2', 'en3']));
+      });
+    });
     // model enum
     group("ModelEnum:", () {
       final mEnm = M.enm<TestEnum>(TestEnum.values, initial: TestEnum.en1);

@@ -174,7 +174,7 @@ abstract class M {
         fieldLabel: fieldLabel,
       );
 
-  static ModelEnumList<E> enList<E>(
+  static ModelEnumList<E> enmList<E>(
     List<E> enumValues, {
     List<E> initial,
     String fieldLabel,

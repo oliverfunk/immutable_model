@@ -11,14 +11,14 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
   }) {
     if (enumValues == null || enumValues.isEmpty) {
       throw ModelInitializationError(
-        ModelEnum,
+        ModelEnumList,
         "The enum values list must be provided. Use the static .values getter method on the enum class.",
       );
     }
     // can happen if E is dynamic, i.e. not set
     if (initialValue is! List<E>) {
       throw ModelInitializationError(
-        ModelEnum,
+        ModelEnumList,
         "The enum type <E> must be set",
       );
     }
@@ -28,8 +28,8 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
       // ignore: avoid_catches_without_on_clauses
     } catch (e) {
       throw ModelInitializationError(
-        ModelEnum,
-        "The E must be an enum type.",
+        ModelEnumList,
+        "<E> must be an enum type.",
       );
     }
     return ModelEnumList._(enumValues, initialValue, fieldLabel);
@@ -53,10 +53,17 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
   ModelEnumList<E> buildNextInternal(BuiltList<E> next) =>
       ModelEnumList<E>._next(this, next);
 
+  /// Returns a new instance using the strings in [nextStrings].
+  ///
+  /// These must correspond to the name of the enum values
+  /// defined for [E].
+  ///
+  /// Throws a [ModelEnumError] if a string in [nextStrings]
+  /// has no corresponding enum value.
   ModelEnumList<E> nextWithStrings(List<String> nextStrings) {
-    final ens = ModelEnum.fromStringList<E>(_enums, nextStrings);
-    return ens != null
-        ? next(ens)
+    final es = ModelEnum.fromStringList<E>(_enums, nextStrings);
+    return es != null
+        ? next(es)
         : throw ModelEnumError(
             nextStrings,
             enumStrings,
