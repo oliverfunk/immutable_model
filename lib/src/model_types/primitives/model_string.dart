@@ -23,11 +23,10 @@ class ModelString extends ModelValue<ModelString, String> {
   ///
   /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString(
-    String initialValue, {
+    String initialValue, [
     ValueValidator<String> validator,
-    String fieldLabel,
-  }) =>
-      ModelString._(initialValue, validator, fieldLabel);
+  ]) =>
+      ModelString._(initialValue, validator);
 
   /// Constructs a [ModelValue] of a [String], where the underlying [String] cannot be null or empty.
   /// Additional validations may be specified.
@@ -43,30 +42,24 @@ class ModelString extends ModelValue<ModelString, String> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
-  ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString.text(
-    String initialValue, {
+    String initialValue, [
     ValueValidator<String> validator,
-    String fieldLabel,
-  }) =>
-      ModelString._text(initialValue, validator, fieldLabel);
+  ]) =>
+      ModelString._text(initialValue, validator);
 
   ModelString._(
-    String initialValue, [
+    String initialValue,
     ValueValidator<String> validator,
-    String fieldLabel,
-  ]) : super.string(initialValue, validator, fieldLabel);
+  ) : super.string(initialValue, validator);
 
   ModelString._text(
-    String initialValue, [
+    String initialValue,
     ValueValidator<String> validator,
-    String fieldLabel,
-  ]) : super.text(initialValue, validator, fieldLabel);
+  ) : super.text(initialValue, validator);
 
   ModelString._next(ModelString previous, String value)
       : super.constructNext(previous, value);

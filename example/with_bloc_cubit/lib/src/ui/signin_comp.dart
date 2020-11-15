@@ -11,7 +11,7 @@ class SignInComponent extends StatelessWidget {
 
   Widget _emailInput(BuildContext context) => TextFormField(
         key: _emailKey,
-        initialValue: context.bloc<AuthCubit>().state['email'],
+        initialValue: context.bloc<AuthCubit>().state[ModelEmail.label],
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',

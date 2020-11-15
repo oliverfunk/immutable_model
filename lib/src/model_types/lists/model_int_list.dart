@@ -5,9 +5,8 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initialValue] defines the first (or default) list.
-  /// This can be accessed using the [initialValue] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initialList] defines the first (or default) list.
+  /// This can be accessed using the [initialList] instance, useful when resetting.
   ///
   /// [listItemValidator] is a function that must return `true` if the [int] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -17,24 +16,19 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
+  /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
-  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
-  ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
-  factory ModelIntList(
-    List<int> initialValue, {
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
+  factory ModelIntList([
+    List<int> initialList = const <int>[],
     ListItemValidator<int> itemValidator,
-    String fieldLabel,
-  }) =>
-      ModelIntList._(initialValue, itemValidator, fieldLabel);
+  ]) =>
+      ModelIntList._(initialList, itemValidator);
 
   ModelIntList._(
     List<int> initialList, [
     ListItemValidator<int> listItemValidator,
-    String fieldLabel,
-  ]) : super._(initialList, listItemValidator, fieldLabel);
+  ]) : super._(initialList, listItemValidator);
 
   ModelIntList._next(ModelIntList previous, BuiltList<int> nextList)
       : super._constructNext(previous, nextList);

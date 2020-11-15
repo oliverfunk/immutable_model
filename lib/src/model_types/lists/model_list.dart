@@ -27,21 +27,19 @@ typedef ListItemValidator<V> = bool Function(V listItem);
 /// This class is meant to be extended inside this library only.
 abstract class ModelList<M extends ModelList<M, T>, T>
     extends ModelType<M, List<T>> {
+  /// The current underlying immutable list
   final BuiltList<T> _current;
 
   ModelList._(
-    List<T> initialList, [
+    List<T> initialList,
     ListItemValidator<T> listItemValidator,
-    String fieldLabel,
-  ])  : _current = BuiltList<T>.of(initialList ?? <T>[]),
+  )   : _current = BuiltList<T>.of(initialList ?? <T>[]),
         super.initial(
-          initialList,
-          listItemValidator == null
-              ? null
-              : (toValidate) =>
-                  toValidate.every((listItem) => listItemValidator(listItem)),
-          fieldLabel,
-        );
+            initialList,
+            listItemValidator == null
+                ? null
+                : (toValidate) => toValidate
+                    .every((listItem) => listItemValidator(listItem)));
 
   ModelList._constructNext(M previous, this._current)
       : super.fromPrevious(previous);
@@ -105,7 +103,9 @@ abstract class ModelList<M extends ModelList<M, T>, T>
   M append(List<T> list) => validate(list)
       ? buildNextInternal(_current.rebuild((lb) => lb.addAll(list)))
       : logExceptionAndReturn(
-          this, ModelValidationException(M, list, fieldLabel));
+          this,
+          ModelValidationException(M, list),
+        );
 
   /// Replaces the item at [index] with the value returned by [updater].
   ///
@@ -119,11 +119,13 @@ abstract class ModelList<M extends ModelList<M, T>, T>
         ? buildNextInternal(_current.rebuild((lb) => lb[index] = update))
         : logExceptionAndReturn(
             this,
-            ModelValidationException(M, update, fieldLabel),
+            ModelValidationException(M, update),
           );
   }
 
   /// Removes the item at [index], reducing [numberOfItems] by 1.
+  ///
+  /// As [List.removeAt]
   M removeAt(int index) =>
       buildNextInternal(_current.rebuild((lb) => lb.removeAt(index)));
 
@@ -140,6 +142,23 @@ abstract class ModelList<M extends ModelList<M, T>, T>
 
   /// Returns the number of items in the list
   int get numberOfItems => _current.length;
+
+  /// Returns the first element.
+  ///
+  /// Throws a [StateError] if this is empty. Otherwise returns the first element in the iteration order, equivalent to this.elementAt(0).
+  ///
+  /// Copied from [Iterable].
+  T get first => _current.first;
+
+  ///Returns the last element.
+  ///
+  /// Throws a [StateError] if this is empty.
+  /// Otherwise may iterate through the elements and
+  /// returns the last one seen. Some iterables may have more
+  /// efficient ways to find the last element (for example a list can directly access the last element, without iterating through the previous ones).
+  ///
+  /// Copied from Iterable.
+  T get last => _current.last;
 
   @override
   List<Object> get props => [_current];

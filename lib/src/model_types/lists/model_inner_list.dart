@@ -8,11 +8,21 @@ class ModelInnerList extends ModelList<ModelInnerList, ModelInner> {
   /// The [ModelInner] model.
   ModelInner get inner => _model;
 
+  factory ModelInnerList.fromIM(
+    ImmutableModel model, [
+    List<Map<String, dynamic>> initialModelValues =
+        const <Map<String, dynamic>>[],
+  ]) =>
+      ModelInnerList(
+        model.inner,
+        initialModelValues,
+      );
+
   factory ModelInnerList(
-    ModelInner innerModel,
-    List<Map<String, dynamic>> initialModelValues, {
-    String fieldLabel,
-  }) {
+    ModelInner innerModel, [
+    List<Map<String, dynamic>> initialModelValues =
+        const <Map<String, dynamic>>[],
+  ]) {
     if (innerModel == null) {
       throw ModelInitializationError(
         ModelInnerList,
@@ -21,31 +31,14 @@ class ModelInnerList extends ModelList<ModelInnerList, ModelInner> {
     }
     return ModelInnerList._(
       innerModel,
-      initialModelValues?.map((i) => innerModel.nextWithUpdates(i))?.toList(),
-      fieldLabel,
+      initialModelValues.map((i) => innerModel.nextWithUpdates(i)).toList(),
     );
   }
 
-  factory ModelInnerList.fromIM(
-    ImmutableModel model,
-    List<Map<String, dynamic>> initialModelValues, {
-    String fieldLabel,
-  }) =>
-      ModelInnerList(
-        model.inner,
-        initialModelValues,
-        fieldLabel: fieldLabel,
-      );
-
   ModelInnerList._(
     this._model,
-    List<ModelInner> initialList, [
-    String fieldLabel,
-  ]) : super._(
-          initialList,
-          (i) => i.hasEqualityOfHistory(_model),
-          fieldLabel,
-        );
+    List<ModelInner> initialList,
+  ) : super._(initialList, (i) => i.hasEqualityOfHistory(_model));
 
   ModelInnerList._next(ModelInnerList previous, BuiltList<ModelInner> nextList)
       : _model = previous._model,

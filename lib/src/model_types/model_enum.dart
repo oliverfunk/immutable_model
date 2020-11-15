@@ -17,9 +17,8 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
   /// This is not guaranteed, however.
   factory ModelEnum(
     List<E> enumValues,
-    E initialValue, {
-    String fieldLabel,
-  }) {
+    E initialValue,
+  ) {
     if (enumValues == null || enumValues.isEmpty) {
       throw ModelInitializationError(
         ModelEnum,
@@ -49,18 +48,11 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
         "<E> must be an enum type.",
       );
     }
-    return ModelEnum._(enumValues, initialValue, fieldLabel);
+    return ModelEnum._(enumValues, initialValue);
   }
 
-  ModelEnum._(
-    this._enums,
-    this._current, [
-    String fieldLabel,
-  ]) : super.initial(
-          _current,
-          (e) => _enums.contains(e),
-          fieldLabel,
-        );
+  ModelEnum._(this._enums, this._current)
+      : super.initial(_current, (e) => _enums.contains(e));
 
   ModelEnum._next(ModelEnum<E> previous, this._current)
       : _enums = previous._enums,

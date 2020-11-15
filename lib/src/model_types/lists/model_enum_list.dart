@@ -5,10 +5,9 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
 
   /// A list of enums
   factory ModelEnumList(
-    List<E> enumValues,
-    List<E> initialValue, {
-    String fieldLabel,
-  }) {
+    List<E> enumValues, [
+    List<E> initialList,
+  ]) {
     if (enumValues == null || enumValues.isEmpty) {
       throw ModelInitializationError(
         ModelEnumList,
@@ -16,7 +15,7 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
       );
     }
     // can happen if E is dynamic, i.e. not set
-    if (initialValue is! List<E>) {
+    if (initialList is! List<E>) {
       throw ModelInitializationError(
         ModelEnumList,
         "The enum type <E> must be set",
@@ -32,18 +31,13 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
         "<E> must be an enum type.",
       );
     }
-    return ModelEnumList._(enumValues, initialValue, fieldLabel);
+    return ModelEnumList._(enumValues, initialList);
   }
 
   ModelEnumList._(
     this._enums,
-    List<E> initialList, [
-    String fieldLabel,
-  ]) : super._(
-          initialList,
-          (e) => _enums.contains(e),
-          fieldLabel,
-        );
+    List<E> initialList,
+  ) : super._(initialList, (e) => _enums.contains(e));
 
   ModelEnumList._next(ModelEnumList previous, BuiltList<E> nextList)
       : _enums = previous._enums,

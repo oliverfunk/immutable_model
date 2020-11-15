@@ -40,7 +40,7 @@ class ModelTypeError extends Error {
   @override
   String toString() => "ModelTypeError\n"
       "Expected type <${thisModel.valueType}> but received <${receivedValue.runtimeType}>.\n"
-      " This model:     ${thisModel.toLongString()}\n"
+      " This model:     $thisModel\n"
       " Received value: $receivedValue";
 }
 
@@ -81,8 +81,8 @@ class ModelHistoryEqualityError extends Error {
   @override
   String toString() => "ModelHistoryEqualityError\n"
       "The models have no shared history.\n"
-      " This model:     ${thisModel.toLongString()}\n"
-      " Received model: ${receivedModel.toLongString()}";
+      " This model:     $thisModel\n"
+      " Received model: $receivedModel";
 }
 
 /// An [Error] that occurs when an attempt is made to access a model that does not exist in a [potentially].

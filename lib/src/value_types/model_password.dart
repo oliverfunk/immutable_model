@@ -5,8 +5,15 @@ import '../model_value.dart';
 
 /// A model of a valid password string.
 class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
-  static bool validator(String pwdStr) =>
-      RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").hasMatch(pwdStr);
+  /// The validator function for the password value type.
+  ///
+  /// This will check if [pwStr] is at least 8 characters long,
+  /// has one upper case and one lower case letter and one number
+  static bool validator(String pwStr) =>
+      RegExp(r"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{8,}$").hasMatch(pwStr);
+
+  /// Default field label for this value type, use is optional
+  static String label = "password";
 
   /// Constructs a [ModelValue] of a [String] for a password [ValueType].
   ///
@@ -15,9 +22,8 @@ class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {
   /// The password string is hashed when [asSerializable] is called. This is to mitigate against the cleartext password
   /// being sent down the wire.
   ModelPassword(
-    String password, {
-    String fieldLabel = 'password',
-  }) : super.text(password, validator, fieldLabel);
+    String password,
+  ) : super.text(password, validator);
 
   ModelPassword._next(ModelPassword previous, String value)
       : super.constructNext(previous, value);

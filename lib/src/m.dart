@@ -31,54 +31,36 @@ abstract class M {
         modelMap,
         modelValidator: modelValidator,
         strictUpdates: strictUpdates,
-        fieldLabel: fieldLabel,
       );
 
   /// Returns a [ModelEnum]
-  static ModelEnum<E> enm<E>(
-    List<E> enumValues, {
+  static ModelEnum<E> enm<E>({
+    @required List<E> enumValues,
     @required E initial,
     String fieldLabel,
   }) =>
-      ModelEnum(
-        enumValues,
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelEnum(enumValues, initial);
 
   /// Returns a [ModelBool]
   static ModelBool bl({
     bool initial,
     String fieldLabel,
   }) =>
-      ModelBool(
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelBool(initial);
 
   /// Returns a [ModelInt]
   static ModelInt nt({
     int initial,
     ValueValidator<int> validator,
-    String fieldLabel,
   }) =>
-      ModelInt(
-        initial,
-        validator: validator,
-        fieldLabel: fieldLabel,
-      );
+      ModelInt(initial, validator);
 
   /// Returns a [ModelDouble]
   static ModelDouble dbl({
     double initial,
     ValueValidator<double> validator,
-    String fieldLabel,
   }) =>
-      ModelDouble(
-        initial,
-        validator: validator,
-        fieldLabel: fieldLabel,
-      );
+      ModelDouble(initial, validator);
 
   /// Returns a [ModelString]
   static ModelString str({
@@ -86,158 +68,91 @@ abstract class M {
     ValueValidator<String> validator,
     String fieldLabel,
   }) =>
-      ModelString(
-        initial,
-        validator: validator,
-        fieldLabel: fieldLabel,
-      );
+      ModelString(initial, validator);
 
   /// Returns a [ModelString]
   static ModelString txt({
     String initial,
     ValueValidator<String> validator,
-    String fieldLabel,
   }) =>
-      ModelString.text(
-        initial,
-        validator: validator,
-        fieldLabel: fieldLabel,
-      );
+      ModelString.text(initial, validator);
 
   /// Returns a [ModelDateTime]
   static ModelDateTime dt({
     DateTime initial,
     ValueValidator<DateTime> validator,
-    String fieldLabel,
   }) =>
-      ModelDateTime(
-        initial,
-        validator: validator,
-        fieldLabel: fieldLabel,
-      );
+      ModelDateTime(initial, validator);
 
   /// Returns a [ModelBoolList]
   static ModelBoolList blList({
     List<bool> initial,
-    String fieldLabel,
   }) =>
-      ModelBoolList(
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelBoolList(initial);
 
   /// Returns a [ModelIntList]
   static ModelIntList ntList({
     List<int> initial,
     ListItemValidator<int> itemValidator,
-    String fieldLabel,
   }) =>
-      ModelIntList(
-        initial,
-        itemValidator: itemValidator,
-        fieldLabel: fieldLabel,
-      );
+      ModelIntList(initial, itemValidator);
 
   /// Returns a [ModelDoubleList]
   static ModelDoubleList dblList({
     List<double> initial,
     ListItemValidator<double> itemValidator,
-    String fieldLabel,
   }) =>
-      ModelDoubleList(
-        initial,
-        itemValidator: itemValidator,
-        fieldLabel: fieldLabel,
-      );
+      ModelDoubleList(initial, itemValidator);
 
   /// Returns a [ModelStringList]
   static ModelStringList strList({
     List<String> initial,
     ListItemValidator<String> itemValidator,
-    String fieldLabel,
   }) =>
-      ModelStringList(
-        initial,
-        itemValidator: itemValidator,
-        fieldLabel: fieldLabel,
-      );
+      ModelStringList(initial, itemValidator);
 
   /// Returns a [ModelDateTimeList]
   static ModelDateTimeList dtList({
     List<DateTime> initial,
     ListItemValidator<DateTime> itemValidator,
-    String fieldLabel,
   }) =>
-      ModelDateTimeList(
-        initial,
-        itemValidator: itemValidator,
-        fieldLabel: fieldLabel,
-      );
+      ModelDateTimeList(initial, itemValidator);
 
-  static ModelEnumList<E> enmList<E>(
-    List<E> enumValues, {
+  static ModelEnumList<E> enmList<E>({
+    @required List<E> enumValues,
     List<E> initial,
-    String fieldLabel,
   }) =>
-      ModelEnumList<E>(
-        enumValues,
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelEnumList<E>(enumValues, initial);
 
-  static ModelValueList<M> mvList<M extends ModelValue<M, dynamic>>(
-    M defaultModel, {
+  /// Returns a [ModelValueList]
+  static ModelValueList<M> mvList<M extends ModelValue<M, dynamic>>({
+    @required M defaultModel,
     List initial,
-    String fieldLabel,
   }) =>
-      ModelValueList(
-        defaultModel,
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelValueList(defaultModel, initial);
 
   /// Returns a [ModelInnerList]
-  static ModelInnerList inList(
-    ModelInner model, {
+  static ModelInnerList inList({
+    @required ModelInner innerModel,
     List<Map<String, dynamic>> initial,
-    String fieldLabel,
   }) =>
-      ModelInnerList(
-        model,
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelInnerList(innerModel, initial);
 
   /// Returns a [ModelInnerList] using an [ImmutableModel]
-  static ModelInnerList imList(
-    ImmutableModel model, {
+  static ModelInnerList imList({
+    @required ImmutableModel model,
     List<Map<String, dynamic>> initial,
-    String fieldLabel,
   }) =>
-      ModelInnerList.fromIM(
-        model,
-        initial,
-        fieldLabel: fieldLabel,
-      );
+      ModelInnerList.fromIM(model, initial);
 
   // value types
 
   /// Returns a [ModelEmail]
   static ModelEmail email({
     String defaultEmail,
-    String fieldLabel,
   }) =>
-      ModelEmail(
-        defaultEmail,
-        fieldLabel: fieldLabel,
-      );
+      ModelEmail(defaultEmail);
 
   /// Returns a [ModelPassword]
-  static ModelPassword password({
-    String fieldLabel,
-  }) =>
-      ModelPassword(
-        null,
-        fieldLabel: fieldLabel,
-      );
+  static ModelPassword password() => ModelPassword(null);
 }

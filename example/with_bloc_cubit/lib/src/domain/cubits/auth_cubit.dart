@@ -21,8 +21,8 @@ class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
 
   Future<void> signIn(ModelEmail email, ModelPassword password) async {
     emit(state.transitionToAndUpdate(const AuthLoading(), {
-      'email': email,
-      'password': password,
+      ModelEmail.label: email,
+      ModelPassword.label: password,
     }));
     // do some authorization using auth repo functions
     final didAuth = await _authUser(

@@ -15,6 +15,7 @@ typedef ModelMapValidator = bool Function(Map<String, ModelType> modelMap);
 ///
 /// This class is commonly used to define a hierarchical level in an [ImmutableModel].
 class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
+  /// The current underlying immutable map
   final BuiltMap<String, ModelType> _current;
 
   /// The validation function applied to the resulting map after every update.
@@ -48,7 +49,6 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
     Map<String, ModelType> modelMap, {
     ModelMapValidator modelValidator,
     bool strictUpdates = false,
-    String fieldLabel,
   }) {
     if (modelMap == null || modelMap.isEmpty) {
       throw ModelInitializationError(
@@ -57,23 +57,19 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
       );
     }
     if (modelValidator != null && !modelValidator(modelMap)) {
-      logException(ModelValidationException(ModelInner, modelMap, fieldLabel));
+      logException(ModelValidationException(ModelInner, modelMap));
       throw ModelInitialValidationError(ModelInner, modelMap);
     }
-    return ModelInner._(modelMap, modelValidator, strictUpdates, fieldLabel);
+    return ModelInner._(modelMap, modelValidator, strictUpdates);
   }
 
   ModelInner._(
-    Map<String, ModelType> modelMap, [
+    Map<String, ModelType> modelMap,
     this.modelValidator,
-    this.strictUpdates = false,
-    String fieldLabel,
-  ])  : _current = BuiltMap.of(modelMap),
-        super.initial(
-          modelMap,
-          (_) => true, // this class manages it's own validation
-          fieldLabel,
-        );
+    this.strictUpdates,
+  )   : _current = BuiltMap.of(modelMap),
+        // this class manages it's own validation
+        super.initial(modelMap, null);
 
   ModelInner._next(ModelInner last, this._current)
       : modelValidator = last.modelValidator,
@@ -120,7 +116,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
         ? ModelInner._next(this, updated)
         : logExceptionAndReturn(
             this,
-            ModelValidationException(ModelInner, updated, fieldLabel),
+            ModelValidationException(ModelInner, updated),
           );
   }
 
@@ -180,7 +176,6 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   ModelInner join(
     ModelInner otherModel, {
     bool strictUpdates = false,
-    String fieldLabel,
   }) {
     // merge the two validators
     ModelMapValidator mergedValidator;
@@ -205,8 +200,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
 
     final mergedModelMaps = modelMap..addAll(otherModel.modelMap);
 
-    return ModelInner._(
-        mergedModelMaps, mergedValidator, strictUpdates, fieldLabel);
+    return ModelInner._(mergedModelMaps, mergedValidator, strictUpdates);
   }
 
   /// Merges [other] into this and returns the new next instance.

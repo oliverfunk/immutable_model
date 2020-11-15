@@ -8,51 +8,45 @@ class ModelValueList<M extends ModelValue<M, dynamic>>
   M get model => _model;
 
   factory ModelValueList(
-    M defaultModel,
-    List initialModelValues, {
-    String fieldLabel,
-  }) {
+    M defaultModel, [
+    List initialModelValues = const [],
+  ]) {
     if (defaultModel == null) {
       throw ModelInitializationError(
         ModelValueList,
         "A model must be provided",
       );
     }
-    return ModelValueList._(
-      defaultModel,
-      initialModelValues?.map((i) => defaultModel.next(i))?.toList(),
-      fieldLabel,
-    );
+    return ModelValueList._(defaultModel,
+        initialModelValues.map((i) => defaultModel.next(i)).toList());
   }
 
   factory ModelValueList.numberOfDefault(
     M defaultModel,
-    int numberOfDefault, {
-    String fieldLabel,
-  }) {
+    int numberOfDefault,
+  ) {
     if (defaultModel == null) {
       throw ModelInitializationError(
         ModelValueList,
         "A model must be provided",
       );
     }
+    if (numberOfDefault < 1) {
+      throw ModelInitializationError(
+        ModelValueList,
+        "numberOfDefault must be 1 or more",
+      );
+    }
     return ModelValueList._(
       defaultModel,
-      List(numberOfDefault)
-        ..fillRange(0, numberOfDefault, defaultModel.initial),
-      fieldLabel,
+      List<M>(numberOfDefault)..fillRange(0, numberOfDefault, defaultModel),
     );
   }
 
   ModelValueList._(
     this._model,
-    List<M> initialList, [
-    String fieldLabel,
-  ]) : super._(
-          initialList,
-          (i) => i.hasEqualityOfHistory(_model),
-          fieldLabel,
-        );
+    List<M> initialList,
+  ) : super._(initialList, (i) => i.hasEqualityOfHistory(_model));
 
   ModelValueList._next(
     ModelValueList<M> previous,

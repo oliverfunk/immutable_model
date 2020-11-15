@@ -19,24 +19,19 @@ class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
-  ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelDateTime(
-    DateTime initialValue, {
-    ValueValidator<DateTime> validator,
-    String fieldLabel,
-  }) =>
-      ModelDateTime._(initialValue, validator, fieldLabel);
-
-  ModelDateTime._(
     DateTime initialValue, [
     ValueValidator<DateTime> validator,
-    String fieldLabel,
-  ]) : super.datetime(initialValue, validator, fieldLabel);
+  ]) =>
+      ModelDateTime._(initialValue, validator);
+
+  ModelDateTime._(
+    DateTime initialValue,
+    ValueValidator<DateTime> validator,
+  ) : super.datetime(initialValue, validator);
 
   ModelDateTime._next(ModelDateTime previous, DateTime value)
       : super.constructNext(previous, value);

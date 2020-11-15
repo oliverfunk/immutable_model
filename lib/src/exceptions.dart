@@ -4,27 +4,18 @@ import '../model_types.dart';
 abstract class ModelException implements Exception {
   final Type modelType;
   final String reason;
-  final String fieldLabel;
 
-  ModelException(
-    this.modelType,
-    this.reason, [
-    this.fieldLabel,
-  ]);
+  ModelException(this.modelType, this.reason);
 
   @override
   String toString() => "$runtimeType occurred for $modelType:\n"
-      " $reason\n"
-      " ${fieldLabel == null ? '' : 'For: $fieldLabel\n'}";
+      " $reason\n";
 }
 
 /// An [Exception] that occurs when a model is updated with an invalid value.
 class ModelValidationException extends ModelException {
-  ModelValidationException(
-    Type modelType,
-    dynamic receivedValue, [
-    String fieldLabel,
-  ]) : super(
+  ModelValidationException(Type modelType, dynamic receivedValue)
+      : super(
           modelType,
           "Validation failed on '$receivedValue'",
         );
@@ -39,19 +30,14 @@ class ModelStrictUpdateException extends ModelException {
           "The update did not contain all fields in the model or some values were null\n"
           "  Fields in model:   ${currentModel.fieldLabels}\n"
           "  Fields in update:  ${update.keys}",
-          currentModel.fieldLabel,
         );
 }
 
 /// An [Exception] that occurs when a value cannot be deserialized using a model's [ModelType.deserialize] method.
 class ModelDeserializationException extends ModelException {
-  ModelDeserializationException(
-    Type modelType,
-    dynamic receivedValue, [
-    String fieldLabel,
-  ]) : super(
+  ModelDeserializationException(Type modelType, dynamic receivedValue)
+      : super(
           modelType,
           "Could not deserialize value '$receivedValue'",
-          fieldLabel,
         );
 }

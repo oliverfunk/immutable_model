@@ -14,15 +14,13 @@ class ModelBool extends ModelValue<ModelBool, bool> {
   /// This is not guaranteed, however.
   factory ModelBool(
     // ignore: avoid_positional_boolean_parameters
-    bool initialValue, {
-    String fieldLabel,
-  }) =>
-      ModelBool._(initialValue, fieldLabel);
+    bool initialValue,
+  ) =>
+      ModelBool._(initialValue);
 
   ModelBool._(
-    bool initialValue, [
-    String fieldLabel,
-  ]) : super.bool(initialValue, fieldLabel);
+    bool initialValue,
+  ) : super.bool(initialValue);
 
   ModelBool._next(ModelBool previous, bool value)
       : super.constructNext(previous, value);

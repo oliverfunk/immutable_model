@@ -235,6 +235,16 @@ class ImmutableModel<S> extends Equatable {
         _model.nextFromModel(other._model),
       );
 
+  /// Updates the underlying [ModelInner] with the one in [other]
+  /// and the [currentState] will be set to that of [other].
+  ///
+  /// The two [ModelInner]'s must share a history.
+  ImmutableModel<S> updateWithInner(ModelInner other) =>
+      ImmutableModel<S>._nextModel(
+        this,
+        _model.nextFromModel(other),
+      );
+
   /// Merges [other] into this.
   ///
   /// Will not affect the [currentState].

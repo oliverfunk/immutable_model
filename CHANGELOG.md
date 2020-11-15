@@ -7,6 +7,7 @@
 - All values returned from the asSerializable method are now read-only with the correct types
 - Fixed bug with ModelDateTime fromSerialized
 - Unified the interfaces
+- Removed the fieldLabel property from ModelTypes
 
 ## [0.8.0] - [0.8.1]
 

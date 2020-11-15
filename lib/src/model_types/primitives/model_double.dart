@@ -16,24 +16,19 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
-  ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelDouble(
-    double initialValue, {
-    ValueValidator<double> validator,
-    String fieldLabel,
-  }) =>
-      ModelDouble._(initialValue, validator, fieldLabel);
-
-  ModelDouble._(
     double initialValue, [
     ValueValidator<double> validator,
-    String fieldLabel,
-  ]) : super.double(initialValue, validator, fieldLabel);
+  ]) =>
+      ModelDouble._(initialValue, validator);
+
+  ModelDouble._(
+    double initialValue,
+    ValueValidator<double> validator,
+  ) : super.double(initialValue, validator);
 
   ModelDouble._next(ModelDouble previous, double value)
       : super.constructNext(previous, value);

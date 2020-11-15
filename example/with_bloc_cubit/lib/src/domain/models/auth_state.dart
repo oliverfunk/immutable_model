@@ -1,9 +1,10 @@
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/value_types.dart';
 
 final authStateModel = ImmutableModel<AuthState>(
   {
-    "email": M.email(defaultEmail: 'example@gmail.com'),
-    "password": M.password(),
+    ModelEmail.label: M.email(defaultEmail: 'example@gmail.com'),
+    ModelPassword.label: M.password(),
   },
   initialState: const AuthInitial(),
 );

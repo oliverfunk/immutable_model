@@ -7,7 +7,6 @@ import 'package:immutable_model/model_types.dart';
 import 'package:immutable_model/value_types.dart';
 
 enum TestEnum { en1, en2, en3 }
-enum AnotherEnum { an1, an2, an3 }
 
 abstract class SomeState {
   const SomeState();
@@ -778,10 +777,7 @@ void main() {
       });
     });
     group("ModelIntList:", () {
-      final mIntL = M.ntList(
-        initial: [1, 2],
-        itemValidator: (n) => n <= 10,
-      );
+      final mIntL = M.ntList(initial: [1, 2], itemValidator: (n) => n <= 10);
       // update the model with an invalid value
       final inv = mIntL.next([9, 12]);
       // update the model a couple of times with valid values
@@ -1300,7 +1296,7 @@ void main() {
     });
     group("ModelInnerList:", () {
       final mInL = M.inList(
-        ModelInner({
+        innerModel: ModelInner({
           "outer_int": M.nt(initial: 1),
           "inner": M.inner(
             {
@@ -1428,7 +1424,7 @@ void main() {
         expect(
           mInL,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1481,7 +1477,7 @@ void main() {
         expect(
           updated,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1509,7 +1505,7 @@ void main() {
             updated,
             isNot(
               equals(M.inList(
-                ModelInner({
+                innerModel: ModelInner({
                   "outer_int": M.nt(initial: 1),
                   "inner": M.inner(
                     {
@@ -1613,7 +1609,7 @@ void main() {
         expect(
           updated,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1641,7 +1637,7 @@ void main() {
         expect(
           appended,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1673,7 +1669,7 @@ void main() {
         expect(
           replaced,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1702,7 +1698,7 @@ void main() {
         expect(
           removed,
           equals(M.inList(
-            ModelInner({
+            innerModel: ModelInner({
               "outer_int": M.nt(initial: 1),
               "inner": M.inner(
                 {
@@ -1753,7 +1749,7 @@ void main() {
     });
     group("ModelValueList", () {
       final mValL = M.mvList(
-        ModelEmail("default@gmail.com"),
+        defaultModel: ModelEmail("default@gmail.com"),
         initial: ["a@gmail.com", "b@gmail.com"],
       );
       // update the model a couple of times with valid values
@@ -1920,7 +1916,7 @@ void main() {
     });
     group("ModelEnumList", () {
       final mEnmL = M.enmList<TestEnum>(
-        TestEnum.values,
+        enumValues: TestEnum.values,
         initial: [TestEnum.en1, TestEnum.en2],
       );
       // update the model a couple of times with valid values
@@ -2029,7 +2025,10 @@ void main() {
     });
     // model enum
     group("ModelEnum:", () {
-      final mEnm = M.enm<TestEnum>(TestEnum.values, initial: TestEnum.en1);
+      final mEnm = M.enm<TestEnum>(
+        enumValues: TestEnum.values,
+        initial: TestEnum.en1,
+      );
       // update the model a couple of times with valid values
       final updated =
           mEnm.next(TestEnum.en3).next(TestEnum.en2).next(TestEnum.en3);
@@ -2138,7 +2137,7 @@ void main() {
         "list_double": M.dblList(initial: [0.1, 0.2]),
         "list_str": M.strList(itemValidator: (s) => s[0] == s[0].toUpperCase()),
         "list_date_time": M.dtList(initial: [DateTime(2020), DateTime(2020)]),
-        "enum": M.enm(TestEnum.values, initial: TestEnum.en1),
+        "enum": M.enm(enumValues: TestEnum.values, initial: TestEnum.en1),
         "inner": M.inner(
           {
             "prim_int": M.nt(initial: 1, validator: (n) => n <= 10),
@@ -2509,16 +2508,13 @@ void main() {
   group("Error tests:", () {
     test("Checking initial validation errors", () {
       expect(
-        () => ModelInt(
-          5,
-          validator: (n) => n < 2,
-        ),
+        () => ModelInt(5, (n) => n < 2),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
         () => ModelDouble(
           0.5,
-          validator: (n) => n < 0.2,
+          (n) => n < 0.2,
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
@@ -2527,8 +2523,8 @@ void main() {
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
-        () => ModelDateTime(DateTime(2020),
-            validator: (dt) => dt.isBefore(DateTime(1900))),
+        () =>
+            ModelDateTime(DateTime(2020), (dt) => dt.isBefore(DateTime(1900))),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
@@ -2540,35 +2536,37 @@ void main() {
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
-        () => ModelDateTime(DateTime(2020),
-            validator: (dt) => dt.isBefore(DateTime(1900))),
+        () => ModelDateTime(
+          DateTime(2020),
+          (dt) => dt.isBefore(DateTime(1900)),
+        ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
         () => ModelIntList(
           [4, 5],
-          itemValidator: (i) => i < 1,
+          (i) => i < 1,
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
         () => ModelDoubleList(
           [0.4, 0.5],
-          itemValidator: (i) => i < 0.1,
+          (i) => i < 0.1,
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
         () => ModelStringList(
           ['', 'hello'],
-          itemValidator: (s) => s.isNotEmpty,
+          (s) => s.isNotEmpty,
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );
       expect(
         () => ModelDateTimeList(
           [DateTime(2020), DateTime(2021)],
-          itemValidator: (dt) => dt.isBefore(DateTime(1900)),
+          (dt) => dt.isBefore(DateTime(1900)),
         ),
         throwsA(TypeMatcher<ModelInitialValidationError>()),
       );

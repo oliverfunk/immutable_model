@@ -6,9 +6,9 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   ///
   /// Updates (i.e. a call to [next]) are appended to the end of the list.
   ///
-  /// [initialValue] defines the first (or default) list.
-  /// This can be accessed using the [initialValue] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
+  /// [initialList] defines the first (or default) list.
+  /// This can be accessed using the [initialList] instance, useful when resetting.
+  /// [initialList] can be `null` indicating this model has no initial (or default) value.
   ///
   /// [listItemValidator] is a function that must return `true` if the [String] list item passed to it is valid
   /// and `false` otherwise. [listItemValidator] can be `null` indicating this model has no validation.
@@ -18,24 +18,19 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
   ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
+  /// [listItemValidator] will be run on the elements of [initialList] if they are both not null.
   ///
-  /// [listItemValidator] will be run on the elements of [initialValue] if they are both not null.
-  ///
-  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialValue].
-  factory ModelStringList(
-    List<String> initialValue, {
+  /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
+  factory ModelStringList([
+    List<String> initialList = const <String>[],
     ListItemValidator<String> itemValidator,
-    String fieldLabel,
-  }) =>
-      ModelStringList._(initialValue, itemValidator, fieldLabel);
+  ]) =>
+      ModelStringList._(initialList, itemValidator);
 
   ModelStringList._(
-    List<String> initialList, [
+    List<String> initialList,
     ListItemValidator<String> listItemValidator,
-    String fieldLabel,
-  ]) : super._(initialList, listItemValidator, fieldLabel);
+  ) : super._(initialList, listItemValidator);
 
   ModelStringList._next(ModelStringList previous, BuiltList<String> nextList)
       : super._constructNext(previous, nextList);

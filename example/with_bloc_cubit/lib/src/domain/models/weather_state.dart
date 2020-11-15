@@ -6,13 +6,14 @@ class CityName extends ModelValue<CityName, String> with ValueType {
   // checks if every word is capitalized
   static final validator =
       (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
+
+  // useful to declare the field label statically in the value type class
   static const label = "city_name";
 
-  CityName([String defaultCityName])
-      : super.text(defaultCityName.trim(), validator, label);
+  CityName(String cityName) : super.text(cityName.trim(), validator);
 
-  CityName._next(CityName previous, String value)
-      : super.constructNext(previous, value.trim());
+  CityName._next(CityName previous, String nextCityName)
+      : super.constructNext(previous, nextCityName.trim());
 
   @override
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);
@@ -38,9 +39,9 @@ abstract class WeatherState {
   static final _weatherData = (ImmutableModel<WeatherState> model) =>
       model['weather_data'] as ModelInner;
   static final temperature = (ImmutableModel<WeatherState> model) =>
-      _weatherData(model)["temperature"];
-  static final weather =
-      (ImmutableModel<WeatherState> model) => _weatherData(model)["weather"];
+      _weatherData(model)["temperature"] as double;
+  static final weather = (ImmutableModel<WeatherState> model) =>
+      _weatherData(model)["weather"] as String;
 
   const WeatherState();
 }

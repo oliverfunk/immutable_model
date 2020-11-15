@@ -9,18 +9,44 @@ WeatherCubit _weatherCubit(BuildContext context) =>
     context.bloc<WeatherCubit>();
 
 class _CityInputField extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => TextField(
+  Widget _cityNameTextInput(BuildContext context) => TextField(
         controller: TextEditingController()
           ..text = WeatherState.cityName(_weatherCubit(context).state),
-        onSubmitted: (cityNameStr) =>
-            _weatherCubit(context).fetchWeather(CityName(cityNameStr)),
+        onSubmitted: (cityNameStr) => _weatherCubit(context).fetchWeather(
+          CityName(cityNameStr),
+        ),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           suffixIcon: Icon(Icons.search),
         ),
+      );
+
+  Widget _previousButton() =>
+      BlocBuilder<WeatherCubit, ImmutableModel<WeatherState>>(
+        builder: (context, model) => RaisedButton.icon(
+          icon: Icon(Icons.arrow_back),
+          label: Text("Previous"),
+          onPressed: _weatherCubit(context).previousList.numberOfItems == 0
+              ? null
+              : () => _weatherCubit(context).setToPrevious(),
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          _cityNameTextInput(context),
+          Padding(padding: EdgeInsets.only(top: 10.0)),
+          Row(
+            children: [
+              Expanded(flex: 2, child: _previousButton()),
+              Padding(padding: EdgeInsets.only(left: 10.0)),
+              Expanded(flex: 2, child: _previousButton()),
+            ],
+          ),
+        ],
       );
 }
 
@@ -80,10 +106,12 @@ class WeatherComponent extends StatelessWidget {
             } else if (currentState is WeatherLoading) {
               return _buildLoading();
             } else if (currentState is WeatherLoaded) {
-              return _buildShowWeather(WeatherState.cityName(model),
-                  WeatherState.temperature(model), WeatherState.weather(model));
+              return _buildShowWeather(
+                WeatherState.cityName(model),
+                WeatherState.temperature(model),
+                WeatherState.weather(model),
+              );
             }
-
             return _buildInitialInput();
           },
         ),

@@ -34,10 +34,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// This model needs no validation.
   ModelValue.bool(
     // ignore: avoid_positional_boolean_parameters
-    bool initialValue, [
-    String fieldLabel,
-  ])  : _current = initialValue as V,
-        super.initial(initialValue as V, null, fieldLabel);
+    bool initialValue,
+  )   : _current = initialValue as V,
+        super.initial(initialValue as V, null);
 
   /// A constructor for an object that models an [int].
   ///
@@ -55,12 +54,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.int(
-    int initialValue, [
+    int initialValue,
     ValueValidator<int> validator,
-    String fieldLabel,
-  ])  : _current = initialValue as V,
-        super.initial(
-            initialValue as V, validator as ValueValidator<V>, fieldLabel);
+  )   : _current = initialValue as V,
+        super.initial(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [double].
   ///
@@ -78,12 +75,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.double(
-    double initialValue, [
+    double initialValue,
     ValueValidator<double> validator,
-    String fieldLabel,
-  ])  : _current = initialValue as V,
-        super.initial(
-            initialValue as V, validator as ValueValidator<V>, fieldLabel);
+  )   : _current = initialValue as V,
+        super.initial(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [String].
   ///
@@ -101,15 +96,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.string(
-    String initialValue, [
+    String initialValue,
     ValueValidator<String> validator,
-    String fieldLabel,
-  ])  : _current = initialValue as V,
-        super.initial(
-          initialValue as V,
-          validator as ValueValidator<V>,
-          fieldLabel,
-        );
+  )   : _current = initialValue as V,
+        super.initial(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [String], where the String cannot be null or empty.
   /// Additional validations may be specified.
@@ -128,10 +118,9 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.text(
-    String initialValue, [
+    String initialValue,
     ValueValidator<String> validator,
-    String fieldLabel,
-  ])  : _current = initialValue as V,
+  )   : _current = initialValue as V,
         super.initial(
           initialValue as V,
           validator == null
@@ -140,7 +129,6 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
                   str != null &&
                   (str as String).isNotEmpty &&
                   validator(str as String),
-          fieldLabel,
         );
 
   /// A constructor for an object that models a [DateTime].
@@ -159,12 +147,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ///
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.datetime(
-    DateTime initialValue, [
+    DateTime initialValue,
     ValueValidator<DateTime> validator,
-    String fieldLabel,
-  ])  : _current = initialValue as V,
-        super.initial(
-            initialValue as V, validator as ValueValidator<V>, fieldLabel);
+  )   : _current = initialValue as V,
+        super.initial(initialValue as V, validator as ValueValidator<V>);
 
   ModelValue.constructNext(M previous, this._current)
       : super.fromPrevious(previous);

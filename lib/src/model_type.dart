@@ -37,13 +37,6 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   @nonVirtual
   bool get isInitial => identical(this, initial);
 
-  /// The field label associated with this model
-  ///
-  /// Generally set when used in a [ModelInner] or [ImmutableModel]. This is not guaranteed, however.
-  ///
-  /// Used in debugging or dynamically accessing this model via its field label.
-  final String fieldLabel;
-
   /// The validator applied to updates to this model.
   final ValueValidator<V> _validator;
 
@@ -60,14 +53,13 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   ///
   /// Throws a [ModelInitialValidationError] if [validator] returns false after being run on [initialValue].
   ModelType.initial(
-    V initialValue, [
+    V initialValue,
     ValueValidator<V> validator,
-    this.fieldLabel,
-  ])  : _validator = validator,
+  )   : _validator = validator,
         _initialModel = null {
     // if only there was some way to do this before the instance was initialized...
     if (initialValue != null && validator != null && !validator(initialValue)) {
-      logException(ModelValidationException(M, initialValue, fieldLabel));
+      logException(ModelValidationException(M, initialValue));
       throw ModelInitialValidationError(M, value);
     }
   }
@@ -76,9 +68,8 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   ///
   /// Used during a call to [next], in [buildNext], to construct the next model instance from a [previous] one.
   ModelType.fromPrevious(M previous)
-      : _initialModel = previous.initial,
-        _validator = previous._validator,
-        fieldLabel = previous.fieldLabel;
+      : _validator = previous._validator,
+        _initialModel = previous.initial;
 
   /// Returns a new instance of this model given [nextValue].
   ///
@@ -108,7 +99,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
               ? buildNext(nextValue)
               : logExceptionAndReturn(
                   this,
-                  ModelValidationException(M, nextValue, fieldLabel),
+                  ModelValidationException(M, nextValue),
                 )
           : this
       : this;
@@ -141,7 +132,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
         ? next(v)
         : logExceptionAndReturn(
             this,
-            ModelDeserializationException(M, serialized, fieldLabel),
+            ModelDeserializationException(M, serialized),
           );
   }
 
@@ -194,16 +185,6 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
 
   @nonVirtual
   Type get valueType => V;
-
-  // misc
-
-  /// Debug toString method including the [fieldLabel], if it exists, the [modelType] and model [value].
-  String toLongString() =>
-      "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType<$valueType>($value)";
-
-  /// Debug toString method including the [fieldLabel], if it exists, and the [modelType].
-  String toShortString() =>
-      "${fieldLabel == null ? "" : "'$fieldLabel' : "}$modelType";
 
   /// Debug toString method including the [modelType] and model [value].
   @override
