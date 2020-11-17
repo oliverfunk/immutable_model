@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/cubits/weather_cubit.dart';
-import '../domain/models/weather_state.dart';
+import '../domain/models/weather_model.dart';
 
 WeatherCubit _weatherCubit(BuildContext context) =>
     context.bloc<WeatherCubit>();
@@ -23,31 +23,18 @@ class _CityInputField extends StatelessWidget {
         ),
       );
 
-  Widget _previousButton() =>
-      BlocBuilder<WeatherCubit, ImmutableModel<WeatherState>>(
-        builder: (context, model) => RaisedButton.icon(
+  @override
+  Widget build(BuildContext context) => Column(children: [
+        _cityNameTextInput(context),
+        Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
+        RaisedButton.icon(
           icon: Icon(Icons.arrow_back),
-          label: Text("Previous"),
+          label: Text("Last"),
           onPressed: _weatherCubit(context).previousList.numberOfItems == 0
               ? null
               : () => _weatherCubit(context).setToPrevious(),
         ),
-      );
-
-  @override
-  Widget build(BuildContext context) => Column(
-        children: [
-          _cityNameTextInput(context),
-          Padding(padding: EdgeInsets.only(top: 10.0)),
-          Row(
-            children: [
-              Expanded(flex: 2, child: _previousButton()),
-              Padding(padding: EdgeInsets.only(left: 10.0)),
-              Expanded(flex: 2, child: _previousButton()),
-            ],
-          ),
-        ],
-      );
+      ]);
 }
 
 class WeatherComponent extends StatelessWidget {

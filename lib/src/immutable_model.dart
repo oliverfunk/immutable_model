@@ -168,7 +168,7 @@ class ImmutableModel<S> extends Equatable {
   /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
   ImmutableModel<S> updateWithSelectorIfIn<V>(
     ModelSelector<V> selector,
-    V update,
+    dynamic update,
     S inState,
   ) =>
       currentState.runtimeType == inState.runtimeType

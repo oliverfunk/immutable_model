@@ -5,7 +5,7 @@ import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
 
 import 'user_cubit.dart';
-import '../models/auth_state.dart';
+import '../models/auth_model.dart';
 
 // fake auth'ing function
 Future<bool> _authUser(String email, String password) => Future.delayed(
@@ -17,7 +17,7 @@ Future<bool> _authUser(String email, String password) => Future.delayed(
 class AuthCubit extends Cubit<ImmutableModel<AuthState>> {
   final UserCubit userCubit;
 
-  AuthCubit(this.userCubit) : super(authStateModel);
+  AuthCubit(this.userCubit) : super(authModel);
 
   Future<void> signIn(ModelEmail email, ModelPassword password) async {
     emit(state.transitionToAndUpdate(const AuthLoading(), {

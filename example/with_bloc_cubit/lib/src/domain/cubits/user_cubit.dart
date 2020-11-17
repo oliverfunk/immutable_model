@@ -2,10 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
 
-import '../models/user_state.dart';
+import '../models/user_model.dart';
 
 class UserCubit extends Cubit<ImmutableModel<UserState>> {
-  UserCubit() : super(userStateModel);
+  UserCubit() : super(userModel);
 
   // derived values
   int listTotal() => state
@@ -19,24 +19,28 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
 
   void unauthUser() => emit(state.resetAndTransitionTo(const UserUnauthed()));
 
-  void updateValues<V>(ModelSelector<V> selector, V value) =>
-      emit(state.updateWithSelectorIfIn(selector, value, const UserAuthed()));
+  void updateValues(ModelSelector selector, dynamic update) =>
+      emit(state.updateWithSelectorIfIn(selector, update, const UserAuthed()));
 
-  void sortListAsc() => updateValues(
-      UserState.listOfEvensSel,
-      (list) => list
-        ..sort((a, b) => a > b
+  void sortListAsc() {
+    ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
+    updateValues(
+        UserState.listOfEvensSel,
+        lm.sort((a, b) => a > b
             ? 1
             : a == b
                 ? 0
                 : -1));
+  }
 
-  void sortListDec() => updateValues(
-      UserState.listOfEvensSel,
-      (list) => list
-        ..sort((a, b) => a < b
+  void sortListDec() {
+    ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
+    updateValues(
+        UserState.listOfEvensSel,
+        lm.sort((a, b) => a < b
             ? 1
             : a == b
                 ? 0
                 : -1));
+  }
 }

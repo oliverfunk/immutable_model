@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/cubits/weather_cubit.dart';
-import '../domain/models/weather_state.dart';
+import '../domain/models/weather_model.dart';
 
 class FakeWeatherRepository implements WeatherRepository {
   @override
@@ -28,7 +28,7 @@ class FakeWeatherRepository implements WeatherRepository {
         };
 
         // Return "fetched" weather
-        return weatherStateModel.fromJson(returnedJson);
+        return weatherModel.fromJson(returnedJson);
       },
     );
   }
