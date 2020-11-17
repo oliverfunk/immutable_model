@@ -5,11 +5,26 @@
 library model_types;
 
 export 'src/model_type.dart';
-export 'src/model_types/lists/model_list.dart';
+// model lists
+export 'src/model_types/lists/model_bool_list.dart';
+export 'src/model_types/lists/model_datetime_list.dart';
+export 'src/model_types/lists/model_double_list.dart';
+export 'src/model_types/lists/model_enum_list.dart';
+export 'src/model_types/lists/model_inner_list.dart';
+export 'src/model_types/lists/model_int_list.dart';
+export 'src/model_types/lists/model_string_list.dart';
+export 'src/model_types/lists/model_value_list.dart';
+// model enum
 export 'src/model_types/model_enum.dart';
+// model inner
 export 'src/model_types/model_inner.dart';
+// model values
+export 'src/model_types/model_value.dart';
 export 'src/model_types/primitives/model_bool.dart';
 export 'src/model_types/primitives/model_datetime.dart';
 export 'src/model_types/primitives/model_double.dart';
 export 'src/model_types/primitives/model_int.dart';
 export 'src/model_types/primitives/model_string.dart';
+// value types
+export 'src/value_types/model_email.dart';
+export 'src/value_types/model_password.dart';

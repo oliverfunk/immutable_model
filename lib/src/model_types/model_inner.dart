@@ -4,12 +4,8 @@ import '../errors.dart';
 import '../exceptions.dart';
 import '../model_selector.dart';
 import '../model_type.dart';
-import '../utils/log.dart';
-
-/// A function that validates [modelMap].
-///
-/// Note [modelMap] is read-only.
-typedef ModelMapValidator = bool Function(Map<String, ModelType> modelMap);
+import '../typedefs.dart';
+import '../utils/loggers.dart';
 
 /// A model for a validated map between field label Strings and other [ModelType] models.
 ///
@@ -68,13 +64,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
     this.modelValidator,
     this.strictUpdates,
   )   : _current = BuiltMap.of(modelMap),
-        // this class manages it's own validation
-        super.initial(modelMap, null);
+        super.initial(modelMap, null); // this class manages it's own validation
 
-  ModelInner._next(ModelInner last, this._current)
-      : modelValidator = last.modelValidator,
-        strictUpdates = last.strictUpdates,
-        super.fromPrevious(last);
+  ModelInner._next(ModelInner previous, this._current)
+      : modelValidator = previous.modelValidator,
+        strictUpdates = previous.strictUpdates,
+        super.fromPrevious(previous);
 
   /// Validates [updated] using [modelValidator], if it's defined.
   bool _validateUpdated(Map<String, ModelType> updated) =>
@@ -290,13 +285,13 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   Map<String, ModelType> deserialize(dynamic serialized) {
     if (serialized is Map<String, dynamic>) {
       // there's possibly a more efficient way of doing this
-      final modMap = <String, ModelType>{};
+      final mMap = <String, ModelType>{};
       serialized.forEach((serLabel, serValue) {
         if (hasModel(serLabel)) {
-          modMap[serLabel] = getModel(serLabel).nextWithSerialized(serValue);
+          mMap[serLabel] = getModel(serLabel).nextWithSerialized(serValue);
         }
       });
-      return modMap;
+      return mMap;
     } else {
       return null;
     }
@@ -337,12 +332,12 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// Resets the models specified by [fieldLabels] to their [initial] instance.
   ModelInner resetFields(List<String> fieldLabels) {
     if (isInitial) return this;
-    final modMap = <String, ModelType>{};
+
+    final mMap = <String, ModelType>{};
     for (var label in fieldLabels) {
-      final m = getModel(label);
-      modMap[label] = m.initial;
+      mMap[label] = getModel(label).initial;
     }
-    return next(modMap);
+    return next(mMap);
   }
 
   /// Resets all models to their [initial] instance.

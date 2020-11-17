@@ -1,4 +1,9 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../errors.dart';
+import '../../immutable_model.dart';
+import '../model_inner.dart';
+import '../model_list.dart';
 
 /// A model for a list of [ModelInner]s.
 class ModelInnerList extends ModelList<ModelInnerList, ModelInner> {
@@ -38,11 +43,11 @@ class ModelInnerList extends ModelList<ModelInnerList, ModelInner> {
   ModelInnerList._(
     this._model,
     List<ModelInner> initialList,
-  ) : super._(initialList, (i) => i.hasEqualityOfHistory(_model));
+  ) : super(initialList, (i) => i.hasEqualityOfHistory(_model));
 
   ModelInnerList._next(ModelInnerList previous, BuiltList<ModelInner> nextList)
       : _model = previous._model,
-        super._constructNext(previous, nextList);
+        super.constructNext(previous, nextList);
 
   // always rebuild, possibly a very expensive call to check equality
   // of each ModelInner in the list each update.

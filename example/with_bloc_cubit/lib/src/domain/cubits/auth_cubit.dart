@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/value_types.dart';
+import 'package:immutable_model/model_types.dart';
 
 import 'user_cubit.dart';
 import '../models/auth_state.dart';

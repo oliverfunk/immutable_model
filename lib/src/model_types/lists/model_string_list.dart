@@ -1,4 +1,7 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../typedefs.dart';
+import '../model_list.dart';
 
 /// A model for a validated list of Strings.
 class ModelStringList extends ModelList<ModelStringList, String> {
@@ -30,10 +33,10 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   ModelStringList._(
     List<String> initialList,
     ListItemValidator<String> listItemValidator,
-  ) : super._(initialList, listItemValidator);
+  ) : super(initialList, listItemValidator);
 
   ModelStringList._next(ModelStringList previous, BuiltList<String> nextList)
-      : super._constructNext(previous, nextList);
+      : super.constructNext(previous, nextList);
 
   @override
   ModelStringList buildNextInternal(BuiltList<String> next) =>

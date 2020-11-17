@@ -1,12 +1,12 @@
 import 'package:meta/meta.dart';
 
 import '../model_types.dart';
-import '../value_types.dart';
 import './immutable_model.dart';
+import 'typedefs.dart';
 
 /// An abstract holding class defining shorthands for the constructors of each model defined in this library.
 ///
-/// These contractions are useful in keeping definitions of [ImmutableModel]'s concise.
+/// These contractions are useful for keeping definitions of [ImmutableModel]'s concise.
 ///
 /// Meanings:
 ///
@@ -25,7 +25,6 @@ abstract class M {
     Map<String, ModelType> modelMap, {
     ModelMapValidator modelValidator,
     bool strictUpdates = false,
-    String fieldLabel,
   }) =>
       ModelInner(
         modelMap,
@@ -37,14 +36,12 @@ abstract class M {
   static ModelEnum<E> enm<E>({
     @required List<E> enumValues,
     @required E initial,
-    String fieldLabel,
   }) =>
       ModelEnum(enumValues, initial);
 
   /// Returns a [ModelBool]
   static ModelBool bl({
     bool initial,
-    String fieldLabel,
   }) =>
       ModelBool(initial);
 
@@ -66,7 +63,6 @@ abstract class M {
   static ModelString str({
     String initial,
     ValueValidator<String> validator,
-    String fieldLabel,
   }) =>
       ModelString(initial, validator);
 
@@ -86,34 +82,34 @@ abstract class M {
 
   /// Returns a [ModelBoolList]
   static ModelBoolList blList({
-    List<bool> initial,
+    List<bool> initial = const <bool>[],
   }) =>
       ModelBoolList(initial);
 
   /// Returns a [ModelIntList]
   static ModelIntList ntList({
-    List<int> initial,
+    List<int> initial = const <int>[],
     ListItemValidator<int> itemValidator,
   }) =>
       ModelIntList(initial, itemValidator);
 
   /// Returns a [ModelDoubleList]
   static ModelDoubleList dblList({
-    List<double> initial,
+    List<double> initial = const <double>[],
     ListItemValidator<double> itemValidator,
   }) =>
       ModelDoubleList(initial, itemValidator);
 
   /// Returns a [ModelStringList]
   static ModelStringList strList({
-    List<String> initial,
+    List<String> initial = const <String>[],
     ListItemValidator<String> itemValidator,
   }) =>
       ModelStringList(initial, itemValidator);
 
   /// Returns a [ModelDateTimeList]
   static ModelDateTimeList dtList({
-    List<DateTime> initial,
+    List<DateTime> initial = const <DateTime>[],
     ListItemValidator<DateTime> itemValidator,
   }) =>
       ModelDateTimeList(initial, itemValidator);
@@ -127,23 +123,23 @@ abstract class M {
   /// Returns a [ModelValueList]
   static ModelValueList<M> mvList<M extends ModelValue<M, dynamic>>({
     @required M defaultModel,
-    List initial,
+    List initialValues = const [],
   }) =>
-      ModelValueList(defaultModel, initial);
+      ModelValueList(defaultModel, initialValues);
 
   /// Returns a [ModelInnerList]
   static ModelInnerList inList({
     @required ModelInner innerModel,
-    List<Map<String, dynamic>> initial,
+    List<Map<String, dynamic>> initialValues = const <Map<String, dynamic>>[],
   }) =>
-      ModelInnerList(innerModel, initial);
+      ModelInnerList(innerModel, initialValues);
 
   /// Returns a [ModelInnerList] using an [ImmutableModel]
   static ModelInnerList imList({
     @required ImmutableModel model,
-    List<Map<String, dynamic>> initial,
+    List<Map<String, dynamic>> initialValues = const <Map<String, dynamic>>[],
   }) =>
-      ModelInnerList.fromIM(model, initial);
+      ModelInnerList.fromIM(model, initialValues);
 
   // value types
 

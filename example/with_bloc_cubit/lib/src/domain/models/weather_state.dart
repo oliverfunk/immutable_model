@@ -1,12 +1,10 @@
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
-import 'package:immutable_model/value_types.dart';
 
 class CityName extends ModelValue<CityName, String> with ValueType {
   // checks if every word is capitalized
-  static final validator =
-      (String str) => (str).split(" ").every((w) => w[0] == w[0].toUpperCase());
-
+  static bool validator(String cityName) =>
+      (cityName).split(" ").every((w) => w[0] == w[0].toUpperCase());
   // useful to declare the field label statically in the value type class
   static const label = "city_name";
 

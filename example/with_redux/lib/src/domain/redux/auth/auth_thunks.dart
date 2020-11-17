@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:redux/redux.dart';
 import 'package:redux_thunk/redux_thunk.dart';
-import 'package:immutable_model/value_types.dart';
+import 'package:immutable_model/model_types.dart';
 
 import '../../app_state.dart';
 import '../user/user_action.dart';

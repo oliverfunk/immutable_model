@@ -1,4 +1,7 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../typedefs.dart';
+import '../model_list.dart';
 
 class ModelIntList extends ModelList<ModelIntList, int> {
   /// Constructs a [ModelType] of a list of [int]s.
@@ -28,10 +31,10 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   ModelIntList._(
     List<int> initialList, [
     ListItemValidator<int> listItemValidator,
-  ]) : super._(initialList, listItemValidator);
+  ]) : super(initialList, listItemValidator);
 
   ModelIntList._next(ModelIntList previous, BuiltList<int> nextList)
-      : super._constructNext(previous, nextList);
+      : super.constructNext(previous, nextList);
 
   @override
   ModelIntList buildNextInternal(BuiltList<int> next) =>

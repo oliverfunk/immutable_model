@@ -1,4 +1,6 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../model_list.dart';
 
 class ModelBoolList extends ModelList<ModelBoolList, bool> {
   /// Constructs a [ModelType] of a list of [bool]s.
@@ -16,10 +18,10 @@ class ModelBoolList extends ModelList<ModelBoolList, bool> {
 
   ModelBoolList._(
     List<bool> initialList,
-  ) : super._(initialList, null);
+  ) : super(initialList, null);
 
   ModelBoolList._next(ModelBoolList previous, BuiltList<bool> nextList)
-      : super._constructNext(previous, nextList);
+      : super.constructNext(previous, nextList);
 
   @override
   ModelBoolList buildNextInternal(BuiltList<bool> next) =>

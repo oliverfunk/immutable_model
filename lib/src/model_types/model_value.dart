@@ -1,6 +1,8 @@
-import 'model_type.dart';
+import '../model_type.dart';
+import '../typedefs.dart';
 
-/// An abstract class for a [ModelType] that holds, directly, a value [V] instead of a some underlying data structure.
+/// An abstract class for a [ModelType] that holds, directly,
+/// a value [V] instead of a some underlying data structure.
 ///
 /// Supported [V] are:
 ///
@@ -35,8 +37,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.bool(
     // ignore: avoid_positional_boolean_parameters
     bool initialValue,
-  )   : _current = initialValue as V,
-        super.initial(initialValue as V, null);
+  ) : this._(initialValue as V, null);
 
   /// A constructor for an object that models an [int].
   ///
@@ -56,8 +57,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.int(
     int initialValue,
     ValueValidator<int> validator,
-  )   : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>);
+  ) : this._(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [double].
   ///
@@ -77,8 +77,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.double(
     double initialValue,
     ValueValidator<double> validator,
-  )   : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>);
+  ) : this._(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [String].
   ///
@@ -98,8 +97,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.string(
     String initialValue,
     ValueValidator<String> validator,
-  )   : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>);
+  ) : this._(initialValue as V, validator as ValueValidator<V>);
 
   /// A constructor for an object that models a [String], where the String cannot be null or empty.
   /// Additional validations may be specified.
@@ -120,16 +118,14 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.text(
     String initialValue,
     ValueValidator<String> validator,
-  )   : _current = initialValue as V,
-        super.initial(
-          initialValue as V,
-          validator == null
-              ? (str) => str != null && (str as String).isNotEmpty
-              : (str) =>
-                  str != null &&
-                  (str as String).isNotEmpty &&
-                  validator(str as String),
-        );
+  ) : this._(
+            initialValue as V,
+            validator == null
+                ? (str) => str != null && (str as String).isNotEmpty
+                : (str) =>
+                    str != null &&
+                    (str as String).isNotEmpty &&
+                    validator(str as String));
 
   /// A constructor for an object that models a [DateTime].
   ///
@@ -149,8 +145,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   ModelValue.datetime(
     DateTime initialValue,
     ValueValidator<DateTime> validator,
-  )   : _current = initialValue as V,
-        super.initial(initialValue as V, validator as ValueValidator<V>);
+  ) : this._(initialValue as V, validator as ValueValidator<V>);
+
+  ModelValue._(this._current, ValueValidator<V> validator)
+      : super.initial(_current, validator);
 
   ModelValue.constructNext(M previous, this._current)
       : super.fromPrevious(previous);

@@ -2,26 +2,10 @@ import 'package:built_collection/built_collection.dart';
 import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 
-import '../../errors.dart';
-import '../../exceptions.dart';
-import '../../immutable_model.dart';
-import '../../model_type.dart';
-import '../../model_value.dart';
-import '../../utils/log.dart';
-import '../model_enum.dart';
-import '../model_inner.dart';
-
-part 'model_bool_list.dart';
-part 'model_datetime_list.dart';
-part 'model_double_list.dart';
-part 'model_inner_list.dart';
-part 'model_int_list.dart';
-part 'model_string_list.dart';
-part 'model_value_list.dart';
-part 'model_enum_list.dart';
-
-/// A function that validates an item from a list
-typedef ListItemValidator<V> = bool Function(V listItem);
+import '../exceptions.dart';
+import '../model_type.dart';
+import '../typedefs.dart';
+import '../utils/loggers.dart';
 
 /// An abstract class for a model for a validated list of items.
 /// This class is meant to be extended inside this library only.
@@ -30,7 +14,7 @@ abstract class ModelList<M extends ModelList<M, T>, T>
   /// The current underlying immutable list
   final BuiltList<T> _current;
 
-  ModelList._(
+  ModelList(
     List<T> initialList,
     ListItemValidator<T> listItemValidator,
   )   : _current = BuiltList<T>.of(initialList ?? <T>[]),
@@ -41,7 +25,7 @@ abstract class ModelList<M extends ModelList<M, T>, T>
                 : (toValidate) => toValidate
                     .every((listItem) => listItemValidator(listItem)));
 
-  ModelList._constructNext(M previous, this._current)
+  ModelList.constructNext(M previous, this._current)
       : super.fromPrevious(previous);
 
   @override

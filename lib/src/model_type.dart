@@ -3,18 +3,15 @@ import 'package:meta/meta.dart';
 
 import 'errors.dart';
 import 'exceptions.dart';
-import 'utils/log.dart';
-
-/// A function that validates the [value] passed to it.
-typedef ValueValidator<V> = bool Function(V value);
-
-/// A function that updates the value of a model based on its [currentValue].
-typedef ValueUpdater = dynamic Function(dynamic currentValue);
+import 'typedefs.dart';
+import 'utils/loggers.dart';
 
 /// An abstract base class that defines common model attributes and behaviors.
 ///
 /// Any class that extends this must be immutable and will have equality based on its current [value],
 /// as provided by [Equatable].
+///
+/// This class should not be extended, rather extend [ModelValue].
 @immutable
 abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// The current model value.

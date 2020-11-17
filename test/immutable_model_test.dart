@@ -4,9 +4,9 @@ import 'package:test/test.dart';
 
 import 'package:immutable_model/immutable_model.dart';
 import 'package:immutable_model/model_types.dart';
-import 'package:immutable_model/value_types.dart';
 
 enum TestEnum { en1, en2, en3 }
+enum AnTestEnum { an1, an2, an3 }
 
 abstract class SomeState {
   const SomeState();
@@ -1306,7 +1306,7 @@ void main() {
             strictUpdates: true,
           ),
         }),
-        initial: [
+        initialValues: [
           {
             "inner": {
               "inner_int": 11,
@@ -1434,7 +1434,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "inner": {
                   "inner_int": 11,
@@ -1487,7 +1487,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "outer_int": 5,
               },
@@ -1515,7 +1515,7 @@ void main() {
                     strictUpdates: true,
                   ),
                 }),
-                initial: [
+                initialValues: [
                   {
                     "inner": {
                       "inner_int": 110,
@@ -1619,7 +1619,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "outer_int": 5,
               },
@@ -1647,7 +1647,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "outer_int": 5,
               },
@@ -1679,7 +1679,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "outer_int": 55,
               },
@@ -1708,7 +1708,7 @@ void main() {
                 strictUpdates: true,
               ),
             }),
-            initial: [
+            initialValues: [
               {
                 "outer_int": 5,
               },
@@ -1750,7 +1750,7 @@ void main() {
     group("ModelValueList", () {
       final mValL = M.mvList(
         defaultModel: ModelEmail("default@gmail.com"),
-        initial: ["a@gmail.com", "b@gmail.com"],
+        initialValues: ["a@gmail.com", "b@gmail.com"],
       );
       // update the model a couple of times with valid values
       final updated = mValL.next([
@@ -1812,6 +1812,12 @@ void main() {
               ["c@gmail.com", "d@gmail.com"],
             )));
         expect(updated, isNot(equals(mValL)));
+      });
+      test("Checking empty list initialization", () {
+        expect(
+          M.mvList(defaultModel: ModelEmail("default@gmail.com")).value,
+          equals(<ModelPassword>[]),
+        );
       });
       test("Checking new instance generation", () {
         // updating with a model should return that model instance
@@ -2137,7 +2143,8 @@ void main() {
         "list_double": M.dblList(initial: [0.1, 0.2]),
         "list_str": M.strList(itemValidator: (s) => s[0] == s[0].toUpperCase()),
         "list_date_time": M.dtList(initial: [DateTime(2020), DateTime(2020)]),
-        "enum": M.enm(enumValues: TestEnum.values, initial: TestEnum.en1),
+        "enum":
+            M.enm<TestEnum>(enumValues: TestEnum.values, initial: TestEnum.en1),
         "inner": M.inner(
           {
             "prim_int": M.nt(initial: 1, validator: (n) => n <= 10),
@@ -2478,31 +2485,6 @@ void main() {
         }),
         equals(joined),
       );
-    });
-    test("Checking restore", () {
-      final restorableModel = ImmutableModel<SomeState>(
-        {
-          'an_int': M.nt(),
-          'a_str': M.str(initial: "Hello"),
-        },
-        cacheBufferSize: 2,
-        initialState: SomeAState(),
-      );
-      final update1 = restorableModel.update({
-        'a_str': 'Foo',
-      });
-      final update2 = update1.transitionToAndUpdate(const SomeBState(), {
-        'an_int': 1,
-        'a_str': 'Bar',
-      });
-      final update3 = update2.update({
-        'a_str': 'Foo',
-      });
-      expect(update3.restoreBy(1), equals(update2));
-      // the cache buffer is shared between instances
-      expect(update3.restoreBy(1), equals(update1));
-      final reset = update3.resetAll();
-      expect(() => reset.restoreBy(1), throwsA(TypeMatcher<Exception>()));
     });
   });
   group("Error tests:", () {

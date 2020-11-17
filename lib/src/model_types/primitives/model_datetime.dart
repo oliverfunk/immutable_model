@@ -1,5 +1,5 @@
-import '../../model_type.dart';
-import '../../model_value.dart';
+import '../../typedefs.dart';
+import '../model_value.dart';
 
 /// A model for a validated [DateTime]
 class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:immutable_model/immutable_model.dart';
-import 'package:immutable_model/value_types.dart';
+import 'package:immutable_model/model_types.dart';
 
 @immutable
 abstract class UserAction {

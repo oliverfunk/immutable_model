@@ -1,4 +1,7 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../typedefs.dart';
+import '../model_list.dart';
 
 /// A model for a validated list of doubles.
 class ModelDoubleList extends ModelList<ModelDoubleList, double> {
@@ -29,10 +32,10 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   ModelDoubleList._(
     List<double> initialList,
     ListItemValidator<double> listItemValidator,
-  ) : super._(initialList, listItemValidator);
+  ) : super(initialList, listItemValidator);
 
   ModelDoubleList._next(ModelDoubleList previous, BuiltList<double> nextList)
-      : super._constructNext(previous, nextList);
+      : super.constructNext(previous, nextList);
 
   @override
   ModelDoubleList buildNextInternal(BuiltList<double> next) =>

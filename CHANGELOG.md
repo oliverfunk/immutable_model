@@ -1,4 +1,4 @@
-## [0.9.0] - [0.9.2]
+## [0.9.0] - [0.9.3]
 
 - Out of Alpha! All core features have been added and the fat trimmed.
 - Added ModelValue and ModelEnum lists
@@ -8,6 +8,8 @@
 - Fixed bug with ModelDateTime fromSerialized
 - Unified the interfaces
 - Removed the fieldLabel property from ModelTypes
+- Removed cacheBuffer from immutable model
+- Restructured project layout
 
 ## [0.8.0] - [0.8.1]
 

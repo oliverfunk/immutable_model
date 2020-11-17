@@ -1,5 +1,5 @@
-import '../../model_type.dart';
-import '../../model_value.dart';
+import '../../typedefs.dart';
+import '../model_value.dart';
 
 /// A model for a validated [String].
 class ModelString extends ModelValue<ModelString, String> {
@@ -15,9 +15,6 @@ class ModelString extends ModelValue<ModelString, String> {
   /// If it returns `true`, the update will be applied. Otherwise a [ValidationException]
   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
   /// (without the updated applied).
-  ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
   ///
   /// [validator] will be run on [initialValue] if they are both not null.
   ///

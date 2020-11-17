@@ -1,4 +1,4 @@
-import '../../model_value.dart';
+import '../model_value.dart';
 
 /// A model for a [bool]. This class needs no validator.
 class ModelBool extends ModelValue<ModelBool, bool> {
@@ -9,9 +9,6 @@ class ModelBool extends ModelValue<ModelBool, bool> {
   /// [initialValue] can be `null` indicating this model has no initial (or default) value.
   ///
   /// This model needs no validation.
-  ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
   factory ModelBool(
     // ignore: avoid_positional_boolean_parameters
     bool initialValue,

@@ -5,7 +5,7 @@ import 'errors.dart';
 import 'model_selector.dart';
 import 'model_type.dart';
 import 'model_types/model_inner.dart';
-import 'utils/cache_buffer.dart';
+import 'typedefs.dart';
 
 /// Default placeholder state for [ImmutableModel]'s
 // ignore: constant_identifier_names
@@ -22,11 +22,6 @@ class ImmutableModel<S> extends Equatable {
 
   /// The model's current state.
   final S _state;
-
-  /// An internal buffer cache for undo changes done to the model.
-  ///
-  /// Note: this is isn't stable and it's current implementation can have unintended consequences.
-  final CacheBuffer<ImmutableModel<S>> _cache;
 
   /// Constructs a class used to define an immutable state model.
   ///
@@ -60,13 +55,12 @@ class ImmutableModel<S> extends Equatable {
     ModelMapValidator modelValidator,
     S initialState,
     bool strictUpdates = false,
-    int cacheBufferSize,
   }) {
-    // can happen if the initialState is not set when S is, or vise versa.
+    // can happen if the initialState is not set when S is.
     if (initialState is! S) {
       throw ModelInitializationError(
         ImmutableModel,
-        "The <S> and initialState must be set.",
+        "The initialState must be set.",
       );
     }
     return ImmutableModel._(
@@ -74,7 +68,6 @@ class ImmutableModel<S> extends Equatable {
       modelValidator,
       initialState,
       strictUpdates,
-      cacheBufferSize,
     );
   }
 
@@ -83,14 +76,12 @@ class ImmutableModel<S> extends Equatable {
     ModelMapValidator modelValidator,
     S initialState,
     bool strictUpdates = false,
-    int cacheBufferSize,
   ])  : _model = ModelInner(
           modelMap,
           modelValidator: modelValidator,
           strictUpdates: strictUpdates,
         ),
-        _state = initialState ?? ModelState.Default as S,
-        _cache = cacheBufferSize == null ? null : CacheBuffer(cacheBufferSize);
+        _state = initialState ?? ModelState.Default as S;
 
   /// Construct the next instance using both a state and model change.
   ///
@@ -99,15 +90,8 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel._nextBoth(
     ImmutableModel<S> last,
     this._state,
-    this._model, [
-    bool cacheOrPurge = true,
-  ]) : _cache = last._cache {
-    if (cacheOrPurge) {
-      _cache?.cacheItem(last);
-    } else {
-      _cache?.purge();
-    }
-  }
+    this._model,
+  );
 
   /// Construct the next instance using only a model change.
   ///
@@ -115,16 +99,8 @@ class ImmutableModel<S> extends Equatable {
   /// Otherwise the cache is purged, all items are removed.
   ImmutableModel._nextModel(
     ImmutableModel<S> last,
-    this._model, [
-    bool cacheOrPurge = true,
-  ])  : _state = last._state,
-        _cache = last._cache {
-    if (cacheOrPurge) {
-      _cache?.cacheItem(last);
-    } else {
-      _cache?.purge();
-    }
-  }
+    this._model,
+  ) : _state = last._state;
 
   /// Construct the next instance using only a state change.
   ///
@@ -132,25 +108,8 @@ class ImmutableModel<S> extends Equatable {
   /// Otherwise the cache is purged, all items are removed.
   ImmutableModel._nextState(
     ImmutableModel<S> last,
-    this._state, [
-    bool cacheOrPurge = true,
-  ])  : _model = last._model,
-        _cache = last._cache {
-    if (cacheOrPurge) {
-      _cache?.cacheItem(last);
-    } else {
-      _cache?.purge();
-    }
-  }
-
-  /// Returns the [ImmutableModel] instance from the number of [point]s before.
-  ///
-  /// if `point=1`, the previous instance would be returned (like an undo).
-  ///
-  /// Note: this feature is still experimental. Unexpected results can occur.
-  @experimental
-  ImmutableModel<S> restoreBy(int point) =>
-      _cache == null ? this : _cache.restoreBy(point);
+    this._state,
+  ) : _model = last._model;
 
   // value
 
@@ -165,13 +124,6 @@ class ImmutableModel<S> extends Equatable {
 
   // updating
 
-  Map<String, dynamic> _assertNotEmpty(
-    Map<String, dynamic> updateToCheck,
-  ) =>
-      updateToCheck.isNotEmpty
-          ? updateToCheck
-          : throw AssertionError("Update can't be empty");
-
   /// Updates the current model values with those specified in [updates].
   ///
   /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
@@ -180,10 +132,7 @@ class ImmutableModel<S> extends Equatable {
   ImmutableModel<S> update(
     Map<String, dynamic> updates,
   ) =>
-      ImmutableModel<S>._nextModel(
-        this,
-        _model.nextWithUpdates(_assertNotEmpty(updates)),
-      );
+      ImmutableModel<S>._nextModel(this, _model.nextWithUpdates(updates));
 
   /// Updates the current model values with those specified in [updates],
   /// if [currentState] == [inState].
@@ -210,7 +159,9 @@ class ImmutableModel<S> extends Equatable {
     dynamic update,
   ) =>
       ImmutableModel<S>._nextModel(
-          this, _model.nextWithSelector(selector, update));
+        this,
+        _model.nextWithSelector(selector, update),
+      );
 
   /// Updates the field selected by [selector] with [update] if [currentState] is [inState].
   ///
@@ -240,10 +191,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// The two [ModelInner]'s must share a history.
   ImmutableModel<S> updateWithInner(ModelInner other) =>
-      ImmutableModel<S>._nextModel(
-        this,
-        _model.nextFromModel(other),
-      );
+      ImmutableModel<S>._nextModel(this, _model.nextFromModel(other));
 
   /// Merges [other] into this.
   ///
@@ -251,10 +199,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// As [ModelInner.merge].
   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
-      ImmutableModel<S>._nextModel(
-        this,
-        _model.merge(other._model),
-      );
+      ImmutableModel<S>._nextModel(this, _model.merge(other._model));
 
   /// Resets the models specified by [fieldLabels]
   /// to their [ModelType.initial] instance.
@@ -262,33 +207,20 @@ class ImmutableModel<S> extends Equatable {
   /// [fieldLabels] cannot be empty.
   ImmutableModel<S> resetFields(List<String> fieldLabels) =>
       fieldLabels.isNotEmpty
-          ? ImmutableModel<S>._nextModel(
-              this,
-              _model.resetFields(fieldLabels),
-            )
+          ? ImmutableModel<S>._nextModel(this, _model.resetFields(fieldLabels))
           : throw AssertionError("Fields can't be empty");
 
   /// Resets all the models in this to their [ModelType.initial] instance.
-  ImmutableModel<S> resetAll() => ImmutableModel<S>._nextModel(
-        this,
-        _model.resetAll(),
-        false,
-      );
+  ImmutableModel<S> resetAll() =>
+      ImmutableModel<S>._nextModel(this, _model.resetAll());
 
   /// Sets the [currentState] to [nextState].
-  ImmutableModel<S> transitionTo(S nextState) => ImmutableModel<S>._nextState(
-        this,
-        nextState,
-      );
+  ImmutableModel<S> transitionTo(S nextState) =>
+      ImmutableModel<S>._nextState(this, nextState);
 
   /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
   ImmutableModel<S> resetAndTransitionTo(S nextState) =>
-      ImmutableModel<S>._nextBoth(
-        this,
-        nextState,
-        _model.resetAll(),
-        false,
-      );
+      ImmutableModel<S>._nextBoth(this, nextState, _model.resetAll());
 
   /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
   ImmutableModel<S> transitionToAndUpdate(
@@ -298,7 +230,7 @@ class ImmutableModel<S> extends Equatable {
       ImmutableModel<S>._nextBoth(
         this,
         nextState,
-        _model.nextWithUpdates(_assertNotEmpty(updates)),
+        _model.nextWithUpdates(updates),
       );
 
   // JSON
@@ -329,10 +261,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// The values are deserialized using the corresponding model [ModelType.deserialize] method.
   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
-      ImmutableModel<S>._nextModel(
-        this,
-        _model.nextWithSerialized(jsonMap),
-      );
+      ImmutableModel<S>._nextModel(this, _model.nextWithSerialized(jsonMap));
 
   // field ops
 
@@ -381,7 +310,6 @@ class ImmutableModel<S> extends Equatable {
       modelValidator: joinedInner.modelValidator,
       initialState: _state,
       strictUpdates: strictUpdates,
-      cacheBufferSize: _cache?.bufferSize,
     );
   }
 

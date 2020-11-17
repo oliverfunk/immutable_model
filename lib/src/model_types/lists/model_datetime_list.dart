@@ -1,4 +1,7 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../typedefs.dart';
+import '../model_list.dart';
 
 /// A model for a validated list of DateTimes.
 class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
@@ -29,11 +32,11 @@ class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
   ModelDateTimeList._(
     List<DateTime> initialList,
     ListItemValidator<DateTime> listItemValidator,
-  ) : super._(initialList, listItemValidator);
+  ) : super(initialList, listItemValidator);
 
   ModelDateTimeList._next(
       ModelDateTimeList previous, BuiltList<DateTime> nextList)
-      : super._constructNext(previous, nextList);
+      : super.constructNext(previous, nextList);
 
   @override
   ModelDateTimeList buildNextInternal(BuiltList<DateTime> next) =>

@@ -1,5 +1,5 @@
-import '../../model_type.dart';
-import '../../model_value.dart';
+import '../../typedefs.dart';
+import '../model_value.dart';
 
 /// A model for a validated [double].
 class ModelDouble extends ModelValue<ModelDouble, double> {

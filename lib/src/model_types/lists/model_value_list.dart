@@ -1,11 +1,15 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../errors.dart';
+import '../model_list.dart';
+import '../model_value.dart';
 
 class ModelValueList<M extends ModelValue<M, dynamic>>
     extends ModelList<ModelValueList<M>, M> {
   /// The internal [ModelValue] model used by this class.
   final M _model;
 
-  M get model => _model;
+  M get defaultModel => _model;
 
   factory ModelValueList(
     M defaultModel, [
@@ -17,8 +21,10 @@ class ModelValueList<M extends ModelValue<M, dynamic>>
         "A model must be provided",
       );
     }
-    return ModelValueList._(defaultModel,
-        initialModelValues.map((i) => defaultModel.next(i)).toList());
+    return ModelValueList._(
+      defaultModel,
+      initialModelValues.map((i) => defaultModel.next(i)).toList(),
+    );
   }
 
   factory ModelValueList.numberOfDefault(
@@ -46,13 +52,13 @@ class ModelValueList<M extends ModelValue<M, dynamic>>
   ModelValueList._(
     this._model,
     List<M> initialList,
-  ) : super._(initialList, (i) => i.hasEqualityOfHistory(_model));
+  ) : super(initialList, (i) => i.hasEqualityOfHistory(_model));
 
   ModelValueList._next(
     ModelValueList<M> previous,
     BuiltList<M> nextList,
   )   : _model = previous._model,
-        super._constructNext(previous, nextList);
+        super.constructNext(previous, nextList);
 
   @override
   ModelValueList<M> buildNextInternal(BuiltList<M> next) =>
@@ -65,7 +71,8 @@ class ModelValueList<M extends ModelValue<M, dynamic>>
   @override
   List<M> deserialize(dynamic serialized) {
     if (serialized is Iterable) {
-      // if the item cannot be deserialized, an instance of the model passed in will be used
+      // if an item in serialized cannot be deserialized,
+      // an instance of the default model will be used
       return serialized.map(_model.nextWithSerialized).toList();
     } else {
       return null;

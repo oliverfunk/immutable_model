@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
-import 'package:immutable_model/value_types.dart';
+import 'package:immutable_model/model_types.dart';
 
 import '../domain/app_state.dart';
 import '../domain/redux/auth/auth_thunks.dart';

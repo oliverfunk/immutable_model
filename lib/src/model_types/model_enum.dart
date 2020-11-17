@@ -12,9 +12,6 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
   /// [enumValues] should come from calling the static `.values` getter on the enum class.
   ///
   /// [initialValue] must not be null and is the initial enum value held by this model.
-  ///
-  /// [fieldLabel] should be the [String] associated with this model when used in a [ModelInner] or [ImmutableModel].
-  /// This is not guaranteed, however.
   factory ModelEnum(
     List<E> enumValues,
     E initialValue,
@@ -31,11 +28,10 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
         "An initial enum instance must be provided.",
       );
     }
-    // can happen if E is dynamic, i.e. not set
-    if (initialValue is! E) {
+    if (E == dynamic) {
       throw ModelInitializationError(
         ModelEnum,
-        "The enum type <E> must be set (it can't be inferred).",
+        "<E> cannot be dynamic, it must be set explicitly.",
       );
     }
     // weak check of E being an enum type
@@ -51,8 +47,12 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
     return ModelEnum._(enumValues, initialValue);
   }
 
-  ModelEnum._(this._enums, this._current)
-      : super.initial(_current, (e) => _enums.contains(e));
+  ModelEnum._(
+    List<E> enumValues,
+    E initialValue,
+  )   : _enums = enumValues,
+        _current = initialValue,
+        super.initial(initialValue, (e) => enumValues.contains(e));
 
   ModelEnum._next(ModelEnum<E> previous, this._current)
       : _enums = previous._enums,
@@ -87,9 +87,9 @@ class ModelEnum<E> extends ModelType<ModelEnum<E>, E> {
     List<E> enumValues,
     List<String> enumStrings,
   ) {
-    final l =
+    final enL =
         enumStrings.map((enStr) => ModelEnum.fromString<E>(enumValues, enStr));
-    return l.contains(null) ? null : List.unmodifiable(l);
+    return enL.contains(null) ? null : List.unmodifiable(enL);
   }
 
   @override

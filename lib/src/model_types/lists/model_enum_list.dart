@@ -1,9 +1,15 @@
-part of 'model_list.dart';
+import 'package:built_collection/built_collection.dart';
+
+import '../../errors.dart';
+import '../model_enum.dart';
+import '../model_list.dart';
 
 class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
   final List<E> _enums;
 
   /// A list of enums
+  ///
+  /// if [initialList] is omitted, an empty list <E>[] will be used.
   factory ModelEnumList(
     List<E> enumValues, [
     List<E> initialList,
@@ -14,11 +20,10 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
         "The enum values list must be provided. Use the static .values getter method on the enum class.",
       );
     }
-    // can happen if E is dynamic, i.e. not set
-    if (initialList is! List<E>) {
+    if (E == dynamic) {
       throw ModelInitializationError(
         ModelEnumList,
-        "The enum type <E> must be set",
+        "<E> cannot be dynamic, it must be set explicitly.",
       );
     }
     // weak check of E being an enum type
@@ -37,11 +42,11 @@ class ModelEnumList<E> extends ModelList<ModelEnumList<E>, E> {
   ModelEnumList._(
     this._enums,
     List<E> initialList,
-  ) : super._(initialList, (e) => _enums.contains(e));
+  ) : super(initialList, (e) => _enums.contains(e));
 
   ModelEnumList._next(ModelEnumList previous, BuiltList<E> nextList)
       : _enums = previous._enums,
-        super._constructNext(previous, nextList);
+        super.constructNext(previous, nextList);
 
   @override
   ModelEnumList<E> buildNextInternal(BuiltList<E> next) =>

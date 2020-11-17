@@ -11,7 +11,7 @@ class ModelInitializationError extends Error {
 
   @override
   String toString() => "ModelInitializationError\n"
-      "An error occurred during the initialization of a model:\n"
+      "An error occurred during initialization:\n"
       " Model:  $modelType\n"
       " Reason: $message";
 }

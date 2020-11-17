@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
-import '../model_value.dart';
+import '../model_types/model_value.dart';
 
 /// A model of a valid password string.
 class ModelPassword extends ModelValue<ModelPassword, String> with ValueType {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:immutable_model/value_types.dart';
+import 'package:immutable_model/model_types.dart';
 
 import '../domain/cubits/auth_cubit.dart';
 
