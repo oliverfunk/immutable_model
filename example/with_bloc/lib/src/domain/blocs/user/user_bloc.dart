@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
 
-import 'user_state.dart';
+import 'user_model.dart';
 import 'user_event.dart';
 
 class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
-  UserBloc() : super(userStateModel);
+  UserBloc() : super(userModel);
 
   // derived values
   int listTotal() => state
@@ -28,24 +29,24 @@ class UserBloc extends Bloc<UserEvent, ImmutableModel<UserState>> {
       yield state.updateWithSelectorIfIn(
           event.selector, event.value, const UserAuthed());
     } else if (event is SortListAsc) {
+      final ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
       yield state.updateWithSelectorIfIn(
           UserState.listOfEvensSel,
-          (list) => list
-            ..sort((a, b) => a > b
-                ? 1
-                : a == b
-                    ? 0
-                    : -1),
+          lm.sort((a, b) => a > b
+              ? 1
+              : a == b
+                  ? 0
+                  : -1),
           const UserAuthed());
     } else if (event is SortListDec) {
+      final ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
       yield state.updateWithSelectorIfIn(
           UserState.listOfEvensSel,
-          (list) => list
-            ..sort((a, b) => a < b
-                ? 1
-                : a == b
-                    ? 0
-                    : -1),
+          lm.sort((a, b) => a < b
+              ? 1
+              : a == b
+                  ? 0
+                  : -1),
           const UserAuthed());
     }
   }

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/blocs/auth/auth_bloc.dart';
-import '../domain/blocs/auth/auth_state.dart';
+import '../domain/blocs/auth/auth_model.dart';
 
 Widget signinJsonDisplay() =>
     BlocBuilder<AuthBloc, ImmutableModel<AuthState>>(builder: (context, model) {

@@ -6,7 +6,7 @@ import 'package:immutable_model/immutable_model.dart';
 
 import '../user/user_bloc.dart';
 import '../user/user_event.dart';
-import 'auth_state.dart';
+import 'auth_model.dart';
 import 'auth_event.dart';
 
 // fake auth'ing function
@@ -18,7 +18,7 @@ Future<bool> _authUser(String email, String password) => Future.delayed(
 
 class AuthBloc extends Bloc<AuthEvent, ImmutableModel<AuthState>> {
   final UserBloc userBloc;
-  AuthBloc(this.userBloc) : super(authStateModel);
+  AuthBloc(this.userBloc) : super(authModel);
 
   @override
   Stream<ImmutableModel<AuthState>> mapEventToState(

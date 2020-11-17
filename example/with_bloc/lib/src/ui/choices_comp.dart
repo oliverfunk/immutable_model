@@ -6,7 +6,7 @@ import 'package:immutable_model/model_types.dart';
 
 import '../domain/blocs/user/user_event.dart';
 import '../domain/blocs/user/user_bloc.dart';
-import '../domain/blocs/user/user_state.dart';
+import '../domain/blocs/user/user_model.dart';
 
 UserBloc _userBloc(BuildContext context) => context.bloc<UserBloc>();
 
@@ -33,29 +33,29 @@ class ChoicesComp extends StatelessWidget {
             userBloc.add(UpdateValues(UserState.enteredTextSel, value)),
       );
 
-  Widget _inputValidatedNumber(UserBloc userBloc) => Row(children: [
-        IconButton(
-          icon: Icon(
-            Icons.keyboard_arrow_down,
+  Widget _inputValidatedNumber() =>
+      BlocBuilder<UserBloc, ImmutableModel<UserState>>(
+        buildWhen: (previous, current) =>
+            previous.selectModel(UserState.validatedNumberSel) !=
+            current.selectModel(UserState.validatedNumberSel),
+        builder: (context, model) => Row(children: [
+          IconButton(
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+            ),
+            tooltip: 'Decrement',
+            onPressed: () => _userBloc(context)
+                .add(UpdateValues(UserState.validatedNumberSel, (n) => --n)),
           ),
-          tooltip: 'Decrement',
-          onPressed: () => userBloc
-              .add(UpdateValues(UserState.validatedNumberSel, (n) => --n)),
-        ),
-        BlocBuilder<UserBloc, ImmutableModel<UserState>>(
-          buildWhen: (previous, current) =>
-              previous.selectValue(UserState.validatedNumberSel) !=
-              current.selectValue(UserState.validatedNumberSel),
-          builder: (context, model) =>
-              Text(model.selectValue(UserState.validatedNumberSel).toString()),
-        ),
-        IconButton(
-          icon: Icon(Icons.keyboard_arrow_up),
-          tooltip: 'Increment',
-          onPressed: () => userBloc
-              .add(UpdateValues(UserState.validatedNumberSel, (n) => ++n)),
-        ),
-      ]);
+          Text(model.selectValue(UserState.validatedNumberSel).toString()),
+          IconButton(
+            icon: Icon(Icons.keyboard_arrow_up),
+            tooltip: 'Increment',
+            onPressed: () => _userBloc(context)
+                .add(UpdateValues(UserState.validatedNumberSel, (n) => ++n)),
+          ),
+        ]),
+      );
 
   Widget _inputDouble(UserBloc userBloc) => TextFormField(
         decoration: InputDecoration(border: InputBorder.none),
@@ -66,24 +66,22 @@ class ChoicesComp extends StatelessWidget {
             .add(UpdateValues(UserState.enteredDoubleSel, double.parse(value))),
       );
 
-  Widget _inputBoolean(UserBloc userBloc) =>
-      BlocBuilder<UserBloc, ImmutableModel<UserState>>(
+  Widget _inputBoolean() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.selectValue(UserState.chosenBoolSel) !=
-            current.selectValue(UserState.chosenBoolSel),
+            previous.selectModel(UserState.chosenBoolSel) !=
+            current.selectModel(UserState.chosenBoolSel),
         builder: (context, model) => Container(
           child: Checkbox(
               value: model.selectValue(UserState.chosenBoolSel),
-              onChanged: (bl) =>
-                  userBloc.add(UpdateValues(UserState.chosenBoolSel, bl))),
+              onChanged: (bl) => _userBloc(context)
+                  .add(UpdateValues(UserState.chosenBoolSel, bl))),
         ),
       );
 
-  Widget _inputFavSeason(UserBloc userBloc) =>
-      BlocBuilder<UserBloc, ImmutableModel<UserState>>(
+  Widget _inputFavSeason() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.selectValue(UserState.chosenEnumSel) !=
-            current.selectValue(UserState.chosenEnumSel),
+            previous.selectModel(UserState.chosenEnumSel) !=
+            current.selectModel(UserState.chosenEnumSel),
         builder: (context, model) {
           final ModelEnum currentSeasonModel =
               model.selectModel(UserState.chosenEnumSel);
@@ -92,7 +90,8 @@ class ChoicesComp extends StatelessWidget {
               DropdownButton<String>(
                 underline: Container(),
                 value: currentSeasonModel.asString(),
-                onChanged: (String enStr) => userBloc.add(UpdateValues(
+                onChanged: (String enStr) =>
+                    _userBloc(context).add(UpdateValues(
                   UserState.chosenEnumSel,
                   currentSeasonModel.nextWithString(enStr),
                 )),
@@ -142,8 +141,8 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateBegin() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.selectValue(UserState.dateBeginSel) !=
-            current.selectValue(UserState.dateBeginSel),
+            previous.selectModel(UserState.dateBeginSel) !=
+            current.selectModel(UserState.dateBeginSel),
         builder: (context, model) => Column(
           children: [
             Text(
@@ -179,8 +178,8 @@ class ChoicesComp extends StatelessWidget {
 
   Widget _inputDateEnd() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
         buildWhen: (previous, current) =>
-            previous.selectValue(UserState.dateEndSel) !=
-            current.selectValue(UserState.dateEndSel),
+            previous.selectModel(UserState.dateEndSel) !=
+            current.selectModel(UserState.dateEndSel),
         builder: (context, model) => Column(
           children: [
             Text(
@@ -203,34 +202,61 @@ class ChoicesComp extends StatelessWidget {
         ),
       );
 
-  Widget _inputEvensRow(UserBloc userBloc) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: userBloc.state
-          .selectValue(UserState.listOfEvensSel)
-          .asMap()
-          .entries
-          .map((entry) => Flexible(
-                fit: FlexFit.loose,
-                child: TextFormField(
-                  decoration: InputDecoration(border: InputBorder.none),
-                  textAlign: TextAlign.center,
-                  initialValue: entry.value.toString(),
-                  onChanged: (value) {
-                    final ModelIntList evensListModel =
-                        userBloc.state.selectModel(UserState.listOfEvensSel);
-                    userBloc.add(UpdateValues(
-                      UserState.listOfEvensSel,
-                      evensListModel.replaceAt(
-                          entry.key, (_) => int.parse(value)),
-                    ));
-                  },
-                ),
-              ))
-          .toList(growable: false),
-    );
-  }
+  Widget _inputEvensRow() => BlocBuilder<UserBloc, ImmutableModel<UserState>>(
+      buildWhen: (previous, current) =>
+          previous.selectModel(UserState.listOfEvensSel) !=
+          current.selectModel(UserState.listOfEvensSel),
+      builder: (context, model) => Column(
+            children: [
+              Row(
+                key: UniqueKey(),
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: model
+                    .selectValue(UserState.listOfEvensSel)
+                    .asMap()
+                    .entries
+                    .map((entry) => Flexible(
+                          fit: FlexFit.loose,
+                          child: TextFormField(
+                            decoration:
+                                InputDecoration(border: InputBorder.none),
+                            textAlign: TextAlign.center,
+                            initialValue: entry.value.toString(),
+                            onChanged: (value) {
+                              final ModelIntList lm =
+                                  model.selectModel(UserState.listOfEvensSel);
+
+                              _userBloc(context).add(
+                                UpdateValues(
+                                  UserState.listOfEvensSel,
+                                  lm.replaceAt(
+                                    entry.key,
+                                    (_) => int.parse(value),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ))
+                    .toList(growable: false),
+              ),
+              Text("List total: ${_userBloc(context).listTotal()}"),
+              Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RaisedButton(
+                      child: Text("Sort Asc"),
+                      onPressed: () => _userBloc(context).add(SortListAsc())),
+                  Padding(padding: EdgeInsets.symmetric(horizontal: 5.0)),
+                  RaisedButton(
+                      child: Text("Sort Dec"),
+                      onPressed: () => _userBloc(context).add(SortListDec())),
+                ],
+              ),
+            ],
+          ));
 
   @override
   Widget build(BuildContext context) =>
@@ -253,7 +279,7 @@ class ChoicesComp extends StatelessWidget {
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
                 "Increment/decrement (must be >= 0):",
-                _inputValidatedNumber(userBloc),
+                _inputValidatedNumber(),
               ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
@@ -263,12 +289,12 @@ class ChoicesComp extends StatelessWidget {
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
                 "Choose a bool:",
-                _inputBoolean(userBloc),
+                _inputBoolean(),
               ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
                 "Choose an enum:",
-                _inputFavSeason(userBloc),
+                _inputFavSeason(),
               ),
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
@@ -283,22 +309,7 @@ class ChoicesComp extends StatelessWidget {
               Padding(padding: EdgeInsets.only(top: 10.0)),
               _formInput(
                 "Change list of evens:",
-                _inputEvensRow(userBloc),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // RaisedButton(child: Text("Sort Asc"), onPressed: () => _userCubit(context).sortListAsc()),
-                  // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                  // RaisedButton(child: Text("Sort Dec"), onPressed: () => _userCubit(context).sortListDec()),
-                  // Padding(padding: EdgeInsets.symmetric(horizontal: 10.0)),
-                  BlocBuilder<UserBloc, ImmutableModel<UserState>>(
-                      buildWhen: (previous, current) =>
-                          previous.selectValue(UserState.listOfEvensSel) !=
-                          current.selectValue(UserState.listOfEvensSel),
-                      builder: (ctx, model) =>
-                          Text("List total: ${userBloc.listTotal()}")),
-                ],
+                _inputEvensRow(),
               ),
             ]);
           }

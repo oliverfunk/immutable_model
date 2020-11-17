@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 
 import '../domain/app_state.dart';
-import '../domain/redux/auth/auth_state.dart';
+import '../domain/redux/auth/auth_model.dart';
 
 Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
-    converter: (store) => store.state.authModel.currentState,
+    converter: (store) => store.state.auth.currentState,
     builder: (context, state) {
       if (state is AuthLoading) {
         return Column(
@@ -16,7 +16,7 @@ Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
             Text("Encoded JSON string:",
                 style: TextStyle(fontWeight: FontWeight.w700)),
             Text(JsonEncoder.withIndent('  ').convert(
-                StoreProvider.of<AppState>(context).state.authModel.toJson())),
+                StoreProvider.of<AppState>(context).state.auth.toJson())),
             Center(
               child: CircularProgressIndicator(),
             )
@@ -29,7 +29,7 @@ Widget signinJsonDisplay() => StoreConnector<AppState, AuthState>(
             Text("Encoded JSON string:",
                 style: TextStyle(fontWeight: FontWeight.w700)),
             Text(JsonEncoder.withIndent('  ').convert(
-                StoreProvider.of<AppState>(context).state.authModel.toJson())),
+                StoreProvider.of<AppState>(context).state.auth.toJson())),
             Center(
               child: Icon(
                 Icons.check_circle_outline,

@@ -12,8 +12,7 @@ class SignInComponent extends StatelessWidget {
 
   Widget _emailInput(BuildContext context) => TextFormField(
         key: _emailKey,
-        initialValue:
-            StoreProvider.of<AppState>(context).state.authModel['email'],
+        initialValue: StoreProvider.of<AppState>(context).state.auth['email'],
         decoration: const InputDecoration(
           prefixIcon: Icon(Icons.portrait, color: Colors.grey),
           hintText: 'Enter your email',

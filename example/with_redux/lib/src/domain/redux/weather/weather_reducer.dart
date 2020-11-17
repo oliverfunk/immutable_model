@@ -1,7 +1,7 @@
 import 'package:redux/redux.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import 'weather_state.dart';
+import 'weather_model.dart';
 import 'weather_action.dart';
 
 class WeatherReducer extends ReducerClass<ImmutableModel<WeatherState>> {
@@ -19,7 +19,12 @@ class WeatherReducer extends ReducerClass<ImmutableModel<WeatherState>> {
           .mergeFrom(action.returnedModel);
     } else if (action is FetchWeatherFailure) {
       return model.transitionTo(
-          const WeatherError("Couldn't fetch weather. Is the device online?"));
+        const WeatherError("Couldn't fetch weather. Is the device online?"),
+      );
+    } else if (action is SetPreviousWeather) {
+      return model
+          .transitionTo(const WeatherLoaded())
+          .updateWithInner(action.previous);
     }
 
     return model;

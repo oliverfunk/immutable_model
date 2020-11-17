@@ -5,7 +5,6 @@ class CityName extends ModelValue<CityName, String> with ValueType {
   // checks if every word is capitalized
   static bool validator(String cityName) =>
       (cityName).split(" ").every((w) => w[0] == w[0].toUpperCase());
-
   // useful to declare the field label statically in the value type class
   static const label = "city_name";
 
@@ -18,7 +17,7 @@ class CityName extends ModelValue<CityName, String> with ValueType {
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);
 }
 
-final weatherStateModel = ImmutableModel<WeatherState>(
+final weatherModel = ImmutableModel<WeatherState>(
   {
     CityName.label: CityName("Cape Town"),
     "weather_data": M.inner(

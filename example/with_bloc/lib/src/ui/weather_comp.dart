@@ -4,17 +4,17 @@ import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/blocs/weather/weather_bloc.dart';
 import '../domain/blocs/weather/weather_event.dart';
-import '../domain/blocs/weather/weather_state.dart';
+import '../domain/blocs/weather/weather_model.dart';
 
 WeatherBloc _weatherBloc(BuildContext context) => context.bloc<WeatherBloc>();
 
 class _CityInputField extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => TextField(
+  Widget _cityNameTextInput(BuildContext context) => TextField(
         controller: TextEditingController()
           ..text = WeatherState.cityName(_weatherBloc(context).state),
-        onSubmitted: (cityNameStr) =>
-            _weatherBloc(context).add(FetchWeather(CityName(cityNameStr))),
+        onSubmitted: (cityNameStr) => _weatherBloc(context).add(
+          FetchWeather(CityName(cityNameStr)),
+        ),
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: "Enter a city",
@@ -22,6 +22,19 @@ class _CityInputField extends StatelessWidget {
           suffixIcon: Icon(Icons.search),
         ),
       );
+
+  @override
+  Widget build(BuildContext context) => Column(children: [
+        _cityNameTextInput(context),
+        Padding(padding: EdgeInsets.symmetric(vertical: 5.0)),
+        RaisedButton.icon(
+          icon: Icon(Icons.arrow_back),
+          label: Text("Last"),
+          onPressed: _weatherBloc(context).previousList.numberOfItems == 0
+              ? null
+              : () => _weatherBloc(context).add(SetToPrevious()),
+        ),
+      ]);
 }
 
 class WeatherComponent extends StatelessWidget {

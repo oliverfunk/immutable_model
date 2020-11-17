@@ -1,6 +1,6 @@
 import 'package:immutable_model/immutable_model.dart';
 
-final authStateModel = ImmutableModel<AuthState>(
+final authModel = ImmutableModel<AuthState>(
   {
     "email": M.email(defaultEmail: 'example@gmail.com'),
     "password": M.password(),

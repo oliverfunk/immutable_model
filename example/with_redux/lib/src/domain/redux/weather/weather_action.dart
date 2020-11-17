@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/model_types.dart';
 
-import 'weather_state.dart';
+import 'weather_model.dart';
 
 @immutable
 abstract class WeatherAction {
@@ -21,4 +22,9 @@ class FetchWeatherSuccess extends WeatherAction {
 
 class FetchWeatherFailure extends WeatherAction {
   const FetchWeatherFailure();
+}
+
+class SetPreviousWeather extends WeatherAction {
+  final ModelInner previous;
+  const SetPreviousWeather(this.previous);
 }

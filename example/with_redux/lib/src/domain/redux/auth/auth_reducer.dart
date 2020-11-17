@@ -1,7 +1,7 @@
 import 'package:redux/redux.dart';
 import 'package:immutable_model/immutable_model.dart';
 
-import 'auth_state.dart';
+import 'auth_model.dart';
 import 'auth_action.dart';
 
 class AuthReducer extends ReducerClass<ImmutableModel<AuthState>> {

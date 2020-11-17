@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:immutable_model/immutable_model.dart';
 
 import '../domain/blocs/user/user_bloc.dart';
-import '../domain/blocs/user/user_state.dart';
+import '../domain/blocs/user/user_model.dart';
 
 Widget choicesJsonDisplay() =>
     BlocBuilder<UserBloc, ImmutableModel<UserState>>(builder: (context, model) {

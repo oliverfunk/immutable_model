@@ -23,7 +23,7 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
       emit(state.updateWithSelectorIfIn(selector, update, const UserAuthed()));
 
   void sortListAsc() {
-    ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
+    final ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
     updateValues(
         UserState.listOfEvensSel,
         lm.sort((a, b) => a > b
@@ -34,7 +34,7 @@ class UserCubit extends Cubit<ImmutableModel<UserState>> {
   }
 
   void sortListDec() {
-    ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
+    final ModelIntList lm = state.selectModel(UserState.listOfEvensSel);
     updateValues(
         UserState.listOfEvensSel,
         lm.sort((a, b) => a < b
