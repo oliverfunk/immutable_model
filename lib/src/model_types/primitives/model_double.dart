@@ -21,13 +21,13 @@ class ModelDouble extends ModelValue<ModelDouble, double> {
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelDouble(
     double initialValue, [
-    ValueValidator<double> validator,
+    ModelValueValidator<double> validator,
   ]) =>
       ModelDouble._(initialValue, validator);
 
   ModelDouble._(
     double initialValue,
-    ValueValidator<double> validator,
+    ModelValueValidator<double> validator,
   ) : super.double(initialValue, validator);
 
   ModelDouble._next(ModelDouble previous, double value)

@@ -25,13 +25,13 @@ class ModelDoubleList extends ModelList<ModelDoubleList, double> {
   /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
   factory ModelDoubleList([
     List<double> initialList = const <double>[],
-    ListItemValidator<double> itemValidator,
+    ModelListItemValidator<double> itemValidator,
   ]) =>
       ModelDoubleList._(initialList, itemValidator);
 
   ModelDoubleList._(
     List<double> initialList,
-    ListItemValidator<double> listItemValidator,
+    ModelListItemValidator<double> listItemValidator,
   ) : super(initialList, listItemValidator);
 
   ModelDoubleList._next(ModelDoubleList previous, BuiltList<double> nextList)

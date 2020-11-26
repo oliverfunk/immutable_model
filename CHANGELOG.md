@@ -1,4 +1,4 @@
-## [0.9.0] - [0.9.3]
+## [0.9.0] - [0.9.4]
 
 - Out of Alpha! All core features have been added and the fat trimmed.
 - Added ModelValue and ModelEnum lists

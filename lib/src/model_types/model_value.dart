@@ -56,8 +56,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.int(
     int initialValue,
-    ValueValidator<int> validator,
-  ) : this._(initialValue as V, validator as ValueValidator<V>);
+    ModelValueValidator<int> validator,
+  ) : this._(initialValue as V, validator as ModelValueValidator<V>);
 
   /// A constructor for an object that models a [double].
   ///
@@ -76,8 +76,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.double(
     double initialValue,
-    ValueValidator<double> validator,
-  ) : this._(initialValue as V, validator as ValueValidator<V>);
+    ModelValueValidator<double> validator,
+  ) : this._(initialValue as V, validator as ModelValueValidator<V>);
 
   /// A constructor for an object that models a [String].
   ///
@@ -96,8 +96,8 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.string(
     String initialValue,
-    ValueValidator<String> validator,
-  ) : this._(initialValue as V, validator as ValueValidator<V>);
+    ModelValueValidator<String> validator,
+  ) : this._(initialValue as V, validator as ModelValueValidator<V>);
 
   /// A constructor for an object that models a [String], where the String cannot be null or empty.
   /// Additional validations may be specified.
@@ -117,7 +117,7 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.text(
     String initialValue,
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   ) : this._(
             initialValue as V,
             validator == null
@@ -144,10 +144,10 @@ abstract class ModelValue<M extends ModelValue<M, V>, V>
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   ModelValue.datetime(
     DateTime initialValue,
-    ValueValidator<DateTime> validator,
-  ) : this._(initialValue as V, validator as ValueValidator<V>);
+    ModelValueValidator<DateTime> validator,
+  ) : this._(initialValue as V, validator as ModelValueValidator<V>);
 
-  ModelValue._(this._current, ValueValidator<V> validator)
+  ModelValue._(this._current, ModelValueValidator<V> validator)
       : super.initial(_current, validator);
 
   ModelValue.constructNext(M previous, this._current)

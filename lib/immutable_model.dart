@@ -8,3 +8,4 @@ export 'src/exceptions.dart';
 export 'src/immutable_model.dart';
 export 'src/m.dart';
 export 'src/model_selector.dart';
+export 'src/typedefs.dart';

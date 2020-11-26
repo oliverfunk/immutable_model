@@ -26,13 +26,13 @@ class ModelStringList extends ModelList<ModelStringList, String> {
   /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
   factory ModelStringList([
     List<String> initialList = const <String>[],
-    ListItemValidator<String> itemValidator,
+    ModelListItemValidator<String> itemValidator,
   ]) =>
       ModelStringList._(initialList, itemValidator);
 
   ModelStringList._(
     List<String> initialList,
-    ListItemValidator<String> listItemValidator,
+    ModelListItemValidator<String> listItemValidator,
   ) : super(initialList, listItemValidator);
 
   ModelStringList._next(ModelStringList previous, BuiltList<String> nextList)

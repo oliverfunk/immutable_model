@@ -40,14 +40,6 @@ class ImmutableModel<S> extends Equatable {
   /// and every field value cannot be null and must be valid. If it's false, updates can
   /// contain a sub-set of the fields.
   ///
-  /// [cacheBufferSize] determines the number of previous instances
-  /// that will be cached and that can be access
-  /// using the [restoreBy] method.
-  /// Note: this feature is experimental.
-  /// The cache buffer is synchronous between
-  /// different [ImmutableModel] instances that share it.
-  /// Unexpected results may occur.
-  ///
   /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
   /// during initialization only.
   factory ImmutableModel(
@@ -126,7 +118,7 @@ class ImmutableModel<S> extends Equatable {
 
   /// Updates the current model values with those specified in [updates].
   ///
-  /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
+  /// The values in [updates] can be a value, a [ModelValueUpdater] function or a [ModelType].
   ///
   /// Throws a [ModelAccess] error if a field in [updates] is not in the model.
   ImmutableModel<S> update(
@@ -139,7 +131,7 @@ class ImmutableModel<S> extends Equatable {
   ///
   /// The field label strings in [updates] must exist in this [ImmutableModel].
   ///
-  /// The values in [updates] can be a value, a [ValueUpdater] function or a [ModelType].
+  /// The values in [updates] can be a value, a [ModelValueUpdater] function or a [ModelType].
   ///
   /// Throws a [ModelStateError] if [currentState] != [inState].
   ImmutableModel<S> updateIfIn(
@@ -153,7 +145,7 @@ class ImmutableModel<S> extends Equatable {
 
   /// Updates the field selected by [selector] with [update].
   ///
-  /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
+  /// [update] can be a value, a [ModelValueUpdater] function or a [ModelType].
   ImmutableModel<S> updateWithSelector<V>(
     ModelSelector<V> selector,
     dynamic update,
@@ -165,7 +157,7 @@ class ImmutableModel<S> extends Equatable {
 
   /// Updates the field selected by [selector] with [update] if [currentState] is [inState].
   ///
-  /// [update] can be a value, a [ValueUpdater] function or a [ModelType].
+  /// [update] can be a value, a [ModelValueUpdater] function or a [ModelType].
   ImmutableModel<S> updateWithSelectorIfIn<V>(
     ModelSelector<V> selector,
     dynamic update,

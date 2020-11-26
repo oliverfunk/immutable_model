@@ -25,13 +25,13 @@ class ModelDateTimeList extends ModelList<ModelDateTimeList, DateTime> {
   /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
   factory ModelDateTimeList([
     List<DateTime> initialList = const <DateTime>[],
-    ListItemValidator<DateTime> itemValidator,
+    ModelListItemValidator<DateTime> itemValidator,
   ]) =>
       ModelDateTimeList._(initialList, itemValidator);
 
   ModelDateTimeList._(
     List<DateTime> initialList,
-    ListItemValidator<DateTime> listItemValidator,
+    ModelListItemValidator<DateTime> listItemValidator,
   ) : super(initialList, listItemValidator);
 
   ModelDateTimeList._next(

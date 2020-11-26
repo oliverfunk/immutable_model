@@ -118,7 +118,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
   /// Returns a new instance with models that were updated using [updates].
   ///
   /// The values in [updates] can be a value,
-  /// a [ValueUpdater] function or a [ModelType].
+  /// a [ModelValueUpdater] function or a [ModelType].
   ///
   /// Throws a [ModelAccess] error if a field in [updates] is not in the model.
   ModelInner nextWithUpdates(Map<String, dynamic> updates) => next(
@@ -139,7 +139,7 @@ class ModelInner extends ModelType<ModelInner, Map<String, ModelType>> {
                   ? update is Map<String, dynamic>
                       ? currentModel.nextWithUpdates(update)
                       : throw ModelTypeError(this, update)
-                  : update is ValueUpdater
+                  : update is ModelValueUpdater
                       ? currentModel.nextWithFunc(update)
                       : currentModel.nextWithDynamic(update);
 

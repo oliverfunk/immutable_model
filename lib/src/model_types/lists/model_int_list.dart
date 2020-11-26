@@ -24,13 +24,13 @@ class ModelIntList extends ModelList<ModelIntList, int> {
   /// Throws a [ModelInitialValidationError] if [listItemValidator] returns `false` on an element of [initialList].
   factory ModelIntList([
     List<int> initialList = const <int>[],
-    ListItemValidator<int> itemValidator,
+    ModelListItemValidator<int> itemValidator,
   ]) =>
       ModelIntList._(initialList, itemValidator);
 
   ModelIntList._(
     List<int> initialList, [
-    ListItemValidator<int> listItemValidator,
+    ModelListItemValidator<int> listItemValidator,
   ]) : super(initialList, listItemValidator);
 
   ModelIntList._next(ModelIntList previous, BuiltList<int> nextList)

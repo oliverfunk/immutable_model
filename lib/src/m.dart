@@ -48,35 +48,35 @@ abstract class M {
   /// Returns a [ModelInt]
   static ModelInt nt({
     int initial,
-    ValueValidator<int> validator,
+    ModelValueValidator<int> validator,
   }) =>
       ModelInt(initial, validator);
 
   /// Returns a [ModelDouble]
   static ModelDouble dbl({
     double initial,
-    ValueValidator<double> validator,
+    ModelValueValidator<double> validator,
   }) =>
       ModelDouble(initial, validator);
 
   /// Returns a [ModelString]
   static ModelString str({
     String initial,
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   }) =>
       ModelString(initial, validator);
 
   /// Returns a [ModelString]
   static ModelString txt({
     String initial,
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   }) =>
       ModelString.text(initial, validator);
 
   /// Returns a [ModelDateTime]
   static ModelDateTime dt({
     DateTime initial,
-    ValueValidator<DateTime> validator,
+    ModelValueValidator<DateTime> validator,
   }) =>
       ModelDateTime(initial, validator);
 
@@ -89,28 +89,28 @@ abstract class M {
   /// Returns a [ModelIntList]
   static ModelIntList ntList({
     List<int> initial = const <int>[],
-    ListItemValidator<int> itemValidator,
+    ModelListItemValidator<int> itemValidator,
   }) =>
       ModelIntList(initial, itemValidator);
 
   /// Returns a [ModelDoubleList]
   static ModelDoubleList dblList({
     List<double> initial = const <double>[],
-    ListItemValidator<double> itemValidator,
+    ModelListItemValidator<double> itemValidator,
   }) =>
       ModelDoubleList(initial, itemValidator);
 
   /// Returns a [ModelStringList]
   static ModelStringList strList({
     List<String> initial = const <String>[],
-    ListItemValidator<String> itemValidator,
+    ModelListItemValidator<String> itemValidator,
   }) =>
       ModelStringList(initial, itemValidator);
 
   /// Returns a [ModelDateTimeList]
   static ModelDateTimeList dtList({
     List<DateTime> initial = const <DateTime>[],
-    ListItemValidator<DateTime> itemValidator,
+    ModelListItemValidator<DateTime> itemValidator,
   }) =>
       ModelDateTimeList(initial, itemValidator);
 

@@ -22,13 +22,13 @@ class ModelInt extends ModelValue<ModelInt, int> {
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelInt(
     int initialValue, [
-    ValueValidator<int> validator,
+    ModelValueValidator<int> validator,
   ]) =>
       ModelInt._(initialValue, validator);
 
   ModelInt._(
     int initialValue,
-    ValueValidator<int> validator,
+    ModelValueValidator<int> validator,
   ) : super.int(initialValue, validator);
 
   ModelInt._next(ModelInt previous, int value)

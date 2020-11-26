@@ -35,7 +35,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   bool get isInitial => identical(this, initial);
 
   /// The validator applied to updates to this model.
-  final ValueValidator<V> _validator;
+  final ModelValueValidator<V> _validator;
 
   /// Determines whether [toValidate] is valid or not.
   ///
@@ -51,7 +51,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// Throws a [ModelInitialValidationError] if [validator] returns false after being run on [initialValue].
   ModelType.initial(
     V initialValue,
-    ValueValidator<V> validator,
+    ModelValueValidator<V> validator,
   )   : _validator = validator,
         _initialModel = null {
     // if only there was some way to do this before the instance was initialized...
@@ -112,7 +112,7 @@ abstract class ModelType<M extends ModelType<M, V>, V> extends Equatable {
   /// Calls [nextWithDynamic]
   /// after applying [updater] to the current model [value].
   @nonVirtual
-  M nextWithFunc(ValueUpdater updater) => nextWithDynamic(updater(value));
+  M nextWithFunc(ModelValueUpdater updater) => nextWithDynamic(updater(value));
 
   /// Calls [next] with [serialized] after applying [deserialize] to it.
   ///

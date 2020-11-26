@@ -21,7 +21,7 @@ class ModelString extends ModelValue<ModelString, String> {
   /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString(
     String initialValue, [
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   ]) =>
       ModelString._(initialValue, validator);
 
@@ -44,18 +44,18 @@ class ModelString extends ModelValue<ModelString, String> {
   /// Throws a [ModelInitialValidationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelString.text(
     String initialValue, [
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   ]) =>
       ModelString._text(initialValue, validator);
 
   ModelString._(
     String initialValue,
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   ) : super.string(initialValue, validator);
 
   ModelString._text(
     String initialValue,
-    ValueValidator<String> validator,
+    ModelValueValidator<String> validator,
   ) : super.text(initialValue, validator);
 
   ModelString._next(ModelString previous, String value)

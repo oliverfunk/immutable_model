@@ -16,7 +16,7 @@ abstract class ModelList<M extends ModelList<M, T>, T>
 
   ModelList(
     List<T> initialList,
-    ListItemValidator<T> listItemValidator,
+    ModelListItemValidator<T> listItemValidator,
   )   : _current = BuiltList<T>.of(initialList ?? <T>[]),
         super.initial(
             initialList,

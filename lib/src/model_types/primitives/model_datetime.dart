@@ -24,13 +24,13 @@ class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
   /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
   factory ModelDateTime(
     DateTime initialValue, [
-    ValueValidator<DateTime> validator,
+    ModelValueValidator<DateTime> validator,
   ]) =>
       ModelDateTime._(initialValue, validator);
 
   ModelDateTime._(
     DateTime initialValue,
-    ValueValidator<DateTime> validator,
+    ModelValueValidator<DateTime> validator,
   ) : super.datetime(initialValue, validator);
 
   ModelDateTime._next(ModelDateTime previous, DateTime value)
