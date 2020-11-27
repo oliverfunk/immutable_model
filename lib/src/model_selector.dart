@@ -14,6 +14,8 @@ class ModelSelector<V> {
 
   const ModelSelector(this.selectorString);
 
+  ModelSelector.fromStrs(List<String> strs) : this(strs.join('.'));
+
   /// The [selectorString] but spilt into array elements on each `.`.
   List<String> get _selectors => selectorString.split('.');
 

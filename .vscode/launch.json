@@ -19,7 +19,6 @@
       "name": "Debug with_bloc_cubit on Chrome",
       "request": "launch",
       "program": "example/with_bloc_cubit/lib/main.dart",
-      "args": ["-d", "chrome"]
     },
     {
       "type": "dart",
