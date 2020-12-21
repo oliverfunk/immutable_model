@@ -1,89 +1,52 @@
-import 'package:built_collection/built_collection.dart';
+import 'package:valid/valid.dart';
 
-import '../../errors.dart';
-import '../model_list.dart';
-import '../model_value.dart';
+import '../../serializable_valid_type.dart';
+import '../primitives/model_value_type.dart';
 
-class ModelValueList<M extends ModelValue<M, dynamic>>
-    extends ModelList<ModelValueList<M>, M> {
-  /// The internal [ModelValue] model used by this class.
-  final M _model;
+class ModelValueList<V> extends ValidValueListType<ModelValueList<V>, V>
+    with SerializableValidType<ModelValueList<V>, List<V>> {
+  final String _fieldLabel;
 
-  M get defaultModel => _model;
+  ModelValueList(
+    this._fieldLabel,
+    ModelValueType validator, [
+    List<V> initialValues = const [],
+  ]) : super.initial(validator, initialValues);
 
-  factory ModelValueList(
-    M defaultModel, [
-    List initialModelValues = const [],
-  ]) {
-    if (defaultModel == null) {
-      throw ModelInitializationError(
-        ModelValueList,
-        "A model must be provided",
-      );
-    }
-    return ModelValueList._(
-      defaultModel,
-      initialModelValues.map((i) => defaultModel.next(i)).toList(),
-    );
-  }
+  ModelValueList.numberOf(
+    this._fieldLabel,
+    ModelValueType validator,
+    int numberOf,
+  ) : super.initialNumberOf(validator, numberOf);
 
-  factory ModelValueList.numberOfDefault(
-    M defaultModel,
-    int numberOfDefault,
-  ) {
-    if (defaultModel == null) {
-      throw ModelInitializationError(
-        ModelValueList,
-        "A model must be provided",
-      );
-    }
-    if (numberOfDefault < 1) {
-      throw ModelInitializationError(
-        ModelValueList,
-        "numberOfDefault must be 1 or more",
-      );
-    }
-    return ModelValueList._(
-      defaultModel,
-      List<M>(numberOfDefault)..fillRange(0, numberOfDefault, defaultModel),
-    );
-  }
-
-  ModelValueList._(
-    this._model,
-    List<M> initialList,
-  ) : super(initialList, (i) => i.hasEqualityOfHistory(_model));
-
-  ModelValueList._next(
-    ModelValueList<M> previous,
-    BuiltList<M> nextList,
-  )   : _model = previous._model,
+  ModelValueList._next(ModelValueList<V> previous, List<V> nextList)
+      : _fieldLabel = previous._fieldLabel,
         super.constructNext(previous, nextList);
 
   @override
-  ModelValueList<M> buildNextInternal(BuiltList<M> next) =>
-      ModelValueList<M>._next(this, next);
+  ModelValueList<V> buildNext(List<V> nextList) =>
+      ModelValueList._next(this, nextList);
 
   @override
-  List asSerializable() =>
-      List.unmodifiable(value.map((i) => i.asSerializable()));
+  String get fieldLabel => _fieldLabel;
 
   @override
-  List<M> deserialize(dynamic serialized) {
+  List serializer(List<V> currentList) => List.unmodifiable(
+        currentList.map(
+          (i) => (validator as ModelValueType).serializer(i),
+        ),
+      );
+
+  @override
+  List<V>? deserializer(dynamic serialized) {
     if (serialized is Iterable) {
       // if an item in serialized cannot be deserialized,
       // an instance of the default model will be used
-      return serialized.map(_model.nextWithSerialized).toList();
+      return serialized
+          .map<V>((i) => (validator as ModelValueType).deserializer(i))
+          .toList();
     } else {
       return null;
     }
   }
-
-  /// The list of values of [M].
-  ///
-  /// Note: this is a mutable copy
-  List get valueList => value.map((i) => i.value).toList();
-
-  /// Returns the value of the model at [index]
-  dynamic valueAt(int index) => itemAt(index).value;
 }

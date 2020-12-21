@@ -7,7 +7,7 @@ import '../domain/blocs/weather/weather_model.dart';
 
 class FakeWeatherRepository implements WeatherRepository {
   @override
-  Future<ImmutableModel<WeatherState>> fetchWeather(String cityName) {
+  Future<> fetchWeather(String cityName) {
     // Simulate network delay
     return Future.delayed(
       Duration(seconds: 1),

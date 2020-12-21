@@ -1,58 +1,35 @@
-import '../../typedefs.dart';
-import '../model_value.dart';
+import 'package:valid/valid.dart';
+
+import 'model_value_type.dart';
 
 /// A model for a validated [DateTime]
-class ModelDateTime extends ModelValue<ModelDateTime, DateTime> {
-  /// Constructs a [ModelValue] of a [DateTime].
-  ///
-  /// The underlying [DateTime] object is serialized using [DateTime.toIso8601String]
-  /// and deserialized using [DateTime.parse].
-  ///
-  /// [initialValue] defines the first (or default) value.
-  /// This can be accessed using the [initialValue] instance, useful when resetting.
-  /// [initialValue] can be `null` indicating this model has no initial (or default) value.
-  ///
-  /// [validator] is a function that must return `true` if the [DateTime] value passed to it is valid and `false` otherwise.
-  ///
-  /// [validator] will be run on every update ([next] etc.) to this model.
-  /// If it returns `true`, the update will be applied. Otherwise a [ValidationException]
-  /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
-  /// (without the updated applied).
-  ///
-  /// [validator] will be run on [initialValue] if they are both not null.
-  ///
-  /// Throws a [ModelInitializationError] if [validator] returns `false` after being run on [initialValue].
-  factory ModelDateTime(
+class ModelDateTime extends ModelValueType<ModelDateTime, DateTime> {
+  ModelDateTime(
+    String fieldLabel,
     DateTime initialValue, [
-    ModelValueValidator<DateTime> validator,
-  ]) =>
-      ModelDateTime._(initialValue, validator);
+    Validator<DateTime>? validator,
+  ]) : super.initial(fieldLabel, initialValue, validator);
 
-  ModelDateTime._(
-    DateTime initialValue,
-    ModelValueValidator<DateTime> validator,
-  ) : super.datetime(initialValue, validator);
-
-  ModelDateTime._next(ModelDateTime previous, DateTime value)
-      : super.constructNext(previous, value);
+  ModelDateTime._next(ModelDateTime previous, DateTime nextValue)
+      : super.constructNext(previous, nextValue);
 
   @override
   ModelDateTime buildNext(DateTime nextValue) =>
       ModelDateTime._next(this, nextValue);
 
   @override
-  String asSerializable() => value.toIso8601String();
+  String serializer(DateTime currentValue) => currentValue.toIso8601String();
 
   @override
-  DateTime deserialize(dynamic serialized) {
+  DateTime? deserializer(dynamic serialized) {
     if (serialized is String) {
       try {
-        return DateTime.parse(serialized);
+        final dt = DateTime.parse(serialized);
+        return dt;
       } on FormatException {
         return null;
       }
-    } else {
-      return null;
     }
+    return null;
   }
 }
