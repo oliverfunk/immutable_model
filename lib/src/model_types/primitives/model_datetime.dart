@@ -5,10 +5,14 @@ import 'model_value_type.dart';
 /// A model for a validated [DateTime]
 class ModelDateTime extends ModelValueType<ModelDateTime, DateTime> {
   ModelDateTime(
-    String fieldLabel,
-    DateTime initialValue, [
+    DateTime? initialValue, {
     Validator<DateTime>? validator,
-  ]) : super.initial(fieldLabel, initialValue, validator);
+    required String fieldLabel,
+  }) : super.initial(
+          initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel,
+        );
 
   ModelDateTime._next(ModelDateTime previous, DateTime nextValue)
       : super.constructNext(previous, nextValue);

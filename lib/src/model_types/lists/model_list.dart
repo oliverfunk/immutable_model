@@ -1,16 +1,20 @@
 import 'package:valid/valid.dart';
 
-import '../../serializable_valid_type.dart';
+import '../../model_type.dart';
 
 class ModelList<V> extends ValidPrimitiveListType<ModelList<V>, V>
-    with SerializableValidType<ModelList<V>, List<V>> {
+    with ModelType<ModelList<V>, List<V>> {
   final String _fieldLabel;
 
   ModelList(
-    this._fieldLabel, [
-    List<V> initialList = const [],
-    bool Function(List<V>)? listValidator,
-  ]) : super.initial(initialList, listValidator);
+    List<V> initialList, {
+    bool Function(List<V>)? validator,
+    required String fieldLabel,
+  })   : _fieldLabel = fieldLabel,
+        super.initial(
+          initialList,
+          validator: validator,
+        );
 
   ModelList._next(ModelList<V> previous, List<V> nextList)
       : _fieldLabel = previous._fieldLabel,
@@ -20,7 +24,7 @@ class ModelList<V> extends ValidPrimitiveListType<ModelList<V>, V>
   ModelList<V> buildNext(List<V> nextList) => ModelList._next(this, nextList);
 
   @override
-  String get fieldLabel => _fieldLabel;
+  String get label => _fieldLabel;
 
   @override
   List serializer(List<V> currentList) {

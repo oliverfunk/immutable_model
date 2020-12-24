@@ -3,9 +3,12 @@ import 'model_value_type.dart';
 /// A model for a [bool]. This class needs no validator.
 class ModelBool extends ModelValueType<ModelBool, bool> {
   ModelBool(
-    String fieldLabel,
-    bool initialValue,
-  ) : super.initial(fieldLabel, initialValue);
+    bool? initialValue, {
+    required String fieldLabel,
+  }) : super.initial(
+          initialValue,
+          fieldLabel: fieldLabel,
+        );
 
   ModelBool._next(ModelBool previous, bool nextValue)
       : super.constructNext(previous, nextValue);

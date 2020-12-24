@@ -6,8 +6,8 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
   // final ModelInner<TestModel> mi;
 
   TestModel()
-      : name = ModelString('name', 'Oliver'),
-        age = ModelInt('age', 25, (n) => n >= 0),
+      : name = ModelString('Oliver', fieldLabel: 'name'),
+        age = ModelInt(2, validator: (n) => n >= 0, fieldLabel: 'age'),
         super.initial(initialState: const TestModelStateA());
 
   TestModel._next(
@@ -18,17 +18,17 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
 
   @override
   TestModel build(ModelUpdate modelUpdate) => TestModel._next(
-        modelUpdate.getField(name),
-        modelUpdate.getField(age),
+        modelUpdate.nextField(name),
+        modelUpdate.nextField(age),
         modelUpdate,
       );
 
   @override
-  List<SerializableValidType> get fields => [name, age];
+  List<ModelType> get fields => [name, age];
 
   @override
   ModelValidator get validator =>
-      (mu) => mu.getField(name).value.length >= mu.getField(age).value;
+      (mu) => mu.nextField(name).value!.length >= mu.nextField(age).value!;
 
   @override
   bool get strictUpdates => true;
@@ -49,17 +49,27 @@ class TestModelStateB extends TestModelState {
 void main(List<String> args) {
   final tm = TestModel();
   print(tm);
-  print(tm.updateFields([
-    FieldUpdate(tm.name, 'Funk'),
-    FieldUpdate(tm.age, 1),
-  ]));
+  print(
+    tm.updateFields(
+      fieldUpdates: [
+        FieldUpdate(field: tm.name, update: 'Oliver'),
+        FieldUpdate(field: tm.age, update: 1),
+      ],
+    ),
+  );
   print(tm.transitionTo(const TestModelStateB()));
 
-  final tinner = ModelInner('tesinner', tm);
+  final tinner = ModelInner(tm, fieldLabel: 'testmod');
   print(tinner);
-  print(tinner.next(tm.updateFields([
-    FieldUpdate(tm.name, 'Funk'),
-    FieldUpdate(tm.age, 1),
-  ])));
+  print(
+    tinner.next(
+      tm.updateFields(
+        fieldUpdates: [
+          FieldUpdate(field: tm.name, update: 'Funk'),
+          FieldUpdate(field: tm.age, update: 1),
+        ],
+      ),
+    ),
+  );
   print(tinner.nextWithSerialized(tinner.asSerializable()));
 }

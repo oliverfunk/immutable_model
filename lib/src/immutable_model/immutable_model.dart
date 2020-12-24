@@ -6,12 +6,12 @@ import 'model_update.dart';
 import '../immutable_model_logger.dart';
 import '../typedefs.dart';
 import '../errors.dart';
-import '../serializable_valid_type.dart';
-
-// todo: add a function _next call before calling build, for logging and validation
+import '../model_type.dart';
 
 /// Default placeholder state for [ImmutableModel]'s
-enum ModelState { Default }
+class DefaultModelState {
+  const DefaultModelState();
+}
 
 @immutable
 abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
@@ -19,28 +19,28 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   final S currentState;
 
   ImmutableModel.initial({
-    required S initialState,
-  }) : currentState = initialState {
+    S? initialState,
+  }) : currentState = initialState ?? DefaultModelState() as S {
     // check if the fields has been set and all have unique labels
     assert(
       fields.isNotEmpty,
       'Fields must be provided',
     );
     assert(
-      fields.map((e) => e.fieldLabel).toSet().length ==
-          fields.map((e) => e.fieldLabel).length,
+      fields.map((e) => e.label).toSet().length ==
+          fields.map((e) => e.label).length,
       'Every field must have a unique label',
     );
-    if (!validate(ModelUpdate(fields, currentState))) {
+    if (!validate(ModelUpdate(this))) {
       throw ModelInitializationError(M, fields);
     }
   }
 
   ImmutableModel.constructNext(
     ModelUpdate modelUpdate,
-  ) : currentState = modelUpdate.stateUpdate;
+  ) : currentState = modelUpdate.nextState();
 
-  List<SerializableValidType> get fields;
+  List<ModelType> get fields;
 
   bool get strictUpdates => false;
 
@@ -51,13 +51,16 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   M build(ModelUpdate modelUpdate);
 
   M _next(ModelUpdate modelUpdate) {
+    // ImmutableModelLogger.log(modelUpdate);
     if (strictUpdates && !modelUpdate.isStrict()) {
-      throw ModelStrictUpdateError();
+      print('update not strict');
+      return this as M;
     }
-    if (validate(modelUpdate)) return build(modelUpdate);
-    // invalid update
-    ImmutableModelLogger.log(modelUpdate);
-    return this as M;
+    if (!validate(modelUpdate)) {
+      print('update invalid');
+      return this as M;
+    }
+    return build(modelUpdate);
   }
 
   @nonVirtual
@@ -65,120 +68,129 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
       validator == null || validator!(modelUpdate);
 
   /// Sets the [currentState] to [nextState].
+  ///
+  /// If [strictUpdates] is `true`, this will not work.
   @nonVirtual
-  M transitionTo(S nextState) => _next(ModelUpdate(
-        fields,
-        nextState,
-      ));
+  M transitionTo(S nextState) =>
+      _next(ModelUpdate(this)..setNextState(nextState));
 
   @nonVirtual
   M updateFieldAndTransitionTo(
-    SerializableValidType field,
-    dynamic update,
-    S nextState,
-  ) {
-    final _update = ModelUpdate(fields, nextState);
+    S nextState, {
+    required ModelType field,
+    required dynamic update,
+  }) {
+    final _update = ModelUpdate(this);
     _update.addFieldUpdate(
-      FieldUpdate(field, update),
+      FieldUpdate(field: field, update: update),
     );
+    _update.setNextState(nextState);
     return _next(_update);
   }
 
   @nonVirtual
-  M updateField(
-    SerializableValidType field,
-    dynamic update,
-  ) =>
-      updateFieldAndTransitionTo(field, update, currentState);
+  M updateField({
+    required ModelType field,
+    required dynamic update,
+  }) =>
+      updateFieldAndTransitionTo(currentState, field: field, update: update);
 
   @nonVirtual
   M updateFieldIfIn(
-    S inState,
-    SerializableValidType field,
-    dynamic update,
-  ) =>
+    S inState, {
+    required ModelType field,
+    required dynamic update,
+  }) =>
       currentState.runtimeType == inState.runtimeType
-          ? updateField(field, update)
+          ? updateField(field: field, update: update)
           : throw ModelStateError(currentState, inState);
 
   /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
   @nonVirtual
   M updateFieldsAndTransitionTo(
-    List<FieldUpdate> fieldUpdates,
-    S nextState,
-  ) {
-    final _update = ModelUpdate(fields, nextState);
+    S nextState, {
+    required List<FieldUpdate> fieldUpdates,
+  }) {
+    final _update = ModelUpdate(this);
     for (var fieldUpdate in fieldUpdates) {
       _update.addFieldUpdate(fieldUpdate);
     }
+    _update.setNextState(nextState);
     return _next(_update);
   }
 
   @nonVirtual
-  M updateFields(
-    List<FieldUpdate> fieldUpdates,
-  ) =>
-      updateFieldsAndTransitionTo(fieldUpdates, currentState);
+  M updateFields({
+    required List<FieldUpdate> fieldUpdates,
+  }) =>
+      updateFieldsAndTransitionTo(currentState, fieldUpdates: fieldUpdates);
 
   @nonVirtual
   M updateFieldsIfIn(
-    S inState,
-    List<FieldUpdate> fieldUpdates,
-  ) =>
+    S inState, {
+    required List<FieldUpdate> fieldUpdates,
+  }) =>
       currentState.runtimeType == inState.runtimeType
-          ? updateFields(fieldUpdates)
+          ? updateFields(fieldUpdates: fieldUpdates)
           : throw ModelStateError(currentState, inState);
 
   @nonVirtual
   M resetFieldsAndTransitionTo(
-    List<SerializableValidType> fieldsToReset,
-    S nextState,
-  ) {
-    final _update = ModelUpdate(fields, nextState);
+    S nextState, {
+    required List<ModelType> fieldsToReset,
+  }) {
+    final _update = ModelUpdate(this);
     for (var fieldToReset in fieldsToReset) {
-      _update.addUpdatedField(fieldToReset.reset());
+      _update.addUpdatedField(fieldToReset, fieldToReset.reset());
     }
+    _update.setNextState(nextState);
     return _next(_update);
   }
 
   @nonVirtual
-  M resetFields(
-    List<SerializableValidType> fieldsToReset,
-  ) =>
-      resetFieldsAndTransitionTo(fieldsToReset, currentState);
+  M resetFields({
+    required List<ModelType> fieldsToReset,
+  }) =>
+      resetFieldsAndTransitionTo(currentState, fieldsToReset: fieldsToReset);
 
   /// Resets all field models to their initial instance.
   @nonVirtual
-  M resetAll() => resetFieldsAndTransitionTo(fields, currentState);
+  M resetAll() => resetFieldsAndTransitionTo(
+        currentState,
+        fieldsToReset: fields,
+      );
 
   /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
   @nonVirtual
   M resetAllAndTransitionTo(
     S nextState,
   ) =>
-      resetFieldsAndTransitionTo(fields, nextState);
+      resetFieldsAndTransitionTo(nextState, fieldsToReset: fields);
 
   // JSON
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson([bool includeNullValues = true]) {
     final jsonMap = <String, dynamic>{};
     for (var field in fields) {
-      jsonMap[field.fieldLabel] = field.asSerializable();
+      jsonMap[field.label] = field.asSerializable();
+    }
+    if (!includeNullValues) {
+      jsonMap.removeWhere((k, v) => v == null);
     }
     return jsonMap;
   }
 
-  M fromJson(
-    Map<String, dynamic> jsonMap,
-  ) {
-    final _fields = fields;
-    final _update = ModelUpdate(_fields, currentState);
+  M fromJson(Map<String, dynamic> jsonMap) {
+    final _update = ModelUpdate(this);
 
-    for (var field in _fields) {
-      if (jsonMap.containsKey(field.fieldLabel)) {
+    for (var field in fields) {
+      if (jsonMap.containsKey(field.label)) {
         _update.addUpdatedField(
-          field.nextWithSerialized(jsonMap[field.fieldLabel]),
+          field,
+          field.nextWithSerialized(jsonMap[field.label]),
         );
+      } else {
+        // todo: log it
       }
     }
     return _next(_update);
@@ -186,311 +198,14 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
 
   @override
   @nonVirtual
-  List<Object> get props => fields;
+  List<dynamic> get props => [currentState, fields];
 
   @override
   String toString() {
-    var r = '$M<${currentState.runtimeType}>';
+    var s = '$M<${currentState.runtimeType}>';
     for (var field in fields) {
-      r += '\n ${field.fieldLabel}: $field';
+      s += '\n ${field.label}: $field';
     }
-    return r;
+    return s;
   }
 }
-//   /// The internal [ModelInner] model used by this class.
-//   final ModelInner _model;
-
-//   /// The underlying [ModelInner].
-//   ModelInner get inner => _model;
-
-//   /// The model's current state.
-//   final S _state;
-
-//   /// Constructs a class used to define an immutable state model.
-//   ///
-//   /// [modelMap] defines the mapping between field label [String]s and [ModelType] models.
-//   /// This defines the model's scheme as well as the field data type and validation.
-//   /// [modelMap] cannot be null or empty.
-//   ///
-//   /// [modelValidator] is a function that must return `true` if the map passed to it from an update is valid,
-//   /// `false` otherwise. [modelValidator] can be `null` indicating no map level validations are required.
-//   ///
-//   /// If during an update, [modelValidator] returns `false` a [ValidationException]
-//   /// will be logged as a *WARNING* message (instead of being thrown) and the current instance returned
-//   /// (without the updated applied).
-//   ///
-//   /// If [strictUpdates] is true, every update must contain all fields defined in [modelMap]
-//   /// and every field value cannot be null and must be valid. If it's false, updates can
-//   /// contain a sub-set of the fields.
-//   ///
-//   /// Throws a [ModelInitialValidationError] if [modelValidator] returns `false` after being run on [modelMap],
-//   /// during initialization only.
-//   factory ImmutableModel(
-//     Map<String, ModelType> modelMap, {
-//     ModelMapValidator modelValidator,
-//     S initialState,
-//     bool strictUpdates = false,
-//   }) {
-//     // can happen if the initialState is not set when S is.
-//     if (initialState is! S) {
-//       throw ModelInitializationError(
-//         ImmutableModel,
-//         "The initialState must be set.",
-//       );
-//     }
-//     return ImmutableModel._(
-//       modelMap,
-//       modelValidator,
-//       initialState,
-//       strictUpdates,
-//     );
-//   }
-
-//   ImmutableModel._(
-//     Map<String, ModelType> modelMap, [
-//     ModelMapValidator modelValidator,
-//     S initialState,
-//     bool strictUpdates = false,
-//   ])  : _model = ModelInner(
-//           modelMap,
-//           modelValidator: modelValidator,
-//           strictUpdates: strictUpdates,
-//         ),
-//         _state = initialState ?? ModelState.Default as S;
-
-//   /// Construct the next instance using both a state and model change.
-//   ///
-//   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
-//   /// Otherwise the cache is purged, all items are removed.
-//   ImmutableModel._nextBoth(
-//     ImmutableModel<S> last,
-//     this._state,
-//     this._model,
-//   );
-
-//   /// Construct the next instance using only a model change.
-//   ///
-//   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
-//   /// Otherwise the cache is purged, all items are removed.
-//   ImmutableModel._nextModel(
-//     ImmutableModel<S> last,
-//     this._model,
-//   ) : _state = last._state;
-
-//   /// Construct the next instance using only a state change.
-//   ///
-//   /// If [cacheOrPurge] is `true`, [last] is added to the end of the cache.
-//   /// Otherwise the cache is purged, all items are removed.
-//   ImmutableModel._nextState(
-//     ImmutableModel<S> last,
-//     this._state,
-//   ) : _model = last._model;
-
-//   // value
-
-//   /// The current state
-//   S get currentState => _state;
-
-//   /// The map between field labels and the current [ModelType] models.
-//   ///
-//   /// Note: this map is copy-on-write protected.
-//   /// When modified, a new instance will be created.
-//   Map<String, ModelType> get modelMap => _model.modelMap;
-
-//   // updating
-
-//   /// Updates the current model values with those specified in [updates].
-//   ///
-//   /// The values in [updates] can be a value, a [ModelValueUpdater] function or a [ModelType].
-//   ///
-//   /// Throws a [ModelAccess] error if a field in [updates] is not in the model.
-//   ImmutableModel<S> update(
-//     Map<String, dynamic> updates,
-//   ) =>
-//       ImmutableModel<S>._nextModel(this, _model.nextWithUpdates(updates));
-
-//   /// Updates the current model values with those specified in [updates],
-//   /// if [currentState] == [inState].
-//   ///
-//   /// The field label strings in [updates] must exist in this [ImmutableModel].
-//   ///
-//   /// The values in [updates] can be a value, a [ModelValueUpdater] function or a [ModelType].
-//   ///
-//   /// Throws a [ModelStateError] if [currentState] != [inState].
-// ImmutableModel<S> updateIfIn(
-//   Map<String, dynamic> updates,
-//   S inState,
-// ) =>
-//     // fixme: find a better way
-//     currentState.runtimeType == inState.runtimeType
-//         ? update(updates)
-//         : throw ModelStateError(currentState, inState);
-
-//   /// Updates the field selected by [selector] with [update].
-//   ///
-//   /// [update] can be a value, a [ModelValueUpdater] function or a [ModelType].
-//   ImmutableModel<S> updateWithSelector<V>(
-//     ModelSelector<V> selector,
-//     dynamic update,
-//   ) =>
-//       ImmutableModel<S>._nextModel(
-//         this,
-//         _model.nextWithSelector(selector, update),
-//       );
-
-//   /// Updates the field selected by [selector] with [update] if [currentState] is [inState].
-//   ///
-//   /// [update] can be a value, a [ModelValueUpdater] function or a [ModelType].
-//   ImmutableModel<S> updateWithSelectorIfIn<V>(
-//     ModelSelector<V> selector,
-//     dynamic update,
-//     S inState,
-//   ) =>
-//       currentState.runtimeType == inState.runtimeType
-//           ? updateWithSelector<V>(selector, update)
-//           : throw ModelStateError(currentState, inState);
-
-//   /// Updates the underlying [ModelInner] with the one in [other]
-//   /// and the [currentState] will be set to that of [other].
-//   ///
-//   /// The two [ModelInner]'s must share a history.
-//   ImmutableModel<S> updateTo(ImmutableModel<S> other) =>
-//       ImmutableModel<S>._nextBoth(
-//         this,
-//         other._state,
-//         _model.nextFromModel(other._model),
-//       );
-
-//   /// Updates the underlying [ModelInner] with the one in [other]
-//   /// and the [currentState] will be set to that of [other].
-//   ///
-//   /// The two [ModelInner]'s must share a history.
-//   ImmutableModel<S> updateWithInner(ModelInner other) =>
-//       ImmutableModel<S>._nextModel(this, _model.nextFromModel(other));
-
-//   /// Merges [other] into this.
-//   ///
-//   /// Will not affect the [currentState].
-//   ///
-//   /// As [ModelInner.merge].
-//   ImmutableModel<S> mergeFrom(ImmutableModel<S> other) =>
-//       ImmutableModel<S>._nextModel(this, _model.merge(other._model));
-
-//   /// Resets the models specified by [fieldLabels]
-//   /// to their [ModelType.initial] instance.
-//   ///
-//   /// [fieldLabels] cannot be empty.
-//   ImmutableModel<S> resetFields(List<String> fieldLabels) =>
-//       fieldLabels.isNotEmpty
-//           ? ImmutableModel<S>._nextModel(this, _model.resetFields(fieldLabels))
-//           : throw AssertionError("Fields can't be empty");
-
-//   /// Resets all the models in this to their [ModelType.initial] instance.
-//   ImmutableModel<S> resetAll() =>
-//       ImmutableModel<S>._nextModel(this, _model.resetAll());
-
-//   /// Sets the [currentState] to [nextState].
-//   ImmutableModel<S> transitionTo(S nextState) =>
-//       ImmutableModel<S>._nextState(this, nextState);
-
-//   /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
-//   ImmutableModel<S> resetAndTransitionTo(S nextState) =>
-//       ImmutableModel<S>._nextBoth(this, nextState, _model.resetAll());
-
-//   /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
-//   ImmutableModel<S> transitionToAndUpdate(
-//     S nextState,
-//     Map<String, dynamic> updates,
-//   ) =>
-//       ImmutableModel<S>._nextBoth(
-//         this,
-//         nextState,
-//         _model.nextWithUpdates(updates),
-//       );
-
-//   // JSON
-
-//   /// Returns a [Map] between the field labels and the current, serialized model values (using [ModelType.asSerializable]).
-//   ///
-//   /// Note: this returns a copy of all components and nested-components of the underlying map,
-//   /// meaning this could potentially be an expensive call if this model is large.
-//   /// If this is the case, consider using [toJsonDelta] on a previous instance of this [ImmutableModel].
-//   Map<String, dynamic> toJson() => _model.asSerializable();
-
-//   /// Returns a [Map] between the field labels and the current, serialized model values,
-//   /// based on the delta from [other] to this.
-//   ///
-//   /// If the corresponding models are equal,
-//   /// it is removed from the resulting map.
-//   /// Otherwise, the model value in this is serialized
-//   /// (using [ModelType.asSerializable]).
-//   ///
-//   /// To avoid unexpected results, this should share a *direct* history with [other].
-//   ///
-//   /// This is useful if, for example, you want to serialize only
-//   /// the changes made to a model to send to a remote.
-//   Map<String, dynamic> toJsonDelta(ImmutableModel<S> other) =>
-//       _model.asSerializableDelta(other._model);
-
-//   /// Deserializes the values in [jsonMap] and updates the current model values with them.
-//   ///
-//   /// The values are deserialized using the corresponding model [ModelType.deserializer] method.
-//   ImmutableModel<S> fromJson(Map<String, dynamic> jsonMap) =>
-//       ImmutableModel<S>._nextModel(this, _model.nextWithSerialized(jsonMap));
-
-//   // field ops
-
-//   Iterable<String> get fieldLabels => _model.fieldLabels;
-
-//   int get numberOfFields => _model.numberOfFields;
-
-//   bool hasModel(String fieldLabel) => _model.hasModel(fieldLabel);
-
-//   /// Returns the [ModelType] model selected by [selector].
-//   ModelType selectModel<V>(ModelSelector<V> selector) =>
-//       _model.selectModel(selector);
-
-//   /// Returns the value of the model selected by [selector].
-//   V selectValue<V>(ModelSelector<V> selector) => _model.selectValue(selector);
-
-//   /// Returns the [ModelType] model specified by [fieldLabel].
-//   ModelType getModel(String fieldLabel) => _model.getModel(fieldLabel);
-
-//   /// Returns the value of the model specified by [fieldLabel],
-//   /// except if the model is a [ModelInner], in which case
-//   /// the [ModelInner] model will be returned, not its value.
-//   dynamic operator [](String fieldLabel) => _model[fieldLabel];
-
-//   /// Returns the value of the model specified by [fieldLabel].
-//   dynamic getValue(String fieldLabel) => _model.getValue(fieldLabel);
-
-//   // misc
-
-//   /// Joins [other] to this and creates a new [ImmutableModel] from the result.
-//   ///
-//   /// Models in this will be replaced by those in [other] if they share the same field label.
-//   ///
-//   /// [strictUpdates] sets the value for the newly joined instance.
-//   ///
-//   /// The [currentState] of this is set as initial state for the joined instance.
-//   ///
-//   /// The cache buffer size of this is set as the cache buffer size for the joined instance.
-//   ImmutableModel<S> join(
-//     ImmutableModel other, {
-//     bool strictUpdates = false,
-//   }) {
-//     final joinedInner = _model.join(other._model, strictUpdates: strictUpdates);
-//     return ImmutableModel<S>(
-//       joinedInner.value,
-//       modelValidator: joinedInner.modelValidator,
-//       initialState: _state,
-//       strictUpdates: strictUpdates,
-//     );
-//   }
-
-//   @override
-//   List<Object> get props => [_state, _model];
-
-//   @override
-//   String toString() => "<${currentState.runtimeType}>${_model.toString()}";
-// }

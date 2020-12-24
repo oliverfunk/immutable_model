@@ -4,11 +4,13 @@
 library immutable_model;
 
 // todo: provide deafult to the model values
+// todo: add modelEnumList, ImmutableModelList
+// todo: instead of value value as asbtact make each odel prim abstract: extesnds ModelString as ValueType, solves the naming problem
 
 export 'src/errors.dart';
 export 'src/exceptions.dart';
 export 'src/typedefs.dart';
-export 'src/serializable_valid_type.dart';
+export 'src/model_type.dart';
 // model types
 // - inner
 export 'src/model_types/model_inner.dart';
@@ -31,3 +33,6 @@ export 'src/value_types/model_password.dart';
 export 'src/immutable_model/immutable_model.dart';
 export 'src/immutable_model/field_update.dart';
 export 'src/immutable_model/model_update.dart';
+
+// rexport valid
+export 'package:valid/valid.dart';

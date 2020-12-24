@@ -1,23 +1,31 @@
 import 'package:valid/valid.dart';
 
-import '../../serializable_valid_type.dart';
+import '../../model_type.dart';
 import '../primitives/model_value_type.dart';
 
 class ModelValueList<V> extends ValidValueListType<ModelValueList<V>, V>
-    with SerializableValidType<ModelValueList<V>, List<V>> {
+    with ModelType<ModelValueList<V>, List<V>> {
   final String _fieldLabel;
 
   ModelValueList(
-    this._fieldLabel,
-    ModelValueType validator, [
-    List<V> initialValues = const [],
-  ]) : super.initial(validator, initialValues);
+    List<V> initialValues, {
+    required ModelValueType validator,
+    required String fieldLabel,
+  })   : _fieldLabel = fieldLabel,
+        super.initial(
+          initialValues,
+          validator: validator,
+        );
 
   ModelValueList.numberOf(
-    this._fieldLabel,
-    ModelValueType validator,
-    int numberOf,
-  ) : super.initialNumberOf(validator, numberOf);
+    int numberOf, {
+    required ModelValueType validator,
+    required String fieldLabel,
+  })   : _fieldLabel = fieldLabel,
+        super.initialNumberOf(
+          numberOf,
+          validator: validator,
+        );
 
   ModelValueList._next(ModelValueList<V> previous, List<V> nextList)
       : _fieldLabel = previous._fieldLabel,
@@ -28,7 +36,7 @@ class ModelValueList<V> extends ValidValueListType<ModelValueList<V>, V>
       ModelValueList._next(this, nextList);
 
   @override
-  String get fieldLabel => _fieldLabel;
+  String get label => _fieldLabel;
 
   @override
   List serializer(List<V> currentList) => List.unmodifiable(

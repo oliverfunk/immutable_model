@@ -1,11 +1,14 @@
 import 'package:meta/meta.dart';
 
-import '../serializable_valid_type.dart';
+import '../model_type.dart';
 
 @immutable
 class FieldUpdate {
-  final SerializableValidType field;
+  final ModelType field;
   final dynamic update;
 
-  const FieldUpdate(this.field, this.update);
+  const FieldUpdate({
+    required this.field,
+    required this.update,
+  });
 }

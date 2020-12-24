@@ -5,10 +5,14 @@ import 'model_value_type.dart';
 /// A model for a validated [double].
 class ModelDouble extends ModelValueType<ModelDouble, double> {
   ModelDouble(
-    String fieldLabel,
-    double initialValue, [
+    double? initialValue, {
     Validator<double>? validator,
-  ]) : super.initial(fieldLabel, initialValue, validator);
+    required String fieldLabel,
+  }) : super.initial(
+          initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel,
+        );
 
   ModelDouble._next(ModelDouble previous, double nextValue)
       : super.constructNext(previous, nextValue);

@@ -1,17 +1,19 @@
-import 'package:immutable_model/src/serializable_valid_type.dart';
+import 'package:immutable_model/src/model_type.dart';
 import 'package:valid/valid.dart';
 
 import '../immutable_model/immutable_model.dart';
 
 class ModelInner<M extends ImmutableModel<M, dynamic>>
-    extends ValidValueType<ModelInner<M>, M>
-    with SerializableValidType<ModelInner<M>, M> {
+    extends ValidValueType<ModelInner<M>, M> with ModelType<ModelInner<M>, M> {
   final String _fieldLabel;
 
   ModelInner(
-    this._fieldLabel,
-    M model,
-  ) : super.initial(model, null);
+    M model, {
+    required String fieldLabel,
+  })   : _fieldLabel = fieldLabel,
+        super.initial(
+          model,
+        );
 
   ModelInner._next(
     ModelInner<M> previous,
@@ -23,14 +25,15 @@ class ModelInner<M extends ImmutableModel<M, dynamic>>
   ModelInner<M> buildNext(M nextModel) => ModelInner._next(this, nextModel);
 
   @override
-  String get fieldLabel => _fieldLabel;
+  String get label => _fieldLabel;
 
   @override
   Map<String, dynamic> serializer(M currentValue) => currentValue.toJson();
 
   @override
+  // value cannot be null
   M? deserializer(dynamic serialized) =>
-      serialized is Map<String, dynamic> ? value.fromJson(serialized) : null;
+      serialized is Map<String, dynamic> ? value!.fromJson(serialized) : null;
 }
 
 // import 'package:built_collection/built_collection.dart';
@@ -109,16 +112,6 @@ class ModelInner<M extends ImmutableModel<M, dynamic>>
 //   /// Validates [updated] using [modelValidator], if it's defined.
 //   bool _validateUpdated(Map<String, ModelType> updated) =>
 //       modelValidator == null || modelValidator(updated);
-
-//   /// Checks if [nextModels] complies to the *strict* update rule,
-//   /// which states:
-//   /// * Every model in this must be in [nextModels]
-//   /// * Every model in [nextModels] cannot be the initial instance (see [ModelType.initial])
-//   /// * Every model in [nextModels] cannot have the same value as the one in this.
-//   bool _isStrict(Map<String, ModelType> nextModels) => fieldLabels.every((fl) =>
-//       nextModels.containsKey(fl) &&
-//       !nextModels[fl].isInitial &&
-//       nextModels[fl] != this[fl]);
 
 //   // always rebuild for this class as it's possibly a very expensive call to check equality each update.
 //   @override

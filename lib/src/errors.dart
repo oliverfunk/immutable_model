@@ -7,7 +7,7 @@ import '../immutable_model.dart';
 /// An [Error] that occurs during the initialization of a model.
 class ModelInitializationError extends Error {
   final Type model;
-  final List<SerializableValidType> fields;
+  final List<ModelType> fields;
 
   ModelInitializationError(this.model, this.fields);
 
@@ -67,8 +67,8 @@ class ModelStrictUpdateError extends Error {
   ModelStrictUpdateError();
 
   @override
-  String toString() => 'ModelStrictUpdateError\n'
-      ' Cannot update, the update is not strict.';
+  String toString() =>
+      'ModelStrictUpdateError: Cannot update, the update is not strict.';
 }
 
 // /// An [Error] that occurs when an attempt is made to access a model that does not exist in a [potentially].
@@ -105,8 +105,8 @@ class ModelStateError extends Error {
   ModelStateError(this.currentState, this.requiredState);
 
   @override
-  String toString() => 'ModelStateError\n'
-      'The model is in an incorrect state and cannot update.\n'
+  String toString() =>
+      'ModelStateError: The model is in an incorrect state and cannot update.\n'
       ' Current state:  ${currentState.runtimeType}\n'
       ' Required state: ${requiredState.runtimeType}';
 }

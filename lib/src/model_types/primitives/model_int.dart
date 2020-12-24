@@ -5,10 +5,14 @@ import 'model_value_type.dart';
 /// A model for a validated [int].
 class ModelInt extends ModelValueType<ModelInt, int> {
   ModelInt(
-    String fieldLabel,
-    int initialValue, [
+    int? initialValue, {
     Validator<int>? validator,
-  ]) : super.initial(fieldLabel, initialValue, validator);
+    required String fieldLabel,
+  }) : super.initial(
+          initialValue,
+          validator: validator,
+          fieldLabel: fieldLabel,
+        );
 
   ModelInt._next(ModelInt previous, int nextValue)
       : super.constructNext(previous, nextValue);

@@ -1,65 +1,72 @@
 import 'package:immutable_model/src/immutable_model/field_update.dart';
-import 'package:meta/meta.dart';
-import 'package:valid/valid.dart';
+import 'package:immutable_model/src/immutable_model/immutable_model.dart';
 
-import '../serializable_valid_type.dart';
+import '../model_type.dart';
 
-@immutable
-class ModelUpdate<S> {
-  final List<SerializableValidType> _fields;
-  final List<SerializableValidType> _updatedFields = List.empty(growable: true);
-  final S _stateUpdate;
+class ModelUpdate {
+  final List<ModelType> _currentFields;
+  final List<ModelType> _nextFields;
+  final dynamic _currentState;
+  dynamic _nextState;
 
-  ModelUpdate(this._fields, this._stateUpdate);
+  ModelUpdate(ImmutableModel currentModel)
+      : _currentFields = List<ModelType>.unmodifiable(currentModel.fields),
+        _nextFields = List<ModelType>.of(currentModel.fields, growable: false),
+        _currentState = currentModel.currentState,
+        _nextState = currentModel.currentState;
 
-  SerializableValidType _applyFieldUpdate(
-    FieldUpdate fieldUpdate,
-  ) {
-    final field = fieldUpdate.field;
-    final update = fieldUpdate.update;
-
-    if (update is SerializableValidType) {
-      return field.nextFromOther(update) as SerializableValidType;
-    } else if (update is ValueUpdater) {
-      return field.nextWithFunc(update) as SerializableValidType;
-    } else {
-      return field.next(update) as SerializableValidType;
-    }
-  }
-
-  void _addToUpdated(SerializableValidType field) {
-    final fieldIdx = _updatedFields.indexWhere(
-      (f) => f.fieldLabel == field.fieldLabel,
+  void _addToNext(ModelType currentFieldFor, ModelType nextField) {
+    final fieldIdx = _currentFields.indexWhere(
+      (_currentField) => identical(_currentField, currentFieldFor),
     );
-    if (fieldIdx == -1) {
-      _updatedFields.add(field);
-    } else {
-      // replace
-      _updatedFields[fieldIdx] = field;
-    }
+    // todo:
+    if (fieldIdx == -1) throw Error();
+    // _currentFields and _nextFields have the same order
+    _nextFields[fieldIdx] = nextField;
   }
 
-  bool isStrict() =>
-      _updatedFields.isEmpty || _updatedFields.length == _fields.length;
+  bool isStrict() {
+    for (var i = 0; i < _currentFields.length; i++) {
+      // if there was no update made to a field, return false
+      if (identical(_currentFields[i], _nextFields[i])) return false;
+    }
+    return true;
+  }
 
-  void addFieldUpdate(FieldUpdate fieldUpdate) =>
-      _addToUpdated(_applyFieldUpdate(fieldUpdate));
+  void addUpdatedField(
+    ModelType currentField,
+    ModelType<dynamic, dynamic> updatedField,
+  ) =>
+      _addToNext(currentField, updatedField as ModelType);
 
-  void addUpdatedField(SerializableValidType<dynamic, dynamic> updatedField) =>
-      _addToUpdated(updatedField as SerializableValidType);
+  void addFieldUpdate(FieldUpdate fieldUpdate) {
+    final updatedField = fieldUpdate.field(fieldUpdate.update);
+    addUpdatedField(fieldUpdate.field, updatedField);
+  }
 
-  F getField<F extends SerializableValidType<dynamic, dynamic>>(F field) =>
-      _updatedFields.firstWhere(
-        (_updatedField) => field.fieldLabel == _updatedField.fieldLabel,
-        orElse: () => _fields.firstWhere(
-          (_field) => field.fieldLabel == _field.fieldLabel,
-        ),
-      ) as F;
+  void setNextState(nextState) {
+    if (nextState != _currentState) _nextState = nextState;
+  }
 
-  S get stateUpdate => _stateUpdate;
+  F nextField<F extends ModelType<dynamic, dynamic>>(F currentField) {
+    final fieldIdx = _currentFields.indexWhere(
+      (_currentField) => identical(_currentField, currentField),
+    );
+    // todo:
+    if (fieldIdx == -1) throw Error();
+    return _nextFields[fieldIdx] as F;
+  }
+
+  S nextState<S>() => _nextState;
 
   @override
-  String toString() => '**ModelUpdate:'
-      '\n Next state: ${_stateUpdate.runtimeType}'
-      '\n Field Updates: ${_fields}';
+  String toString() {
+    var s = 'ModelUpdate:'
+        '\n State: $_currentState -> $_nextState'
+        '\n Fields:';
+    for (var i = 0; i < _currentFields.length; i++) {
+      s += '\n  ${_currentFields[i]} -> ${_nextFields[i]}';
+    }
+    return s;
+  }
 }
