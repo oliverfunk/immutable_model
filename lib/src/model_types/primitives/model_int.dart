@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:valid/valid.dart';
 
 import 'model_value_type.dart';
@@ -7,16 +8,17 @@ class ModelInt extends ModelValueType<ModelInt, int> {
   ModelInt(
     int? initialValue, {
     Validator<int>? validator,
-    required String fieldLabel,
+    required String label,
   }) : super.initial(
           initialValue,
           validator: validator,
-          fieldLabel: fieldLabel,
+          label: label,
         );
 
   ModelInt._next(ModelInt previous, int nextValue)
       : super.constructNext(previous, nextValue);
 
   @override
+  @protected
   ModelInt buildNext(int nextValue) => ModelInt._next(this, nextValue);
 }

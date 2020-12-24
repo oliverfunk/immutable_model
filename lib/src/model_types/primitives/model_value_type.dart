@@ -4,24 +4,24 @@ import '../../model_type.dart';
 
 abstract class ModelValueType<T extends ModelValueType<T, V>, V>
     extends ValidPrimitiveValueType<T, V> with ModelType<T, V> {
-  final String _fieldLabel;
+  final String _label;
 
   ModelValueType.initial(
     V? initialValue, {
     Validator<V>? validator,
-    required String fieldLabel,
-  })   : _fieldLabel = fieldLabel,
+    required String label,
+  })   : _label = label,
         super.initial(
           initialValue,
           validator: validator,
         );
 
   ModelValueType.constructNext(T previous, V nextValue)
-      : _fieldLabel = previous._fieldLabel,
+      : _label = previous._label,
         super.constructNext(previous, nextValue);
 
   @override
-  String get label => _fieldLabel;
+  String get label => _label;
 
   @override
   dynamic serializer(V currentValue) => currentValue;

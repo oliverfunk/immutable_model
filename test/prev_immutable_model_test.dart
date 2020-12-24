@@ -2432,8 +2432,8 @@
 //         }),
 //       );
 //     });
-//     test("Checking fieldLabels and numberOfFields", () {
-//       expect(simpleModel.fieldLabels, equals(["an_int", "a_dbl", "a_str"]));
+//     test("Checking labels and numberOfFields", () {
+//       expect(simpleModel.labels, equals(["an_int", "a_dbl", "a_str"]));
 //       expect(simpleModel.numberOfFields, equals(3));
 //     });
 //     test("Checking model and value getters", () {
@@ -2467,7 +2467,7 @@
 //             (modelMap["an_int"].value as int),
 //       );
 //       final joined = m.join(toJoin);
-//       expect(joined.fieldLabels, equals(['an_int', 'a_dbl', 'a_str']));
+//       expect(joined.labels, equals(['an_int', 'a_dbl', 'a_str']));
 //       expect(joined.currentState, equals(const SomeAState()));
 //       expect(joined['an_int'], equals(5));
 //       expect(joined['a_dbl'], equals(0.5));

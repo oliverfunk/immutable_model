@@ -6,8 +6,8 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
   // final ModelInner<TestModel> mi;
 
   TestModel()
-      : name = ModelString('Oliver', fieldLabel: 'name'),
-        age = ModelInt(2, validator: (n) => n >= 0, fieldLabel: 'age'),
+      : name = ModelString('Oliver', label: 'name'),
+        age = ModelInt(2, validator: (n) => n >= 0, label: 'age'),
         super.initial(initialState: const TestModelStateA());
 
   TestModel._next(
@@ -18,8 +18,8 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
 
   @override
   TestModel build(ModelUpdate modelUpdate) => TestModel._next(
-        modelUpdate.nextField(name),
-        modelUpdate.nextField(age),
+        modelUpdate.getField(name),
+        modelUpdate.getField(age),
         modelUpdate,
       );
 
@@ -28,7 +28,7 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
 
   @override
   ModelValidator get validator =>
-      (mu) => mu.nextField(name).value!.length >= mu.nextField(age).value!;
+      (mu) => mu.getField(name).value!.length >= mu.getField(age).value!;
 
   @override
   bool get strictUpdates => true;
@@ -59,13 +59,13 @@ void main(List<String> args) {
   );
   print(tm.transitionTo(const TestModelStateB()));
 
-  final tinner = ModelInner(tm, fieldLabel: 'testmod');
+  final tinner = ModelInner(tm, label: 'testmod');
   print(tinner);
   print(
     tinner.next(
       tm.updateFields(
         fieldUpdates: [
-          FieldUpdate(field: tm.name, update: 'Funk'),
+          FieldUpdate(field: tm.name.next('brenner'), update: 'Funk'),
           FieldUpdate(field: tm.age, update: 1),
         ],
       ),

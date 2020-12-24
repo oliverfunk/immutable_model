@@ -11,11 +11,11 @@ class ModelPassword extends ModelValueType<ModelPassword, String>
 
   ModelPassword(
     String? passwordString, {
-    String fieldLabel = 'password',
+    String label = 'password',
   }) : super.initial(
           passwordString,
           validator: validator,
-          fieldLabel: fieldLabel,
+          label: label,
         );
 
   ModelPassword._next(ModelPassword previous, String value)

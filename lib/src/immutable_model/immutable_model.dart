@@ -20,19 +20,19 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
 
   ImmutableModel.initial({
     S? initialState,
-  }) : currentState = initialState ?? DefaultModelState() as S {
+  }) : currentState = initialState ?? const DefaultModelState() as S {
     // check if the fields has been set and all have unique labels
     assert(
       fields.isNotEmpty,
       'Fields must be provided',
     );
     assert(
-      fields.map((e) => e.label).toSet().length ==
-          fields.map((e) => e.label).length,
+      fields.map((f) => f.label).toSet().length ==
+          fields.map((f) => f.label).length,
       'Every field must have a unique label',
     );
     if (!validate(ModelUpdate(this))) {
-      throw ModelInitializationError(M, fields);
+      throw ModelInitializationError(M);
     }
   }
 

@@ -6,60 +6,16 @@ import '../immutable_model.dart';
 
 /// An [Error] that occurs during the initialization of a model.
 class ModelInitializationError extends Error {
-  final Type model;
-  final List<ModelType> fields;
+  final Type imModel;
 
-  ModelInitializationError(this.model, this.fields);
+  ModelInitializationError(this.imModel);
 
   @override
   String toString() =>
       'ModelInitializationError: Attempting to initialize a model with invalid data'
-      '\n Model: $model'
-      '\n Fields: $fields';
+      '\nCheck the model\'s validator function to make sure the initial field values validate.'
+      '\n For: $imModel';
 }
-
-// /// An [Error] that occurs when a model is being initialized with a value that does not validated.
-// class ModelInitialValidationError extends Error {
-//   final Type modelType;
-//   final dynamic receivedValue;
-
-//   ModelInitialValidationError(this.modelType, this.receivedValue);
-
-//   @override
-//   String toString() => "ModelInitialValidationError\n"
-//       "Attempting to initialize a model with invalid data:\n"
-//       " Model:    $modelType\n"
-//       " Received: $receivedValue";
-// }
-
-// /// An [Error] that occurs when a model is being updated with a value that does not match the model's [ModelType.valueType].
-// class ModelTypeError extends Error {
-//   final ModelType thisModel;
-//   final dynamic receivedValue;
-
-//   ModelTypeError(this.thisModel, this.receivedValue);
-
-//   @override
-//   String toString() => "ModelTypeError\n"
-//       "Expected type <${thisModel.valueType}> but received <${receivedValue.runtimeType}>.\n"
-//       " This model:     $thisModel\n"
-//       " Received value: $receivedValue";
-// }
-
-// /// An [Error] that occurs when an [EnumModel] is updated
-// /// with a string that does not match any of the internal enums.
-// class ModelEnumError extends Error {
-//   final dynamic receivedValue;
-//   final List<String> availableValues;
-
-//   ModelEnumError(this.receivedValue, this.availableValues);
-
-//   @override
-//   String toString() => "ModelEnumError\n"
-//       "Received value not one of the enums values\n"
-//       " Received:   $receivedValue\n"
-//       " Available:  $availableValues\n";
-// }
 
 /// An [Error] that occurs when an attempt is made to update an [ImmutableModel]
 /// with an update that was not strict.
@@ -73,15 +29,15 @@ class ModelStrictUpdateError extends Error {
 
 // /// An [Error] that occurs when an attempt is made to access a model that does not exist in a [potentially].
 // class ModelAccessError extends Error {
-//   final Iterable<String> fieldLabels;
+//   final Iterable<String> labels;
 //   final String field;
 
-//   ModelAccessError(this.fieldLabels, this.field);
+//   ModelAccessError(this.labels, this.field);
 
 //   @override
 //   String toString() => "ModelAccessError\n"
 //       "'$field' not in model.\n"
-//       " Available fields are: $fieldLabels";
+//       " Available fields are: $labels";
 // }
 
 // /// An [Error] that occurs when an attempt is made to traverse a level of a state tree's hierarchy,

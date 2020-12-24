@@ -17,8 +17,8 @@ class AuthModel extends ImmutableModel<AuthModel, AuthState> {
 
   @override
   AuthModel build(ModelUpdate modelUpdate) => AuthModel._next(
-        modelUpdate.nextField(email),
-        modelUpdate.nextField(password),
+        modelUpdate.getField(email),
+        modelUpdate.getField(password),
         modelUpdate,
       );
 

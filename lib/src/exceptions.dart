@@ -28,7 +28,7 @@
 //       : super(
 //           ModelInner,
 //           "The update did not contain all fields in the model or some values were null\n"
-//           "  Fields in model:   ${currentModel.fieldLabels}\n"
+//           "  Fields in model:   ${currentModel.labels}\n"
 //           "  Fields in update:  ${update.keys}",
 //         );
 // }

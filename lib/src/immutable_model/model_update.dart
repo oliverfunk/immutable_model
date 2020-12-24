@@ -48,7 +48,7 @@ class ModelUpdate {
     if (nextState != _currentState) _nextState = nextState;
   }
 
-  F nextField<F extends ModelType<dynamic, dynamic>>(F currentField) {
+  F getField<F extends ModelType<dynamic, dynamic>>(F currentField) {
     final fieldIdx = _currentFields.indexWhere(
       (_currentField) => identical(_currentField, currentField),
     );

@@ -1,6 +1,5 @@
-import 'package:valid/valid.dart';
-
-import '../model_types/primitives/model_value_type.dart';
+import 'package:immutable_model/immutable_model.dart';
+import 'package:meta/meta.dart';
 
 /// A model of a valid email address string
 class ModelEmail extends ModelValueType<ModelEmail, String> with ValueType {
@@ -16,16 +15,17 @@ class ModelEmail extends ModelValueType<ModelEmail, String> with ValueType {
   /// Constructs a [ModelValue] of a [String] for an email address [ValueType].
   ModelEmail(
     String? emailString, {
-    String fieldLabel = 'email',
+    String label = 'email',
   }) : super.initial(
           emailString,
           validator: validator,
-          fieldLabel: fieldLabel,
+          label: label,
         );
 
   ModelEmail._next(ModelEmail previous, String value)
       : super.constructNext(previous, value);
 
   @override
+  @protected
   ModelEmail buildNext(String nextValue) => ModelEmail._next(this, nextValue);
 }

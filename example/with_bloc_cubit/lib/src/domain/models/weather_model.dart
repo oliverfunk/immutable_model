@@ -10,7 +10,7 @@ class CityName extends ModelValueType<CityName, String> with ValueType {
   ) : super.initial(
           cityNameString,
           validator: validator,
-          fieldLabel: 'city_name',
+          label: 'city_name',
         );
 
   CityName._next(CityName previous, String value)
@@ -28,7 +28,7 @@ class WeatherModel extends ImmutableModel<WeatherModel, WeatherState> {
       : cityName = CityName('Cape Town'),
         weatherData = ModelInner(
           WeatherDataModel(),
-          fieldLabel: 'weather_data',
+          label: 'weather_data',
         ),
         super.initial(
           initialState: const WeatherInitial(),
@@ -42,8 +42,8 @@ class WeatherModel extends ImmutableModel<WeatherModel, WeatherState> {
 
   @override
   WeatherModel build(ModelUpdate modelUpdate) => WeatherModel._next(
-        modelUpdate.nextField(cityName),
-        modelUpdate.nextField(weatherData),
+        modelUpdate.getField(cityName),
+        modelUpdate.getField(weatherData),
         modelUpdate,
       );
 
@@ -58,8 +58,8 @@ class WeatherDataModel extends ImmutableModel<WeatherDataModel, dynamic> {
   WeatherDataModel([
     double temp = 0.0,
     String description = '',
-  ])  : temperature = ModelDouble(temp, fieldLabel: 'temperature'),
-        weatherDesc = ModelString(description, fieldLabel: 'weather'),
+  ])  : temperature = ModelDouble(temp, label: 'temperature'),
+        weatherDesc = ModelString(description, label: 'weather'),
         super.initial();
 
   WeatherDataModel._next(
@@ -70,8 +70,8 @@ class WeatherDataModel extends ImmutableModel<WeatherDataModel, dynamic> {
 
   @override
   WeatherDataModel build(ModelUpdate modelUpdate) => WeatherDataModel._next(
-        modelUpdate.nextField(temperature),
-        modelUpdate.nextField(weatherDesc),
+        modelUpdate.getField(temperature),
+        modelUpdate.getField(weatherDesc),
         modelUpdate,
       );
 

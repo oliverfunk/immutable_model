@@ -1,3 +1,4 @@
+import 'package:meta/meta.dart';
 import 'package:valid/valid.dart';
 
 import 'model_value_type.dart';
@@ -7,17 +8,18 @@ class ModelDateTime extends ModelValueType<ModelDateTime, DateTime> {
   ModelDateTime(
     DateTime? initialValue, {
     Validator<DateTime>? validator,
-    required String fieldLabel,
+    required String label,
   }) : super.initial(
           initialValue,
           validator: validator,
-          fieldLabel: fieldLabel,
+          label: label,
         );
 
   ModelDateTime._next(ModelDateTime previous, DateTime nextValue)
       : super.constructNext(previous, nextValue);
 
   @override
+  @protected
   ModelDateTime buildNext(DateTime nextValue) =>
       ModelDateTime._next(this, nextValue);
 

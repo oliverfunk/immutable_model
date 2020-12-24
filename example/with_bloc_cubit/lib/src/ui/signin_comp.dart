@@ -12,6 +12,7 @@ class SignInComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final email = context.select((AuthCubit ac) => ac.state.email);
+    final password = context.select((AuthCubit ac) => ac.state.password);
 
     return Form(
       key: _formKey,
@@ -26,7 +27,7 @@ class SignInComponent extends StatelessWidget {
               hintText: 'Enter your email',
             ),
             validator: (value) =>
-                ModelEmail.validator(value!) ? null : 'Enter a valid email',
+                email.validate(value!) ? null : 'Enter a valid email',
           ),
           TextFormField(
             key: _passwordKey,
@@ -34,7 +35,7 @@ class SignInComponent extends StatelessWidget {
               prefixIcon: Icon(Icons.lock_outline, color: Colors.grey),
               hintText: 'Enter an example password',
             ),
-            validator: (value) => ModelPassword.validator(value!)
+            validator: (value) => password.validate(value!)
                 ? null
                 : 'Enter a password that is at least 8 characters long, has one upper case and one lower case letter and one number',
           ),

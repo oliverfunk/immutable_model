@@ -17,38 +17,38 @@ class UserModel extends ImmutableModel<UserModel, UserState> {
       : email = ModelEmail(null),
         enteredText = ModelString(
           '',
-          fieldLabel: 'entered_text',
+          label: 'entered_text',
         ),
         validatedNumber = ModelInt(
           0,
           validator: (n) => n >= 0,
-          fieldLabel: 'validated_number',
+          label: 'validated_number',
         ),
         enteredDouble = ModelDouble(
           13 / 7,
-          fieldLabel: 'entered_double',
+          label: 'entered_double',
         ),
         chosenBool = ModelBool(
           false,
-          fieldLabel: 'chosen_bool',
+          label: 'chosen_bool',
         ),
         chosenEnum = ModelEnum(
           Seasons.Spring,
           enumValues: Seasons.values,
-          fieldLabel: 'chosen_enum',
+          label: 'chosen_enum',
         ),
         dateBegin = ModelDateTime(
           DateTime.utc(2020),
-          fieldLabel: 'date_begin',
+          label: 'date_begin',
         ),
         dateEnd = ModelDateTime(
           DateTime.utc(2020, 1, 2),
-          fieldLabel: 'date_end',
+          label: 'date_end',
         ),
         listOfEvens = ModelList(
           [2, 4, 6, 8],
           validator: (l) => l.every((e) => e.isEven),
-          fieldLabel: 'list_of_evens',
+          label: 'list_of_evens',
         ),
         super.initial(initialState: const UserUnauthed());
 
@@ -67,15 +67,15 @@ class UserModel extends ImmutableModel<UserModel, UserState> {
 
   @override
   UserModel build(ModelUpdate modelUpdate) => UserModel._next(
-        modelUpdate.nextField(email),
-        modelUpdate.nextField(enteredText),
-        modelUpdate.nextField(validatedNumber),
-        modelUpdate.nextField(enteredDouble),
-        modelUpdate.nextField(chosenBool),
-        modelUpdate.nextField(chosenEnum),
-        modelUpdate.nextField(dateBegin),
-        modelUpdate.nextField(dateEnd),
-        modelUpdate.nextField(listOfEvens),
+        modelUpdate.getField(email),
+        modelUpdate.getField(enteredText),
+        modelUpdate.getField(validatedNumber),
+        modelUpdate.getField(enteredDouble),
+        modelUpdate.getField(chosenBool),
+        modelUpdate.getField(chosenEnum),
+        modelUpdate.getField(dateBegin),
+        modelUpdate.getField(dateEnd),
+        modelUpdate.getField(listOfEvens),
         modelUpdate,
       );
 
@@ -94,7 +94,7 @@ class UserModel extends ImmutableModel<UserModel, UserState> {
 
   @override
   ModelValidator get validator => (mu) =>
-      mu.nextField(dateBegin).value!.isBefore(mu.nextField(dateEnd).value!);
+      mu.getField(dateBegin).value!.isBefore(mu.getField(dateEnd).value!);
 }
 
 abstract class UserState {
