@@ -20,8 +20,9 @@ class ModelUpdate {
     final fieldIdx = _currentFields.indexWhere(
       (_currentField) => identical(_currentField, currentFieldFor),
     );
-    if (fieldIdx == -1)
+    if (fieldIdx == -1) {
       throw ModelFieldSelectError(currentFieldFor, _currentFields);
+    }
     // _currentFields and _nextFields have the same order
     _nextFields[fieldIdx] = nextField;
   }

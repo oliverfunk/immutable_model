@@ -51,6 +51,7 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   M build(ModelUpdate modelUpdate);
 
   M _next(ModelUpdate modelUpdate) {
+    // todo: logging
     // ImmutableModelLogger.log(modelUpdate);
     if (strictUpdates && !modelUpdate.isStrict()) {
       print('update not strict');
