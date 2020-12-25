@@ -50,11 +50,12 @@ class ModelValueList<V> extends ValidValueListType<ModelValueList<V>, V>
   @override
   List<V>? deserializer(dynamic serialized) {
     if (serialized is Iterable) {
-      // if an item in serialized cannot be deserialized,
-      // an instance of the default model will be used
-      return serialized
-          .map<V>((i) => (validator as ModelValueType).deserializer(i))
-          .toList();
+      final returnList = <V>[];
+      for (var item in serialized) {
+        final mv = (validator as ModelValueType).deserializer(item);
+        if (mv == null) return null;
+        returnList.add(mv);
+      }
     } else {
       return null;
     }

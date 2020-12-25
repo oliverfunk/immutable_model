@@ -201,11 +201,16 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   List<dynamic> get props => [currentState, fields];
 
   @override
-  String toString() {
-    var s = '$M<${currentState.runtimeType}>';
+  String toString() => toIndentableString(0);
+
+  @nonVirtual
+  String toIndentableString(int indentLevel) {
+    final indent = ' ' * indentLevel;
+    var s = '$indent$M<${currentState.runtimeType}>(';
     for (var field in fields) {
-      s += '\n ${field.label}: $field';
+      s += '\n $indent${field.label}: $field';
     }
+    s += '\n$indent)';
     return s;
   }
 }

@@ -1,4 +1,5 @@
 import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/src/model_types/lists/immutable_model_list.dart';
 
 class TestModel extends ImmutableModel<TestModel, TestModelState> {
   final ModelString name;
@@ -30,8 +31,8 @@ class TestModel extends ImmutableModel<TestModel, TestModelState> {
   ModelValidator get validator =>
       (mu) => mu.getField(name).value!.length >= mu.getField(age).value!;
 
-  @override
-  bool get strictUpdates => true;
+  // @override
+  // bool get strictUpdates => true;
 }
 
 abstract class TestModelState {
@@ -65,11 +66,18 @@ void main(List<String> args) {
     tinner.next(
       tm.updateFields(
         fieldUpdates: [
-          FieldUpdate(field: tm.name.next('brenner'), update: 'Funk'),
+          FieldUpdate(field: tm.name, update: 'Funk'),
           FieldUpdate(field: tm.age, update: 1),
         ],
       ),
     ),
   );
   print(tinner.nextWithSerialized(tinner.asSerializable()));
+
+  final a = ImmutableModelList([
+    tm,
+    tm,
+    tm,
+  ], validator: tinner, label: 'field');
+  print(a.nextWithSerialized(a.asSerializable()));
 }

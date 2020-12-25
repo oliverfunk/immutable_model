@@ -49,6 +49,8 @@ class ModelList<V> extends ValidPrimitiveListType<ModelList<V>, V>
       } on TypeError {
         // cast failed
         return null;
+      } on FormatException {
+        return null;
       }
     } else {
       return null;

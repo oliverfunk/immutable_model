@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:valid/valid.dart';
 
-// Serlizable Valid type
+// Serializable Valid type
 
 mixin ModelType<T extends ModelType<T, V>, V> implements ValidType<T, V> {
   String get label;

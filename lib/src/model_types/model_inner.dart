@@ -27,6 +27,10 @@ class ModelInner<M extends ImmutableModel<M, dynamic>>
   ModelInner<M> buildNext(M nextModel) => ModelInner._next(this, nextModel);
 
   @override
+  // the model cannot be null
+  M get value => super.value!;
+
+  @override
   String get label => _label;
 
   @override
@@ -35,5 +39,13 @@ class ModelInner<M extends ImmutableModel<M, dynamic>>
   @override
   // value cannot be null
   M? deserializer(dynamic serialized) =>
-      serialized is Map<String, dynamic> ? value!.fromJson(serialized) : null;
+      serialized is Map<String, dynamic> ? value.fromJson(serialized) : null;
+
+  @override
+  String toString() {
+    var s = 'ModelInner<$M>(';
+    s += '\n${value.toIndentableString(1)}';
+    s += '\n)';
+    return s;
+  }
 }
