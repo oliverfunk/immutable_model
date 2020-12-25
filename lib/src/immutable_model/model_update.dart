@@ -1,3 +1,4 @@
+import 'package:immutable_model/src/errors.dart';
 import 'package:immutable_model/src/immutable_model/field_update.dart';
 import 'package:immutable_model/src/immutable_model/immutable_model.dart';
 
@@ -19,8 +20,8 @@ class ModelUpdate {
     final fieldIdx = _currentFields.indexWhere(
       (_currentField) => identical(_currentField, currentFieldFor),
     );
-    // todo:
-    if (fieldIdx == -1) throw Error();
+    if (fieldIdx == -1)
+      throw ModelFieldSelectError(currentFieldFor, _currentFields);
     // _currentFields and _nextFields have the same order
     _nextFields[fieldIdx] = nextField;
   }
@@ -52,8 +53,9 @@ class ModelUpdate {
     final fieldIdx = _currentFields.indexWhere(
       (_currentField) => identical(_currentField, currentField),
     );
-    // todo:
-    if (fieldIdx == -1) throw Error();
+    if (fieldIdx == -1) {
+      throw ModelFieldSelectError(currentField as ModelType, _currentFields);
+    }
     return _nextFields[fieldIdx] as F;
   }
 

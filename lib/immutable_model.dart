@@ -3,9 +3,7 @@
 /// Using the shorthands defined in [M] is the recommended way of defining [ModelType]'s used in an [ImmutableModel].
 library immutable_model;
 
-// todo: add modelEnumList, ImmutableModelList
-// todo: instead of value value as asbtact make each odel prim abstract: extesnds ModelString as ValueType, solves the naming problem
-//todo: errors and logging, esp for modelupdate not accessing a field : MOdelAccessError
+// todo: add logging
 
 export 'src/errors.dart';
 export 'src/exceptions.dart';

@@ -1,7 +1,3 @@
-// import '../immutable_model.dart';
-// import '../model_types.dart';
-// import 'model_type.dart';
-
 import '../immutable_model.dart';
 
 /// An [Error] that occurs during the initialization of a model.
@@ -17,8 +13,8 @@ class ModelInitializationError extends Error {
       '\n For: $imModel';
 }
 
-/// An [Error] that occurs when an attempt is made to update an [ImmutableModel]
-/// with an update that was not strict.
+/// An [Error] that occurs when an attempt is made to update
+/// an [ImmutableModel] with an update that was not strict.
 class ModelStrictUpdateError extends Error {
   ModelStrictUpdateError();
 
@@ -27,32 +23,23 @@ class ModelStrictUpdateError extends Error {
       'ModelStrictUpdateError: Cannot update, the update is not strict.';
 }
 
-// /// An [Error] that occurs when an attempt is made to access a model that does not exist in a [potentially].
-// class ModelAccessError extends Error {
-//   final Iterable<String> labels;
-//   final String field;
+/// An [Error] that occurs when an attempt is made to update
+/// an [ImmutableModel] with an update that was not strict.
+class ModelFieldSelectError extends Error {
+  final ModelType reqField;
+  final List<ModelType> fields;
 
-//   ModelAccessError(this.labels, this.field);
+  ModelFieldSelectError(this.reqField, this.fields);
 
-//   @override
-//   String toString() => "ModelAccessError\n"
-//       "'$field' not in model.\n"
-//       " Available fields are: $labels";
-// }
+  @override
+  String toString() =>
+      'ModelFieldSelectError: the request field does not match a field instance in the model.'
+      '\n Requested field:  $reqField'
+      '\n Available Fields: $fields';
+}
 
-// /// An [Error] that occurs when an attempt is made to traverse a level of a state tree's hierarchy,
-// /// but the selected model is not a [potentially].
-// class ModelSelectError extends Error {
-//   final String field;
-
-//   ModelSelectError(this.field);
-
-//   @override
-//   String toString() => "ModelSelectError\n"
-//       "Attempting to traverse the state tree but the selected '$field' is not a ModelInner.";
-// }
-
-/// An [Error] that occurs when an attempt is made to update an [ImmutableModel] but the it is in the incorrect state,
+/// An [Error] that occurs when an attempt is made to update
+/// an [ImmutableModel] but the it is in the incorrect state,
 /// as required by the update.
 class ModelStateError extends Error {
   final dynamic currentState;
