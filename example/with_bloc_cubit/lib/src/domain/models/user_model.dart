@@ -2,7 +2,7 @@ import 'package:immutable_model/immutable_model.dart';
 
 enum Seasons { Spring, Summer, Winter, Autumn }
 
-class UserModel extends ImmutableModel<UserModel, UserState> {
+class UserModel extends ImmutableModel<UserModel> {
   final ModelEmail email;
   final ModelString enteredText;
   final ModelInt validatedNumber;
@@ -97,7 +97,7 @@ class UserModel extends ImmutableModel<UserModel, UserState> {
       mu.getField(dateBegin).value!.isBefore(mu.getField(dateEnd).value!);
 }
 
-abstract class UserState {
+abstract class UserState extends ModelState<UserState> {
   const UserState();
 }
 

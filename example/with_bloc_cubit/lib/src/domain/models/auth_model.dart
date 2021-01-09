@@ -1,6 +1,6 @@
 import 'package:immutable_model/immutable_model.dart';
 
-class AuthModel extends ImmutableModel<AuthModel, AuthState> {
+class AuthModel extends ImmutableModel<AuthModel> {
   final ModelEmail email;
   final ModelPassword password;
 
@@ -29,7 +29,7 @@ class AuthModel extends ImmutableModel<AuthModel, AuthState> {
       ];
 }
 
-abstract class AuthState {
+abstract class AuthState extends ModelState<AuthState> {
   const AuthState();
 }
 

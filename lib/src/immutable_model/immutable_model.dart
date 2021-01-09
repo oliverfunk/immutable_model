@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 import 'field_update.dart';
+import 'model_state.dart';
 import 'model_update.dart';
 import '../immutable_model_logger.dart';
 import '../typedefs.dart';
@@ -9,18 +10,17 @@ import '../errors.dart';
 import '../model_type.dart';
 
 /// Default placeholder state for [ImmutableModel]'s
-class DefaultModelState {
+class DefaultModelState extends ModelState<DefaultModelState> {
   const DefaultModelState();
 }
 
 @immutable
-abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
-    extends Equatable {
-  final S currentState;
+abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
+  final ModelState currentState;
 
   ImmutableModel.initial({
-    S? initialState,
-  }) : currentState = initialState ?? const DefaultModelState() as S {
+    ModelState initialState = const DefaultModelState(),
+  }) : currentState = initialState {
     // check if the fields has been set and all have unique labels
     assert(
       fields.isNotEmpty,
@@ -72,12 +72,12 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   ///
   /// If [strictUpdates] is `true`, this will not work.
   @nonVirtual
-  M transitionTo(S nextState) =>
-      _next(ModelUpdate(this)..setNextState(nextState));
+  M transitionTo<S>(ModelState<S> nextState) =>
+      _next(ModelUpdate(this)..setNextState<S>(nextState));
 
   @nonVirtual
-  M updateFieldAndTransitionTo(
-    S nextState, {
+  M updateFieldAndTransitionTo<S>(
+    ModelState<S> nextState, {
     required ModelType field,
     required dynamic update,
   }) {
@@ -85,7 +85,7 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
     _update.addFieldUpdate(
       FieldUpdate(field: field, update: update),
     );
-    _update.setNextState(nextState);
+    _update.setNextState<S>(nextState);
     return _next(_update);
   }
 
@@ -97,8 +97,8 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
       updateFieldAndTransitionTo(currentState, field: field, update: update);
 
   @nonVirtual
-  M updateFieldIfIn(
-    S inState, {
+  M updateFieldIfIn<S>(
+    ModelState<S> inState, {
     required ModelType field,
     required dynamic update,
   }) =>
@@ -106,17 +106,18 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
           ? updateField(field: field, update: update)
           : throw ModelStateError(currentState, inState);
 
-  /// Sets the [currentState] to [nextState] and updates the models values specified by [updates].
+  /// Sets the [currentState] to [nextState] and
+  /// updates the models values specified by [updates].
   @nonVirtual
-  M updateFieldsAndTransitionTo(
-    S nextState, {
+  M updateFieldsAndTransitionTo<S>(
+    ModelState<S> nextState, {
     required List<FieldUpdate> fieldUpdates,
   }) {
     final _update = ModelUpdate(this);
     for (var fieldUpdate in fieldUpdates) {
       _update.addFieldUpdate(fieldUpdate);
     }
-    _update.setNextState(nextState);
+    _update.setNextState<S>(nextState);
     return _next(_update);
   }
 
@@ -127,8 +128,8 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
       updateFieldsAndTransitionTo(currentState, fieldUpdates: fieldUpdates);
 
   @nonVirtual
-  M updateFieldsIfIn(
-    S inState, {
+  M updateFieldsIfIn<S>(
+    ModelState<S> inState, {
     required List<FieldUpdate> fieldUpdates,
   }) =>
       currentState.runtimeType == inState.runtimeType
@@ -136,15 +137,15 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
           : throw ModelStateError(currentState, inState);
 
   @nonVirtual
-  M resetFieldsAndTransitionTo(
-    S nextState, {
+  M resetFieldsAndTransitionTo<S>(
+    ModelState<S> nextState, {
     required List<ModelType> fieldsToReset,
   }) {
     final _update = ModelUpdate(this);
     for (var fieldToReset in fieldsToReset) {
       _update.addUpdatedField(fieldToReset, fieldToReset.reset());
     }
-    _update.setNextState(nextState);
+    _update.setNextState<S>(nextState);
     return _next(_update);
   }
 
@@ -161,10 +162,11 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
         fieldsToReset: fields,
       );
 
-  /// Resets all the models in this to their [ModelType.initial] instance and sets the [currentState] to [nextState].
+  /// Resets all the models in this to their [ModelType.initial]
+  /// instance and sets the [currentState] to [nextState].
   @nonVirtual
-  M resetAllAndTransitionTo(
-    S nextState,
+  M resetAllAndTransitionTo<S>(
+    ModelState<S> nextState,
   ) =>
       resetFieldsAndTransitionTo(nextState, fieldsToReset: fields);
 
@@ -207,7 +209,7 @@ abstract class ImmutableModel<M extends ImmutableModel<M, S>, S>
   @nonVirtual
   String toIndentableString(int indentLevel) {
     final indent = ' ' * indentLevel;
-    var s = '$indent$M<${currentState.runtimeType}>(';
+    var s = '$indent$M<$currentState>(';
     for (var field in fields) {
       s += '\n $indent${field.label}: $field';
     }

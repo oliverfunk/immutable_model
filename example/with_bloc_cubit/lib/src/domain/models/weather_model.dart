@@ -20,7 +20,7 @@ class CityName extends ModelValueType<CityName, String> with ValueType {
   CityName buildNext(String nextValue) => CityName._next(this, nextValue);
 }
 
-class WeatherModel extends ImmutableModel<WeatherModel, WeatherState> {
+class WeatherModel extends ImmutableModel<WeatherModel> {
   final CityName cityName;
   final ModelInner<WeatherDataModel> weatherData;
 
@@ -51,7 +51,7 @@ class WeatherModel extends ImmutableModel<WeatherModel, WeatherState> {
   List<ModelType<ModelType, dynamic>> get fields => [cityName, weatherData];
 }
 
-class WeatherDataModel extends ImmutableModel<WeatherDataModel, dynamic> {
+class WeatherDataModel extends ImmutableModel<WeatherDataModel> {
   final ModelDouble temperature;
   final ModelString weatherDesc;
 
@@ -82,7 +82,7 @@ class WeatherDataModel extends ImmutableModel<WeatherDataModel, dynamic> {
       ];
 }
 
-abstract class WeatherState {
+abstract class WeatherState extends ModelState<WeatherState> {
   const WeatherState();
 }
 

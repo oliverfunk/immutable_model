@@ -1,14 +1,14 @@
-import 'package:immutable_model/src/errors.dart';
-import 'package:immutable_model/src/immutable_model/field_update.dart';
-import 'package:immutable_model/src/immutable_model/immutable_model.dart';
-
+import 'immutable_model.dart';
+import 'model_state.dart';
+import 'field_update.dart';
+import '../errors.dart';
 import '../model_type.dart';
 
 class ModelUpdate {
   final List<ModelType> _currentFields;
   final List<ModelType> _nextFields;
-  final dynamic _currentState;
-  dynamic _nextState;
+  final ModelState _currentState;
+  ModelState _nextState;
 
   ModelUpdate(ImmutableModel currentModel)
       : _currentFields = List<ModelType>.unmodifiable(currentModel.fields),
@@ -46,8 +46,14 @@ class ModelUpdate {
     addUpdatedField(fieldUpdate.field, updatedField);
   }
 
-  void setNextState(nextState) {
-    if (nextState != _currentState) _nextState = nextState;
+  void setNextState<S>(ModelState<S> nextState) {
+    if (_currentState == nextState) return;
+    if (_currentState.transitionableStates.contains(S) ||
+        _currentState.transitionableStates.contains(nextState.runtimeType)) {
+      _nextState = nextState;
+    } else {
+      // todo: log
+    }
   }
 
   F getField<F extends ModelType<dynamic, dynamic>>(F currentField) {
@@ -60,7 +66,7 @@ class ModelUpdate {
     return _nextFields[fieldIdx] as F;
   }
 
-  S nextState<S>() => _nextState;
+  ModelState nextState<S>() => _nextState;
 
   @override
   String toString() {

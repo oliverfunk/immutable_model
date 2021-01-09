@@ -5,7 +5,7 @@ import '../../immutable_model/immutable_model.dart';
 import '../../model_type.dart';
 import '../model_inner.dart';
 
-class ImmutableModelList<M extends ImmutableModel<M, dynamic>>
+class ImmutableModelList<M extends ImmutableModel<M>>
     extends ValidValueListType<ImmutableModelList<M>, M>
     with ModelType<ImmutableModelList<M>, List<M>> {
   final String _label;

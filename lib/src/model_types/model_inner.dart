@@ -4,7 +4,7 @@ import 'package:valid/valid.dart';
 
 import '../immutable_model/immutable_model.dart';
 
-class ModelInner<M extends ImmutableModel<M, dynamic>>
+class ModelInner<M extends ImmutableModel<M>>
     extends ValidValueType<ModelInner<M>, M> with ModelType<ModelInner<M>, M> {
   final String _label;
 

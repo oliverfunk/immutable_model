@@ -31,6 +31,7 @@ export 'src/value_types/model_password.dart';
 export 'src/immutable_model/immutable_model.dart';
 export 'src/immutable_model/field_update.dart';
 export 'src/immutable_model/model_update.dart';
+export 'src/immutable_model/model_state.dart';
 
 // rexport valid
 export 'package:valid/valid.dart';
