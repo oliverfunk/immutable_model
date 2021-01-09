@@ -1,54 +1,66 @@
-// import 'package:immutable_model/immutable_model.dart';
+import 'package:immutable_model/immutable_model.dart';
 
-// class TestModel extends ImmutableModel<TestModel, TestModelState> {
-//   final ModelString name;
-//   final ModelInt age;
-//   // final ModelInner<TestModel> mi;
+class TestModel extends ImmutableModel<TestModel> {
+  final ModelString name;
+  final ModelInt age;
+  // final ModelInner<TestModel> mi;
 
-//   TestModel()
-//       : name = ModelString('Oliver', label: 'name'),
-//         age = ModelInt(2, validator: (n) => n >= 0, label: 'age'),
-//         super.initial(initialState: const TestModelStateA());
+  TestModel()
+      : name = ModelString('Oliver', label: 'name'),
+        age = ModelInt(2, validator: (n) => n >= 0, label: 'age'),
+        super.initial(initialState: const TestModelStateA());
 
-//   TestModel._next(
-//     this.name,
-//     this.age,
-//     ModelUpdate modelUpdate,
-//   ) : super.constructNext(modelUpdate);
+  TestModel._next(
+    this.name,
+    this.age,
+    ModelUpdate modelUpdate,
+  ) : super.constructNext(modelUpdate);
 
-//   @override
-//   TestModel build(ModelUpdate modelUpdate) => TestModel._next(
-//         modelUpdate.getField(name),
-//         modelUpdate.getField(age),
-//         modelUpdate,
-//       );
+  @override
+  TestModel build(ModelUpdate modelUpdate) => TestModel._next(
+        modelUpdate.getField(name),
+        modelUpdate.getField(age),
+        modelUpdate,
+      );
 
-//   @override
-//   List<ModelType> get fields => [name, age];
+  @override
+  List<ModelType> get fields => [name, age];
 
-//   @override
-//   ModelValidator get validator =>
-//       (mu) => mu.getField(name).value!.length >= mu.getField(age).value!;
+  @override
+  ModelValidator get validator {
+    return (mu) => mu.getField(name).value!.length >= mu.getField(age).value!;
+  }
 
-//   // @override
-//   // bool get strictUpdates => true;
-// }
+  // @override
+  // bool get strictUpdates => true;
+}
 
-// abstract class TestModelState {
-//   const TestModelState();
-// }
+abstract class TestModelState extends ModelState<TestModelState> {
+  const TestModelState();
+}
 
-// class TestModelStateA extends TestModelState {
-//   const TestModelStateA();
-// }
+class TestModelStateA extends TestModelState {
+  const TestModelStateA();
+}
 
-// class TestModelStateB extends TestModelState {
-//   final String msg;
-//   const TestModelStateB(this.msg);
-// }
+class TestModelStateB extends TestModelState {
+  final String msg;
+  const TestModelStateB(this.msg);
 
-// void main() {
-//   Map<Type, int> m = {};
-//   m[int] = 2;
-//   print(m);
-// }
+  @override
+  List<Type> get transitionableStates => [TestModelStateC];
+}
+
+class TestModelStateC extends TestModelState {
+  const TestModelStateC();
+
+  @override
+  List<Type> get transitionableStates => [];
+}
+
+void main(List<String> args) {
+  final m = TestModel();
+  print(m
+      .transitionTo(const TestModelStateB('FUCKING LIT'))
+      .transitionTo(const TestModelStateA()));
+}

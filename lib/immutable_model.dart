@@ -3,8 +3,6 @@
 /// Using the shorthands defined in [M] is the recommended way of defining [ModelType]'s used in an [ImmutableModel].
 library immutable_model;
 
-// todo: add logging
-
 export 'src/errors.dart';
 export 'src/exceptions.dart';
 export 'src/typedefs.dart';

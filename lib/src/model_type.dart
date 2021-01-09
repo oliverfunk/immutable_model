@@ -12,6 +12,7 @@ mixin ModelType<T extends ModelType<T, V>, V> implements ValidType<T, V> {
 
     final v = deserializer(serialized);
     if (v == null) {
+      // todo: logging
       // ValidLogger.logException(ModelDeserializationException(T, serialized));
       return this as T;
     }
