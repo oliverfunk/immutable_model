@@ -18,8 +18,8 @@ class TestModel extends ImmutableModel<TestModel> {
 
   @override
   TestModel build(ModelUpdate modelUpdate) => TestModel._next(
-        modelUpdate.getField(name),
-        modelUpdate.getField(age),
+        modelUpdate.forField(name),
+        modelUpdate.forField(age),
         modelUpdate,
       );
 
@@ -28,7 +28,7 @@ class TestModel extends ImmutableModel<TestModel> {
 
   @override
   ModelValidator get validator {
-    return (mu) => mu.getField(name).value!.length >= mu.getField(age).value!;
+    return (mu) => mu.forField(name).value!.length >= mu.forField(age).value!;
   }
 
   // @override

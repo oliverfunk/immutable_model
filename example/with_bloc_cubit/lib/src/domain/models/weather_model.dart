@@ -42,8 +42,8 @@ class WeatherModel extends ImmutableModel<WeatherModel> {
 
   @override
   WeatherModel build(ModelUpdate modelUpdate) => WeatherModel._next(
-        modelUpdate.getField(cityName),
-        modelUpdate.getField(weatherData),
+        modelUpdate.forField(cityName),
+        modelUpdate.forField(weatherData),
         modelUpdate,
       );
 
@@ -70,8 +70,8 @@ class WeatherDataModel extends ImmutableModel<WeatherDataModel> {
 
   @override
   WeatherDataModel build(ModelUpdate modelUpdate) => WeatherDataModel._next(
-        modelUpdate.getField(temperature),
-        modelUpdate.getField(weatherDesc),
+        modelUpdate.forField(temperature),
+        modelUpdate.forField(weatherDesc),
         modelUpdate,
       );
 

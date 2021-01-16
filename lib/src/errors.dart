@@ -26,30 +26,47 @@ class ModelStrictUpdateError extends Error {
 /// An [Error] that occurs when an attempt is made to update
 /// an [ImmutableModel] with an update that was not strict.
 class ModelFieldSelectError extends Error {
-  final ModelType reqField;
+  final ModelType requestedField;
   final List<ModelType> fields;
 
-  ModelFieldSelectError(this.reqField, this.fields);
+  ModelFieldSelectError(this.requestedField, this.fields);
 
   @override
   String toString() =>
-      'ModelFieldSelectError: the request field does not match a field instance in the model.'
-      '\n Requested field:  $reqField'
-      '\n Available Fields: $fields';
+      'ModelFieldSelectError: field "${requestedField.label}" not in model.'
+      '\n Available Fields: ${fields.map((e) => e.label).toList()}';
+}
+
+/// An [Error] that occurs when an attempt is made to transition to
+/// a state not allowed by the current state's
+/// [ModelState.transitionableStates] property.
+class ModelStateTransitionError extends Error {
+  final ModelState currentState;
+  final ModelState requestedState;
+
+  ModelStateTransitionError(this.currentState, this.requestedState);
+
+  @override
+  String toString() =>
+      'ModelStateTransitionError: The requested state cannot be transitioned to from the current state.\n'
+      ' Requested state:      $requestedState\n'
+      ' Current state:        $currentState\n'
+      ' Allowed transitions:  ${currentState.transitionableStates}\n'
+      ' Self transitions:     ${currentState.canSelfTransition}';
 }
 
 /// An [Error] that occurs when an attempt is made to update
 /// an [ImmutableModel] but the it is in the incorrect state,
 /// as required by the update.
-class ModelStateError extends Error {
+class ModelInStateError extends Error {
   final dynamic currentState;
   final dynamic requiredState;
 
-  ModelStateError(this.currentState, this.requiredState);
+  ModelInStateError(this.currentState, this.requiredState);
 
   @override
   String toString() =>
-      'ModelStateError: The model is in an incorrect state and cannot update.\n'
+      'ModelInStateError: The model is in an incorrect state and cannot update.\n'
       ' Current state:  ${currentState.runtimeType}\n'
       ' Required state: ${requiredState.runtimeType}';
 }

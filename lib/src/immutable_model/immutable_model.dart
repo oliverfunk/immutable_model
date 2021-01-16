@@ -31,14 +31,14 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
           fields.map((f) => f.label).length,
       'Every field must have a unique label',
     );
-    if (!validate(ModelUpdate(this))) {
+    if (!validate(ModelUpdate(currentState, fields, currentState, []))) {
       throw ModelInitializationError(M);
     }
   }
 
   ImmutableModel.constructNext(
     ModelUpdate modelUpdate,
-  ) : currentState = modelUpdate.nextState();
+  ) : currentState = modelUpdate.forState();
 
   List<ModelType> get fields;
 
@@ -50,7 +50,17 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
   @protected
   M build(ModelUpdate modelUpdate);
 
-  M _next(ModelUpdate modelUpdate) {
+  M _next<S>(
+    ModelState<S> nextState,
+    List<ModelType> nextFields,
+  ) {
+    final modelUpdate = ModelUpdate<S>(
+      currentState,
+      fields,
+      nextState,
+      nextFields,
+    );
+
     // todo: logging
     // ImmutableModelLogger.log(modelUpdate);
     if (strictUpdates && !modelUpdate.isStrict()) {
@@ -72,22 +82,21 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
   ///
   /// If [strictUpdates] is `true`, this will not work.
   @nonVirtual
-  M transitionTo<S>(ModelState<S> nextState) =>
-      _next(ModelUpdate(this)..setNextState<S>(nextState));
+  M transitionTo<S>(ModelState<S> nextState) => _next<S>(
+        nextState,
+        [],
+      );
 
   @nonVirtual
   M updateFieldAndTransitionTo<S>(
     ModelState<S> nextState, {
     required ModelType field,
     required dynamic update,
-  }) {
-    final _update = ModelUpdate(this);
-    _update.addFieldUpdate(
-      FieldUpdate(field: field, update: update),
-    );
-    _update.setNextState<S>(nextState);
-    return _next(_update);
-  }
+  }) =>
+      _next<S>(
+        nextState,
+        [field(update) as ModelType],
+      );
 
   @nonVirtual
   M updateField({
@@ -102,9 +111,9 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
     required ModelType field,
     required dynamic update,
   }) =>
-      currentState.runtimeType == inState.runtimeType
+      currentState == inState
           ? updateField(field: field, update: update)
-          : throw ModelStateError(currentState, inState);
+          : throw ModelInStateError(currentState, inState);
 
   /// Sets the [currentState] to [nextState] and
   /// updates the models values specified by [updates].
@@ -112,14 +121,13 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
   M updateFieldsAndTransitionTo<S>(
     ModelState<S> nextState, {
     required List<FieldUpdate> fieldUpdates,
-  }) {
-    final _update = ModelUpdate(this);
-    for (var fieldUpdate in fieldUpdates) {
-      _update.addFieldUpdate(fieldUpdate);
-    }
-    _update.setNextState<S>(nextState);
-    return _next(_update);
-  }
+  }) =>
+      _next<S>(
+        nextState,
+        fieldUpdates
+            .map((fu) => fu.field(fu.update) as ModelType)
+            .toList(growable: false),
+      );
 
   @nonVirtual
   M updateFields({
@@ -132,22 +140,21 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
     ModelState<S> inState, {
     required List<FieldUpdate> fieldUpdates,
   }) =>
-      currentState.runtimeType == inState.runtimeType
+      currentState == inState
           ? updateFields(fieldUpdates: fieldUpdates)
-          : throw ModelStateError(currentState, inState);
+          : throw ModelInStateError(currentState, inState);
 
   @nonVirtual
   M resetFieldsAndTransitionTo<S>(
     ModelState<S> nextState, {
     required List<ModelType> fieldsToReset,
-  }) {
-    final _update = ModelUpdate(this);
-    for (var fieldToReset in fieldsToReset) {
-      _update.addUpdatedField(fieldToReset, fieldToReset.reset());
-    }
-    _update.setNextState<S>(nextState);
-    return _next(_update);
-  }
+  }) =>
+      _next<S>(
+        nextState,
+        fieldsToReset
+            .map((e) => e.reset() as ModelType)
+            .toList(growable: false),
+      );
 
   @nonVirtual
   M resetFields({
@@ -184,19 +191,22 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
   }
 
   M fromJson(Map<String, dynamic> jsonMap) {
-    final _update = ModelUpdate(this);
+    // ignore: omit_local_variable_types
+    final List<ModelType> _fieldsFromJson = [];
 
     for (var field in fields) {
       if (jsonMap.containsKey(field.label)) {
-        _update.addUpdatedField(
-          field,
-          field.nextWithSerialized(jsonMap[field.label]),
+        _fieldsFromJson.add(
+          field.nextWithSerialized(jsonMap[field.label]) as ModelType,
         );
       } else {
         // todo: log it
       }
     }
-    return _next(_update);
+    return _next(
+      currentState,
+      _fieldsFromJson,
+    );
   }
 
   @override
@@ -209,11 +219,11 @@ abstract class ImmutableModel<M extends ImmutableModel<M>> extends Equatable {
   @nonVirtual
   String toIndentableString(int indentLevel) {
     final indent = ' ' * indentLevel;
-    var s = '$indent$M<$currentState>(';
+    var str = '$indent$M<$currentState>(';
     for (var field in fields) {
-      s += '\n $indent${field.label}: $field';
+      str += '\n $indent${field.label}: $field';
     }
-    s += '\n$indent)';
-    return s;
+    str += '\n$indent)';
+    return str;
   }
 }

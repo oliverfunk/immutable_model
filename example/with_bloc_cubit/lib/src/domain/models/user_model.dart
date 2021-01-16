@@ -67,15 +67,15 @@ class UserModel extends ImmutableModel<UserModel> {
 
   @override
   UserModel build(ModelUpdate modelUpdate) => UserModel._next(
-        modelUpdate.getField(email),
-        modelUpdate.getField(enteredText),
-        modelUpdate.getField(validatedNumber),
-        modelUpdate.getField(enteredDouble),
-        modelUpdate.getField(chosenBool),
-        modelUpdate.getField(chosenEnum),
-        modelUpdate.getField(dateBegin),
-        modelUpdate.getField(dateEnd),
-        modelUpdate.getField(listOfEvens),
+        modelUpdate.forField(email),
+        modelUpdate.forField(enteredText),
+        modelUpdate.forField(validatedNumber),
+        modelUpdate.forField(enteredDouble),
+        modelUpdate.forField(chosenBool),
+        modelUpdate.forField(chosenEnum),
+        modelUpdate.forField(dateBegin),
+        modelUpdate.forField(dateEnd),
+        modelUpdate.forField(listOfEvens),
         modelUpdate,
       );
 
@@ -94,7 +94,7 @@ class UserModel extends ImmutableModel<UserModel> {
 
   @override
   ModelValidator get validator => (mu) =>
-      mu.getField(dateBegin).value!.isBefore(mu.getField(dateEnd).value!);
+      mu.forField(dateBegin).value!.isBefore(mu.forField(dateEnd).value!);
 }
 
 abstract class UserState extends ModelState<UserState> {

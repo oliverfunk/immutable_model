@@ -3,7 +3,7 @@ import 'package:valid/valid.dart';
 
 // Serializable Valid type
 
-mixin ModelType<T extends ModelType<T, V>, V> implements ValidType<T, V> {
+mixin ModelType<T extends ModelType<T, V>, V> on ValidType<T, V> {
   String get label;
 
   @nonVirtual

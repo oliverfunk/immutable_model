@@ -9,6 +9,8 @@ abstract class ModelState<S> extends Equatable {
   @override
   Type get runtimeType => super.runtimeType;
 
+  bool get canSelfTransition => true;
+
   List<Type> get transitionableStates => [S];
 
   @override
