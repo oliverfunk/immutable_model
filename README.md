@@ -8,7 +8,7 @@
 
 # Please note: this documentation is deprecated.
 
-### This idea needs to be rethought and I think a vaslty simplifed version might be useful. Currently, it's not.
+### This idea needs to be rethought and I think a vaslty simplifed version might be useful. Currently, it's not. Also, models no loger use map, they are proper classes that extend ImmutableModel (see the examples).
 
 ### Please see [valid](https://github.com/oliverfunk/valid) for creating valid, immutable types.
 
