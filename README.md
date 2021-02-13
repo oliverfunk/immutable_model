@@ -6,6 +6,12 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![style: effective dart](https://img.shields.io/badge/style-effective_dart-40c4ff.svg)](https://pub.dev/packages/effective_dart)
 
+# Please note: this documentation is deprecated.
+
+### This idea needs to be rethought and I think a vaslty simplifed version might be useful. Currently, it's not.
+
+### Please see [valid](https://github.com/oliverfunk/valid) for creating valid, immutable types.
+
 Make better models
 
 This package helps build valid, immutable state models in a succinct way (with no code generation) that are interoperable between commonly used state management systems and that support serialization to and from JSON out of the box.

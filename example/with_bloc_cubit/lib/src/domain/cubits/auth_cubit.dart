@@ -32,7 +32,6 @@ class AuthCubit extends Cubit<AuthModel> {
         ),
       ],
     ));
-    print(state);
     // do some authorization using auth repo functions
     final didAuth = await _authUser(
       email.asSerializable(),

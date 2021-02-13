@@ -51,7 +51,6 @@ class WeatherCubit extends Cubit<WeatherModel> {
       final weatherDataModel = await _weatherRepository.fetchWeatherData(
         cityName.asSerializable(),
       );
-      print("THIS IS THE WDM: $weatherDataModel");
       emit(state.updateFieldAndTransitionTo(
         const WeatherLoaded(),
         field: state.weatherData,
